@@ -7538,3 +7538,12 @@ select {
 .cine-slide-img.portrait.ken-burns {
   transform: scale(1.07);
 }
+
+/* Diario: controles contenidos dentro de la pausa, sin ocupar el vuelo. */
+#my-diary { margin: 1rem 0; padding: .8rem; border: 1px solid #496575; border-radius: 12px; text-align: left; }
+#my-diary summary { cursor: pointer; color: #bdefff; font-weight: 700; }
+#my-diary section { padding: .7rem 0; border-top: 1px solid #496575; }
+#my-diary p { line-height: 1.5; font-size: .9rem; }
+#my-diary h3 { margin: .4rem 0; font-size: 1rem; }
+#my-diary button { margin: .3rem .5rem .3rem 0; padding: .5rem .8rem; min-height: 44px; border-radius: 8px; border: 1px solid #89b7ca; color: #fff; background: #163542; }
+#my-diary button:disabled { opacity: .45; cursor: not-allowed; }

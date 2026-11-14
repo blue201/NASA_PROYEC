@@ -1450,7 +1450,7 @@ class FlightGameEngine {
       this.ship.setDamage(1.0 - (this.hull / 100));
 
       const fuelMult = isBoosting ? 1.45 : 1.0;
-      this.fuel = Math.max(0, this.fuel - delta * this.mathModel.fuelBurnRate * fuelMult);
+      this.fuel = Math.max(0, this.fuel - delta * this.mathModel.fuelBurnRate * fuelMult * (window.CrewDiary?.modifier('leo')||1));
       this.oxygen = Math.max(0, this.oxygen - delta * this.mathModel.oxygenBurnRate);
       const crew=window.ExpeditionSystems?.state;if(crew){const before=crew.hull;crew.consumeCrew(delta);this.hull=Math.max(0,this.hull-(before-crew.hull));}
 

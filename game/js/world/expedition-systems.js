@@ -11,7 +11,7 @@
     get resourceFactor(){return this.relaxed?.35:1;}
     get damageFactor(){
       const aerogel = window.NasaPatents?.has('NASA-PAT-8815124') ? 0.6 : 1.0;
-      return (this.relaxed?.3:1)*(1-.15*(window.ExplorationUpgrades?.level('shield')||0))*aerogel;
+      return (window.CrewDiary?.modifier('sofia')||1)*(this.relaxed?.3:1)*(1-.15*(window.ExplorationUpgrades?.level('shield')||0))*aerogel;
     }
     get operational(){return this.fuel>0&&this.oxygen>0&&this.hull>0;}
     resupply(){this.fuel=100;this.oxygen=100;this.hull=100;this.kits=2;this.supplies=100;this.water=100;this.food=100;this.save();}
@@ -29,7 +29,7 @@
       const hallThruster = window.NasaPatents?.has('NASA-PAT-9418291') ? 0.6 : 1.0;
       // 1. Combustible: Proporcional al empuje y régimen de velocidad
       const fuelBurn=(warp?.88:boost?.56:moving?(0.058*speedFactor):cruise?.006:.014)*ecoMult*hallThruster;
-      this.fuel=Math.max(0,this.fuel-dt*this.resourceFactor*fuelBurn);
+      this.fuel=Math.max(0,this.fuel-dt*this.resourceFactor*fuelBurn*(window.CrewDiary?.modifier('leo')||1));
 
       // 2. Oxígeno: Ventilación y depuración de CO2 bajo maniobras
       const eclss = window.NasaPatents?.has('NASA-PAT-7928341') ? 0.5 : 1.0;
@@ -48,6 +48,7 @@
       this.elapsed+=dt;if(this.elapsed>15){this.elapsed=0;this.save();}
     }
     consumeCrew(dt,speedFactor=1.0,ecoMult=1.0){
+      if(window.CrewDiary){window.CrewDiary.tick(this,dt);return;}
       dt=Math.max(0,Math.min(.1,dt));
       const eclss = window.NasaPatents?.has('NASA-PAT-7928341') ? 0.5 : 1.0;
       // Agua: Hidratación + Refrigerante de toberas térmicas
