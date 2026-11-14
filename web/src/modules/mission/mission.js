@@ -1,9 +1,8 @@
 // Fase 2: misión en órbita lunar, 3 pases sobre el polo sur. Dueño sugerido: dev 2.
-import { state, emit, designTotals, pick, AVIONICS } from '../../state.js';
+import { state, emit, designTotals, pick, AVIONICS, objective, orbit } from '../../state.js';
 
 const PASS_HOURS = 2; // duración de cada órbita/pase (balance de juego)
 const SUNLIT_FRACTION = 0.4; // fracción de la órbita con sol
-const CONTACT_S = 20 * 60; // ventana de contacto con la Tierra por pase
 const CRUISE_KMS = 1.2; // velocidad media de crucero en transferencia directa (aprox.)
 
 export function newMission() {
@@ -21,6 +20,9 @@ export function newMission() {
     rangeKm: today.range_km,
     delayS: today.light_time_s,
     travelDays,
+    objective: objective(),
+    orbit: orbit(),
+    contactS: orbit().contactMin * 60, // ventana de contacto con la Tierra por pase
     parts: {
       power: pick('power', d.power),
       comms: pick('comms', d.comms),
@@ -44,7 +46,7 @@ function runPass(m, { observe, transmit }) {
   const genWh = power.generationW * SUNLIT_FRACTION * PASS_HOURS;
   let useWh = AVIONICS.drawW * PASS_HOURS;
   if (observe) useWh += instrument.drawW * PASS_HOURS;
-  if (transmit) useWh += comms.drawW * (CONTACT_S / 3600);
+  if (transmit) useWh += comms.drawW * (m.contactS / 3600);
 
   const after = m.batteryWh + genWh - useWh;
   if (after < 0) {
@@ -58,11 +60,11 @@ function runPass(m, { observe, transmit }) {
       entry.notes.push(`Observaste el polo sur: +${instrument.dataMbPerPass} MB.`);
     }
     if (transmit) {
-      const capMb = (comms.downlinkKbps * CONTACT_S) / 8 / 1000;
+      const capMb = (comms.downlinkKbps * m.contactS) / 8 / 1000;
       const sent = Math.min(capMb, m.storedMb);
       m.storedMb -= sent;
       m.downlinkedMb += sent;
-      entry.notes.push(`Transmitiste ${sent.toFixed(1)} MB (capacidad ${capMb.toFixed(1)} MB en ${CONTACT_S / 60} min).`);
+      entry.notes.push(`Transmitiste ${sent.toFixed(1)} MB (capacidad ${capMb.toFixed(1)} MB en ${m.contactS / 60} min).`);
     }
   }
   entry.batteryWh = m.batteryWh;
