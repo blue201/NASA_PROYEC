@@ -9,6 +9,7 @@ Juego educativo de diseño de misión lunar, hecho por **Team Rocket HN** para e
 ## Cómo correrlo
 
 ```bash
+cd API
 npm install
 npm run dev
 ```
