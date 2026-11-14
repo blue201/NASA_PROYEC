@@ -1,6 +1,5 @@
 // Fase 2: misión en órbita lunar, 3 pases sobre el polo sur. Dueño sugerido: dev 2.
 import { state, emit, designTotals, pick, AVIONICS } from '../../state.js';
-import horizons from '../../data/cache/horizons-moon.json';
 
 const PASS_HOURS = 2; // duración de cada órbita/pase (balance de juego)
 const SUNLIT_FRACTION = 0.4; // fracción de la órbita con sol
@@ -10,7 +9,7 @@ const CRUISE_KMS = 1.2; // velocidad media de crucero en transferencia directa (
 export function newMission() {
   const t = designTotals();
   const d = state.design;
-  const today = horizons.rows[0];
+  const today = state.data.horizons.rows[0];
   const travelDays = today.range_km / CRUISE_KMS / 86400;
   return {
     pass: 0,

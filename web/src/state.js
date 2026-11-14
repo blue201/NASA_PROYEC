@@ -12,6 +12,7 @@ export const state = {
     propulsion: null,
   },
   mission: null, // lo llena el módulo de misión
+  data: null, // { images, horizons } desde el backend o el caché (ver data/load.js)
 };
 
 const listeners = new Set();

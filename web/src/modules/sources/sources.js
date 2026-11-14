@@ -1,19 +1,20 @@
 // Panel de fuentes de datos (requisito del reto). Dueño sugerido: dev 4.
-import images from '../../data/cache/nasa-images.json';
-import horizons from '../../data/cache/horizons-moon.json';
 import catalog from '../../data/cubesat.json';
+import { state } from '../../state.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
 export function renderSources(root) {
+  const { images, horizons } = state.data;
+  const origin = (d) => (d.origin === 'api' ? 'en vivo desde el backend' : 'caché del repo');
   root.innerHTML = `
     <section class="sources">
       <h2>Fuentes de datos</h2>
       <h3>JPL Horizons</h3>
       <p>Distancia Tierra–Luna y tiempo de luz, usados para el retardo de señal y el tiempo de viaje.
-      Consultado: ${esc(horizons.retrieved_at)}. <a href="${esc(horizons.source_url)}" target="_blank" rel="noopener">Consulta original</a></p>
+      Consultado: ${esc(horizons.retrieved_at)} (${origin(horizons)}). <a href="${esc(horizons.source_url)}" target="_blank" rel="noopener">Consulta original</a></p>
       <h3>NASA Image and Video Library</h3>
-      <p>Consultado: ${esc(images.retrieved_at)}.</p>
+      <p>Consultado: ${esc(images.retrieved_at)} (${origin(images)}).</p>
       <div class="gallery">
         ${images.items
           .map(
