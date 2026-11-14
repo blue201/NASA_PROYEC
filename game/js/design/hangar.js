@@ -133,11 +133,35 @@
     b.addEventListener('click', () => open());
     document.body.appendChild(b);
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addButton);
-  else addButton();
+  // Paso b: todo despegue nuevo pasa por el hangar. El botón "Lanzar misión" de Odyssey
+  // dispara #execute-flight-plan-btn; lo interceptamos en fase de captura, antes que main.js.
+  // Reintentos, rescates y partidas guardadas no pasan por aquí (ya despegaron con un diseño).
+  let bypass = false;
+  function installLaunchGate() {
+    const btn = document.getElementById('execute-flight-plan-btn');
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      if (bypass) { bypass = false; return; }
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      open({
+        onLaunch: (t) => {
+          window.Hangar.lastLaunch = { totals: t, design: Object.assign({}, state.design), at: Date.now() };
+          document.dispatchEvent(new CustomEvent('hangar:launch', { detail: window.Hangar.lastLaunch }));
+          bypass = true;
+          btn.disabled = false;
+          btn.click();
+        },
+      });
+    }, true);
+  }
+
+  function init() { addButton(); installLaunchGate(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 
   window.Hangar = {
-    open, close: () => close(false), ready,
+    open, close: () => close(false), ready, lastLaunch: null,
     get catalog() { return state.catalog; },
     get design() { return state.design; },
     totals: () => (state.catalog ? MD.totals(state.catalog, state.design) : null),
