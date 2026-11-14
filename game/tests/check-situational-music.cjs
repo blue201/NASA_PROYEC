@@ -1,0 +1,11 @@
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),assert=require('node:assert/strict');
+const window={},document={addEventListener(){},getElementById(){return null;}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/audio/situational-music.js'),'utf8'),{window,document});
+const choose=window.SituationalMusic.choose;
+assert.equal(choose({planet:'mars',speed:0}),'ambient');
+for(const [planet,mode] of Object.entries({earth:'bright',mars:'rock',moon:'ambient',neptune:'ambient',jupiter:'epic',saturn:'epic',venus:'epic',mercury:'epic'}))assert.equal(choose({planet,speed:100}),mode);
+assert.equal(choose({planet:'earth',speed:100,hull:20}),'tension');assert.equal(choose({qte:true}),'tension');assert.equal(choose({hull:0}),'tragedy');assert.equal(choose({activity:'flight',speed:50}),'epic');
+const changes=[];window.spaceAudio={_scoreMode:'ambient',setScoreMode(mode){changes.push(mode);}};
+const engine={shipSpeed:100,colliders:[]};window.SituationalMusic.update(engine,'space',1000);window.SituationalMusic.update(engine,'space',3000);assert.equal(changes.length,0);window.SituationalMusic.update(engine,'space',4600);assert.equal(changes[0],'bright');
+window.sofiaTragedy={isActive:true};window.SituationalMusic.update(engine,'space',8000);assert.equal(changes.length,1);
+console.log('PASS: per-planet score, calm at rest, danger/defeat priority, 3.5s hysteresis and no override of embedded movie music.');

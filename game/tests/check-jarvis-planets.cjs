@@ -1,0 +1,7 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const window={PlanetCuriosities:{earth:'Dato de Tierra'},JarvisExtraFacts:{earth:['Segundo dato']}},document={addEventListener(){},getElementById(){return null;},querySelector(){return null;}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/jarvis/jarvis-planets.js'),'utf8'),{window,document,setTimeout,clearTimeout,Promise,Map,Set});
+const j=window.JarvisPlanet;assert.equal(j.parse('IR A JÚPITER').planet,'jupiter');assert.equal(j.parse('ir a Marte').action,'travel');assert.equal(j.parse('borrar archivos').action,null);
+(async()=>{assert.equal(await j.report('earth'),false);let spoken=[];window.odysseyStory={radio:{clearTimers(){},playTransmission(t){spoken.push(t);t.onComplete();}}};assert.equal(await j.analyze('earth'),true);assert.equal(spoken[0].character,'jarvis');await j.report('earth');assert.equal(spoken[1].text,'Segundo dato');assert.equal(await j.report('mars'),false);console.log('PASS: command allowlist, accent handling, post-analysis-only JARVIS narration and rotating facts.');})().catch(e=>{console.error(e);process.exitCode=1;});
+
+(async()=>{let target;window.requestPlanetTravel=key=>{target=key;return true;};for(const phrase of ['ve a la Luna','quiero que vaya a Urano','dirígete a Mercurio']){await j.command(phrase);assert.equal(target,j.parse(phrase).planet);}console.log('PASS: natural travel commands use the active-mode router');})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,0 +1,3 @@
+const assert=require('node:assert/strict'),{parseApod}=require('../services/apod-service.cjs');
+const fixture='<h2 class="display-48 margin-top-0">Nebula &amp; stars</h2><td>October 21, 2026</td><img src="https://assets.science.nasa.gov/dynamicimage/assets/science/cds/apod/apod/2026/october/nebula.png?w=100&amp;h=90"><p><strong>Explanation:</strong>Gas and <b>stars</b>.</p>';
+const d=parseApod(fixture);assert.equal(d.title,'Nebula & stars');assert.equal(d.date,'2026-10-21');assert(d.url.includes('&h=90'));assert.equal(d.explanation,'Gas and stars .');assert.throws(()=>parseApod('<img src="https://nasa.gov/logo.png">'));console.log('PASS: official APOD extraction, publication date, entity decoding and rejection of incomplete/logo-only pages.');

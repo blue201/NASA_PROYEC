@@ -1,0 +1,10 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),THREE=require('../assets/vendor/three-r128.min.js');
+const window={},document={body:{classList:{add(){}}},getElementById:()=>null};vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../js/world/planet-navigation.js'),'utf8'),{window,document,THREE});
+const scene=new THREE.Scene(),mesh=new THREE.Mesh(new THREE.SphereGeometry(30),new THREE.MeshBasicMaterial());mesh.position.set(500,0,3600);scene.add(mesh);
+const e={scene,colliders:[{planetKey:'earth',mesh,radius:30}],shipGroup:new THREE.Group(),camera:new THREE.PerspectiveCamera(66,16/9,.1,100000),keys:{KeyW:true}};
+const n=window.PlanetNavigation;assert.equal(n.arrive(e,'missing'),false);assert.equal(n.arrive(e,'earth'),true);assert.equal(n.getEngine(),e,'arrival must register navigation before the first frame so the destination map opens after takeoff');assert.ok(e.shipGroup.position.distanceTo(mesh.position)>90);assert.equal(e.shipSpeed,0);
+const forward=new THREE.Vector3(-Math.sin(e.cameraYaw)*Math.cos(e.cameraPitch),Math.sin(e.cameraPitch),-Math.cos(e.cameraYaw)*Math.cos(e.cameraPitch));assert.ok(forward.dot(mesh.position.clone().sub(e.shipGroup.position).normalize())>.99999);
+const projected=mesh.position.clone().project(e.camera);e.camera.updateMatrixWorld();assert.ok(mesh.position.clone().project(e.camera).length()<1.01);
+e.shipGroup.position.set(0,0,-40000);n.recover(e);assert.ok(e.shipGroup.position.distanceTo(mesh.position)<150);const pos=e.shipGroup.position.clone();n.recover(e);assert.equal(pos.distanceTo(e.shipGroup.position),0);
+n.go(e,'earth');assert.ok(e.travelShot);assert.equal(e.travelShot.dest.distanceTo(n.pose(e,'earth').dest),0);
+console.log('PASS: safe orbital arrival, camera faces Earth, visible projection, recovery from empty deep space, nearby progress preserved, orbital travel destination.');

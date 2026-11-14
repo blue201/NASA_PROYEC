@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),assert=require('node:assert/strict');
+const timers=new Map(),spoken=[];let counter=0,finished=0;
+const window={spaceAudio:{duckMusic(){}},speechSynthesis:{cancel(){},getVoices:()=>[{name:'Español',lang:'es-MX',voiceURI:'es'}],speak:u=>spoken.push(u)}};
+const context={window,document:{addEventListener(){}},SpeechSynthesisUtterance:class{constructor(text){this.text=text;}},setTimeout(fn){timers.set(++counter,fn);return counter;},clearTimeout(id){timers.delete(id);}};
+for(const file of ['cinematic/cinematic-visuals.js','core/spanish-voices.js','cinematic/crew-dialogue.js'])vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js',file),'utf8'),context);
+const radio=new window.CrewDialogue(),el={};
+radio.play('Objetivo adquirido. No leer este párrafo largo.',{id:'sofia'},el,()=>finished++);
+assert.equal(spoken[0].text,'Objetivo adquirido.');assert.equal(spoken[0].lang,'es-MX');assert.equal(el.textContent,spoken[0].text);
+spoken[0].onend();assert.equal(finished,1);assert.equal(timers.size,0);
+radio.play('En silencio.',{id:'leo'},el,()=>finished++,true);assert.equal(spoken.length,1);radio.next();assert.equal(finished,2);
+radio.play('Adelante.',{id:'marcus'},el,()=>finished++);const stale=spoken[1].onend;radio.cancel();stale();assert.equal(finished,2);
+window.speechSynthesis.getVoices=()=>[{name:'English',lang:'en-US'}];radio.play('Sin voz española.',{id:'sofia'},el,()=>finished++);assert.equal(spoken.length,2);radio.next();assert.equal(finished,3);
+console.log('PASS: short spoken Spanish radio, muted subtitles, speech completion, skip, cancellation and no English fallback.');

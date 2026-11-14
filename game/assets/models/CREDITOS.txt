@@ -1,0 +1,38 @@
+# Modelos incorporados a NASA Odyssey
+
+Fox: PixelMannen (modelo, CC0), tomkranis (rig y animaciones, CC BY 4.0), AsoboStudio y scurest (conversión glTF, CC BY 4.0).
+Fuente: https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Fox
+Licencia: https://creativecommons.org/licenses/by/4.0/
+Adaptación: escala y orientación en el juego; animaciones originales Survey, Walk y Run.
+
+Doe, Hare, Seagull: Gobkit, CC0 1.0.
+https://gobkit.com/freebies · https://gobkit.com/api/free
+Adaptación: escala y reproducción de animaciones; planeo procedural para aves.
+
+Edificios house-a, house-c, house-f y colormap.png: Kenney, City Kit Suburban 2.0, CC0 1.0.
+https://kenney.nl/assets/city-kit-suburban
+Adaptación: agrupación en manzanas y escala.
+
+GLTFLoader y SkeletonUtils: Three.js, MIT, véase assets/vendor/THREE-LICENSE.txt.
+Estos modelos son optimizados para tiempo real; no son escaneos fotogramétricos.
+
+Bird.glb: ave modelada a partir de bird-basemesh y texturizada, riggeada y animada por Fabio Gonzalez (gonzalfj), CC0.
+https://opengameart.org/content/bird
+Adaptación: conversión de Blender a glTF, material PBR basado en textura original y validación de malla.
+
+Additional CC0 models, Gobkit https://gobkit.com/api/free : Squirrel, Boar, Goat; Cretaceous: Ankylosaurus, Carnotaurus, Oviraptor, Pachycephalosaurus, Spinosaurus, Trex, Triceratops. Additional Kenney City Kit Suburban houses b/d/g/h (CC0).
+
+Additional Gobkit CC0: Shark, Elephant, Zebra; https://gobkit.com/api/free
+
+2026-10-26 — Fauna low poly Quaternius, licencia CC0 1.0.
+QDolphin, QFish1/2/3, QMantaray, QShark: https://opengameart.org/content/animated-fish
+QEagle, QWolf: https://opengameart.org/content/animated-animales-low-poly
+QHorse, QLlama, QZebra: https://opengameart.org/content/lowpoly-animated-farm-animal-pack
+Convertidos de Blender a GLB; materiales PBR, colores originales de los materiales y animaciones conservadas.
+
+QWhale: Quaternius, Animated Fish Pack, CC0 — https://opengameart.org/content/animated-fish
+
+2026-11-10 - Fauna definitiva solo con GLB descargados:
+- Stork.glb (ciguena/pelicano) se carga desde assets/models/Stork.glb.
+- Se retiraron todos los modelos animales procedurales. La Tierra usa 51 especies y el Cretacico 14.
+- Cada especie usa los clips originales de su GLB (Idle/Walk/Run/Gallop/Swim/Fly) con mezcla suave.

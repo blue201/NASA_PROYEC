@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="js/core/test-mode.js"></script>
+  <script>try{localStorage.setItem('odyssey_crew_intro_v8','seen');}catch(e){}</script>
+  <script src="js/core/audio-mixer.js"></script>
+  <script src="js/core/nasa-patents.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odyssey | Exploración espacial</title>
+  <meta name="description" content="Explora mundos en 3D, prepara tu nave y completa expediciones con navegación, ciencia y supervivencia.">
+  
+  <!-- Google Fonts: Orbitron, Inter & Share Tech Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/mission-preparation.css">
+  <link rel="stylesheet" href="css/visual-refresh.css">
+
+  <!-- Three.js Core & OrbitControls (Optimizados y Ligeros) -->
+  <script src="assets/vendor/three-r128.min.js"></script>
+  <script src="assets/vendor/OrbitControls-r128.js"></script>
+  <link rel="stylesheet" href="css/cinematic-v2.css">
+</head>
+<body>
+
+  <!-- Fondo Fotorrealista de Escenas de Deriva (Detrás del Canvas 3D) -->
+  <div class="stranded-backdrop-layer" id="stranded-backdrop-layer"></div>
+
+  <!-- Canvas Principal 3D -->
+  <div id="canvas-container"></div>
+
+  <!-- PANTALLA 1: SELECTOR DE PLANETAS, FOTOS REALES NASA & CÁLCULOS MATEMÁTICOS ORBITALES -->
+  <section id="planet-selection-screen" class="screen active">
+    <!-- Barra Superior / Header NASA -->
+    <details id="ship-controls-drawer" hidden inert aria-hidden="true"><summary>☰ Controles de nave</summary>
+    <header class="nasa-topbar">
+      <div class="nasa-branding">
+        <div class="nasa-insignia">
+          <span class="nasa-meatball"></span>
+          <span class="nasa-text">NASA</span>
+        </div>
+        <div class="mission-tag">
+          <span class="pulse-indicator"></span>
+          <span>PROGRAMA ODYSSEY // EXPLORACIÓN PLANETARIA</span>
+        </div>
+      </div>
+      <div class="topbar-center-controls">
+        <button type="button" id="global-cam-switch-btn" class="cam-switch-pill" title="Alternar perspectiva de cámara [V / C]">
+          <span class="cam-icon">🎥</span>
+          <span>CÁMARA: <strong id="global-cam-label">PERSECUCIÓN</strong></span>
+          <span class="cam-key-hint">[V]</span>
+        </button>
+        <button type="button" id="quick-nasa-live-btn" class="cam-switch-pill nasa-quick-pill" title="Abrir Consola de Datos en Vivo NASA [N]">
+          <span>🛰️</span>
+          <span>NASA EN VIVO [N]</span>
+        </button>
+
+        <details class="topbar-more"><summary>Más opciones</summary>
+        <button type="button" id="topbar-nasa-live-btn" class="cam-switch-pill nasa-pill" title="Abrir Consola de Datos en Vivo NASA (APOD, Asteroides NeoWs, Clima Espacial DONKI, InSight)">
+          <span>🛰️</span>
+          <span>CONSOLA NASA [N]</span>
+        </button>
+        <button type="button" id="topbar-radio-comms-btn" class="cam-switch-pill comms-pill" title="Escuchar y ver transmisión de radio de la tripulación">
+          <span>📻</span>
+          <span>COMUNICACIONES [RADIO]</span>
+        </button>
+        <button type="button" id="topbar-padd-roster-btn" class="cam-switch-pill padd-pill" title="Ver tripulación, historia y bitácoras de misión [P]">
+          <span>👥</span>
+          <span>TRIPULACIÓN Y BITÁCORA [P]</span>
+        </button>
+        <button type="button" id="btn-cinematic-tour" class="cam-switch-pill tour-pill" title="Iniciar recorrido cinemático orbital [C]">
+          <span>🎬</span>
+          <span>RECORRIDO ORBITAL [C]</span>
+        </button>
+        </details>
+      </div>
+      <div class="audio-controls">
+        <button type="button" id="btn-soundtrack-toggle" class="cam-switch-pill soundtrack-pill" title="Activar / Pausar Banda Sonora Orquestal Cósmica">
+          <span class="music-icon">🎵</span>
+          <span id="soundtrack-btn-label">MÚSICA: ACTIVAR</span>
+        </button>
+        <button id="toggle-audio-btn" class="icon-btn" title="Activar/Silenciar Audio" aria-label="Audio">
+          <span id="audio-icon">🔊</span>
+        </button>
+      </div>
+    </header>
+    </details>
+
+    <!-- HUD DE DESPLIEGUE DE DRONES DE RECONOCIMIENTO (ESCANEO 3D EN TIEMPO REAL) -->
+    <div class="drone-scan-hud" id="drone-scan-hud" style="display: none;">
+      <div class="drone-hud-backdrop"></div>
+      <div class="drone-hud-box glass-panel">
+        <div class="drone-hud-top">
+          <div class="drone-hud-brand">
+            <span class="drone-hud-radar-dot"></span>
+            <span class="drone-hud-title">ENJAMBRE DE DRONES DE RECONOCIMIENTO // NASA ODYSSEY</span>
+          </div>
+          <span class="drone-hud-percent" id="drone-scan-pct">0%</span>
+        </div>
+
+        <div class="drone-progress-track">
+          <div class="drone-progress-bar" id="drone-progress-bar-fill" style="width: 0%;"></div>
+          <div class="drone-scan-flare"></div>
+        </div>
+
+        <div class="drone-hud-live-status" id="drone-hud-status-text">
+          🛰️ Desplegando enjambre de 3 drones de exploración desde la nave Odyssey...
+        </div>
+
+        <div class="drone-units-row">
+          <div class="drone-unit-pill" id="drone-pill-alpha">
+            <span class="drone-pill-icon">🛸</span>
+            <div class="drone-pill-info">
+              <span class="drone-pill-name">DRONE-01 ALPHA</span>
+              <span class="drone-pill-role" id="drone-alpha-status">Órbita Ecuatorial // Espectrómetro</span>
+            </div>
+            <span class="drone-pill-state active">ENLACE</span>
+          </div>
+
+          <div class="drone-unit-pill" id="drone-pill-beta">
+            <span class="drone-pill-icon">🛰️</span>
+            <div class="drone-pill-info">
+              <span class="drone-pill-name">DRONE-02 BETA</span>
+              <span class="drone-pill-role" id="drone-beta-status">Órbita Polar // Termografía</span>
+            </div>
+            <span class="drone-pill-state active">ENLACE</span>
+          </div>
+
+          <div class="drone-unit-pill" id="drone-pill-gamma">
+            <span class="drone-pill-icon">📡</span>
+            <div class="drone-pill-info">
+              <span class="drone-pill-name">DRONE-03 GAMMA</span>
+              <span class="drone-pill-role" id="drone-gamma-status">Órbita Oblicua // Lunas y Anillos</span>
+            </div>
+            <span class="drone-pill-state active">ENLACE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay Planet Smash con Selector y Panel de Navegación -->
+    <div class="planet-smash-overlay">
+      <div class="orbit-hint">
+        <span class="drag-icon">⟲</span>
+        <span>Arrastra con el ratón para rotar 360° // Tecla V: Cámara // Tecla H: Ocultar Panel</span>
+      </div>
+
+      <!-- Barra de navegación de planetas (Carrusel) -->
+      <nav class="planet-selector-carousel wide-mode" id="planet-carousel">
+        <button class="planet-tab" data-planet="mercury">
+          <span class="planet-thumb mercury-thumb"></span>
+          <div class="tab-meta">
+            <span class="tab-name">Mercurio</span>
+            <span class="tab-sub">Planeta rocoso</span>
+          </div>
+        </button>
+<button class="planet-tab" data-planet="venus">
+          <span class="planet-thumb venus-thumb"></span>
+          <div class="tab-meta">
+            <span class="tab-name">Venus</span>
+            <span class="tab-sub">Atmósfera densa</span>
+          </div>
+        </button>
+<button class="planet-tab" data-planet="earth">
+          <span class="planet-thumb earth-thumb"></span>
+          <div class="tab-meta">
+            <span class="tab-name">Tierra</span>
+            <span class="tab-sub">Origen</span>
+          </div>
+        </button>
+<button class="planet-tab" data-planet="moon">
+          <span class="planet-thumb moon-thumb"></span>
+          <div class="tab-meta">
+            <span class="tab-name">Luna</span>
+            <span class="tab-sub">Satélite natural</span>
+          </div>
+        </button>
+<button class="planet-tab active" data-planet="mars">
+          <span class="planet-thumb mars-thumb"></span>
+          <div class="tab-meta">
+            <span class="tab-name">Marte</span>
+            <span class="tab-sub">Planeta rocoso</span>
+          </div>
+        </button>
+<button class="planet-tab" data-planet="jupiter">
+          <span class="planet-thumb jupiter-thumb"></span>
+          <div class="tab-meta">
+            <span class="tab-name">Júpiter</span>
+            <span class="tab-sub">Gigante gaseoso</span>
+          </div>
+        </button>
+<button class="planet-tab" data-planet="saturn">
+          <span class="planet-thumb saturn-thumb"></span>
+          <div class="tab-meta">
+            <span class="tab-name">Saturno</span>
+            <span class="tab-sub">Sistema de anillos</span>
+          </div>
+        </button>
+<button class="planet-tab" data-planet="uranus"><span class="planet-thumb" style="background:#91d6df"></span><span class="tab-info"><span class="tab-name">Urano</span><span class="tab-type">Gigante helado</span></span></button>
+<button class="planet-tab" data-planet="neptune">
+          <span class="planet-thumb neptune-thumb"></span>
+          <div class="tab-meta">
+            <span class="tab-name">Neptuno</span>
+            <span class="tab-sub">Gigante helado</span>
+          </div>
+        </button>
+      </nav>
+
+      <!-- Botón Flotante para Reabrir Telemetría cuando está Oculta -->
+      <button type="button" id="expand-planet-panel-btn" class="panel-expand-pill-btn" title="Abrir telemetría y controles [H]">
+        <span class="pulse-indicator"></span>
+        <span id="expand-panel-label">📊 TELEMETRÍA Y CONTROLES [H]</span>
+      </button>
+
+      <!-- Panel Lateral Derecho: FOTOS REALES NASA, CÁLCULOS MATEMÁTICOS Y CONDICIONES -->
+      <aside class="planet-info-panel glass-panel collapsed" id="planet-info-card">
+        <div class="panel-header">
+          <div class="panel-header-top">
+            <div class="target-chip">DESTINO DE NAVEGACIÓN // ORIGEN: TIERRA</div>
+            <button type="button" id="toggle-planet-panel-btn" class="panel-toggle-btn" title="Ocultar panel para ver el planeta en 360°">
+              <span>✕ Ocultar</span>
+            </button>
+          </div>
+          <h1 id="target-planet-title" class="glitch-text">MARTE (EL ERIAL ROJO)</h1>
+          <div class="desolation-badge" id="target-desolation-badge">DESOLADO // ERIAL HELADO</div>
+          <p id="target-planet-subtitle" class="panel-desc">El objetivo principal de supervivencia. Antiguos cauces secos azotados por colosales tormentas de polvo de óxido.</p>
+
+          <!-- Pestañas Rápidas para Navegar sin Sobremontar Contenido -->
+          <div class="planet-panel-tabs" id="planet-panel-tabs">
+            <button type="button" class="panel-tab-btn active" data-tab="telemetry">🛰️ TELEMETRÍA</button>
+            <button type="button" class="panel-tab-btn" data-tab="hohmann">🧮 HOHMANN</button>
+            <button type="button" class="panel-tab-btn" data-tab="photo">📷 FOTO NASA</button>
+          </div>
+        </div>
+
+        <!-- FOTOGRAFÍA REAL DE LA NASA -->
+        <div class="nasa-real-photo-card panel-tab-content" id="nasa-real-photo-box" data-tab-section="photo">
+          <div class="photo-header">
+            <div class="photo-header-left">
+              <span class="photo-icon">📷</span>
+              <span id="nasa-photo-mission">NASA Viking 1 // Mosaico de Órbita </span>
+            </div>
+            <span class="badge-4k-pill">ARCHIVO NASA</span>
+          </div>
+          <div class="photo-preview-wrap" id="photo-preview-trigger" title="Haz clic para abrir el Visor de imágenes de la NASA">
+            <img id="nasa-photo-img" src="https://images-assets.nasa.gov/image/PIA00407/PIA00407~large.jpg" alt="Fotografía Real  de la NASA" class="nasa-real-img">
+            <div class="photo-overlay-tag">FOTOGRAFÍA  AUTÉNTICA NASA</div>
+          </div>
+          <p id="nasa-photo-desc" class="photo-caption">Mosaico de 102 imágenes capturadas por el orbitador Viking de la NASA que muestra la cicatriz colosal del cañón Valles Marineris en alta resolución .</p>
+          <button type="button" id="open-photo-modal-btn" class="photo-zoom-btn">🌌 EXPLORAR ARCHIVO  Y MODELOS REALES NASA</button>
+        </div>
+
+        <!-- PANEL DE CÁLCULO MATEMÁTICO ORBITAL VISIBLE Y DETALLADO -->
+        <div class="math-calculator-box panel-tab-content" id="math-calculator-box" data-tab-section="hohmann">
+          <div class="math-header">
+            <span class="math-icon">🧮</span>
+            <span>CÁLCULO MATEMÁTICO ORBITAL (TRAYECTORIA DE HOHMANN)</span>
+          </div>
+          
+          <div class="math-steps-breakdown">
+            <div class="math-step-item">
+              <span class="step-num">1. DISTANCIA EUCLIDIANA:</span>
+              <span class="step-eq">D = √(ΔX² + ΔY²) = <strong class="text-cyan" id="math-step-dist">225,000,000 km</strong></span>
+            </div>
+            <div class="math-step-item">
+              <span class="step-num">2. IMPULSO ORBITAL Δv (HOHMANN):</span>
+              <span class="step-eq">Δv = √(μ/r₁)·[√(2r₂/(r₁+r₂)) - 1] = <strong class="text-cyan" id="math-step-deltav">5.7 km/s</strong></span>
+            </div>
+            <div class="math-step-item">
+              <span class="step-num">3. TIEMPO DE TRÁNSITO CRUCERO (T):</span>
+              <span class="step-eq">T = D / V(1,000 km/s) = <strong class="text-warning" id="math-step-time">62.5 horas de vuelo</strong></span>
+            </div>
+            <div class="math-step-item">
+              <span class="step-num">4. REQUERIMIENTO DE COMBUSTIBLE:</span>
+              <span class="step-eq">Req: <strong class="text-danger" id="math-step-fuel">146.25%</strong> (Déficit: -46.25%)</span>
+            </div>
+            <div class="math-step-item">
+              <span class="step-num">5. CONSUMO DE OXÍGENO VITAL:</span>
+              <span class="step-eq">Req: <strong class="text-danger" id="math-step-oxygen">112.50%</strong> (Déficit: -12.50%)</span>
+            </div>
+          </div>
+
+          <div class="math-risk-notice" id="math-risk-notice">
+            🚨 <strong>ADVERTENCIA MATEMÁTICA:</strong> Los suministros base no alcanzan para el vuelo continuo. <strong>Debes realizar mínimo 2 acoples de reabastecimiento (QTE)</strong> con satélites en ruta. Si fallas los acoples, ¡la nave quedará varada y desolada a la deriva en el vacío!
+          </div>
+
+          <button type="button" id="open-math-modal-btn" class="calc-open-modal-btn glow-effect">
+            <span class="btn-flare"></span>
+            <span>🧮 EJECUTAR CÁLCULOS MATEMÁTICOS DE VUELO (FLIGHT COMPUTER)</span>
+          </button>
+        </div>
+
+        <!-- CONDICIONES FÍSICAS, CIENCIA Y DESOLACIÓN (DESCONOCIDAS HASTA ESCANEAR CON DRONES) -->
+        <div class="conditions-box panel-tab-content active-tab-content" id="planet-conditions-box" data-tab-section="telemetry">
+          <div class="telemetry-header">
+            <span class="telemetry-radar-indicator pulse-radar"></span>
+            <span id="telemetry-status-tag" class="telemetry-status-tag unknown">ESTADO TELEMÉTRICO: ⚠️ DESCONOCIDO</span>
+          </div>
+
+          <!-- SECCIÓN 1: IDENTIDAD Y DESCUBRIMIENTO HISTÓRICO -->
+          <div class="telemetry-subcard">
+            <div class="telemetry-subcard-title">📜 IDENTIDAD Y DESCUBRIMIENTO HISTÓRICO</div>
+            <div class="cond-row">
+              <span class="cond-label">🪐 QUÉ PLANETA ES:</span>
+              <span class="cond-val text-muted" id="tel-planet-identity">[DESCONOCIDO // REQUIERE RECONOCIMIENTO]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">🏷️ CLASIFICACIÓN:</span>
+              <span class="cond-val text-muted" id="tel-planet-class">[DESCONOCIDO // REQUIERE RECONOCIMIENTO]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">📅 CUÁNDO SE DESCUBRIÓ:</span>
+              <span class="cond-val text-muted" id="tel-discovery-date">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">🔭 DESCUBRIDOR:</span>
+              <span class="cond-val text-muted" id="tel-discoverer">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">🚀 MISIÓN PIONERA NASA:</span>
+              <span class="cond-val text-muted" id="tel-historic-mission">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 2: TAMAÑO, MASA Y DIMENSIONES -->
+          <div class="telemetry-subcard">
+            <div class="telemetry-subcard-title">📐 TAMAÑO, MASA Y DIMENSIONES</div>
+            <div class="cond-row">
+              <span class="cond-label">📏 DIÁMETRO ECUATORIAL:</span>
+              <span class="cond-val text-muted" id="tel-diameter">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">⚖️ MASA PLANETARIA:</span>
+              <span class="cond-val text-muted" id="tel-mass">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">🌐 VOLUMEN VS TIERRA:</span>
+              <span class="cond-val text-muted" id="tel-volume">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">⚓ GRAVEDAD SUPERFICIAL:</span>
+              <span class="cond-val text-muted" id="tel-gravity">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 3: TEMPERATURA Y CLIMA EXTREMO -->
+          <div class="telemetry-subcard">
+            <div class="telemetry-subcard-title">🌡️ TEMPERATURA Y CLIMATOLOGÍA</div>
+            <div class="cond-row">
+              <span class="cond-label">🌡️ TEMPERATURA MEDIA:</span>
+              <span class="cond-val text-muted" id="tel-temp">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">🔥 DINÁMICA TÉRMICA:</span>
+              <span class="cond-val text-muted" id="tel-temp-detail">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">💨 PRESIÓN ATMOSFÉRICA:</span>
+              <span class="cond-val text-muted" id="tel-pressure">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">☢️ NIVEL DE RADIACIÓN:</span>
+              <span class="cond-val text-muted" id="tel-radiation">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">🧪 COMPOSICIÓN GASES:</span>
+              <span class="cond-val text-muted" id="tel-composition">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 4: CANTIDAD DE LUNAS Y ENTORNO ORBITAL -->
+          <div class="telemetry-subcard">
+            <div class="telemetry-subcard-title">🪐 CANTIDAD DE LUNAS Y ENTORNO ORBITAL</div>
+            <div class="cond-row">
+              <span class="cond-label">🌕 CANTIDAD DE LUNAS:</span>
+              <span class="cond-val text-muted" id="tel-moon-count">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">🛰️ LUNAS PRINCIPALES:</span>
+              <span class="cond-val text-muted" id="tel-moon-details">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">☄️ CINTURÓN / ANILLOS:</span>
+              <span class="cond-val text-muted" id="tel-planet-asteroids">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row landing-viability-row">
+              <span class="cond-label">🛬 ATERRIZAJE:</span>
+              <span class="cond-val text-muted" id="tel-landing-viability">[DESCONOCIDO // ANÁLISIS REQUERIDO]</span>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 5: HABITABILIDAD HUMANA & INICIATIVA GÉNESIS -->
+          <div class="telemetry-subcard habitability-genesis-subcard">
+            <div class="telemetry-subcard-title">🌱 HABITABILIDAD HUMANA Y ÉXODO NASA</div>
+            <div class="cond-row">
+              <span class="cond-label">🧬 ÍNDICE DE HABITABILIDAD:</span>
+              <span class="cond-val text-muted" id="tel-genesis-score">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="cond-row">
+              <span class="cond-label">🏛️ DICTAMEN DE SOFIA PARKER:</span>
+              <span class="cond-val text-muted" id="tel-genesis-verdict">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+          </div>
+
+          <!-- BOTÓN PARA DESPLEGAR DRONES Y REVELAR DATOS -->
+          <button type="button" id="scan-planet-btn" class="scan-probe-btn glow-effect">
+            <span class="btn-flare"></span>
+            <span class="probe-icon">🛰️</span>
+            <span class="probe-text">DESPLEGAR DRONES DE RECONOCIMIENTO // ANALIZAR PLANETA</span>
+          </button>
+        </div>
+
+        <!-- ANÁLISIS ESPECTROSCÓPICO Y MATERIALES DEL PLANETA (NASA EXPLORATION SENSOR) -->
+        <div class="spectroscopy-box panel-tab-content active-tab-content" id="planet-spectroscopy-box" data-tab-section="telemetry">
+          <div class="spectro-header">
+            <span class="spectro-icon">🔬</span>
+            <span class="spectro-title">ESPECTROGRAFÍA Y MATERIALES DEL PLANETA</span>
+            <span id="scan-status-badge" class="scan-pill unknown">SIN IDENTIFICAR</span>
+          </div>
+
+          <div class="identification-results" id="identification-results">
+            <div class="id-row">
+              <span class="id-label">🏷️ CLASIFICACIÓN:</span>
+              <span class="id-val text-muted" id="scan-planet-class">[DESCONOCIDO // ESCANEE EL PLANETA]</span>
+            </div>
+            <div class="id-row">
+              <span class="id-label">🌈 ESPECTRO / ALBEDO:</span>
+              <span class="id-val text-muted" id="scan-spectral-sig">[ESPECTRO NO SINTETIZADO]</span>
+            </div>
+            <div class="id-row">
+              <span class="id-label">🪐 LUNAS / COMPAÑEROS:</span>
+              <span class="id-val text-muted" id="scan-planet-moons">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="id-row">
+              <span class="id-label">☄️ CINTURÓN DE ASTEROIDES:</span>
+              <span class="id-val text-muted" id="scan-planet-asteroids">[DESCONOCIDO // ESCANEO PENDIENTE]</span>
+            </div>
+            <div class="resource-meter-row">
+              <div class="resource-label-wrap">
+                <span>⛏️ POTENCIAL MINERO Y RECURSOS:</span>
+                <span class="resource-num text-cyan" id="scan-resource-pct">0%</span>
+              </div>
+              <div class="resource-bar-track">
+                <div class="resource-bar-fill" id="scan-resource-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LISTA DINÁMICA DE MATERIALES DETECTADOS -->
+          <div class="materials-section">
+            <div class="materials-title">
+              <span>🧪 ELEMENTOS Y MATERIALES IDENTIFICADOS:</span>
+            </div>
+            <div class="materials-list-container" id="scan-materials-list">
+              <div class="materials-empty-hint" id="materials-empty-hint">
+                🛰️ Despliega la sonda orbital o pulsa el botón de escaneo para identificar qué planeta es y qué materiales y recursos minerales contiene su corteza y atmósfera.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción: Despegue y Exploración Integrada -->
+        <div class="action-dock">
+          <button id="launch-mission-btn" class="launch-btn glow-effect">
+            <span class="btn-flare"></span>
+            <span class="btn-text">INICIAR EXPEDICIÓN</span>
+          </button>
+          <details class="advanced-options"><summary>Herramientas y pruebas</summary>
+          <div class="action-dock-subrow">
+            <button type="button" id="quick-calc-hohmann-btn" class="action-sub-btn">🧮 HOHMANN [T]</button>
+            <button type="button" id="test-landing-btn" class="action-sub-btn">🛬 ATERRIZAJE</button>
+            <button type="button" id="test-stranded-btn" class="action-sub-btn">✨ DERIVA [C]</button>
+          </div>
+          </details>
+          <button type="button" id="explore-space-btn" class="explore-space-btn">EXPLORAR LIBREMENTE</button>
+          <button type="button" id="card-prologue-btn" hidden style="display:none;" aria-hidden="true"></button>
+
+          <button type="button" id="card-nasa-live-btn" class="explore-space-btn" style="margin-top:4px;background:linear-gradient(135deg,rgba(2,132,199,0.3),rgba(0,243,255,0.3));border-color:#00f3ff;color:#e0f2fe;">🛰️ CONSOLA NASA EN VIVO [N]</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- PANTALLA 2: VUELO ESPACIAL (HUD DE NAVEGACIÓN Y SUPERVIVENCIA) -->
+  <section id="flight-hud-screen" class="screen">
+    <!-- HUD Superior: Estado Vital (Casco con Daño Físico, Oxígeno, Combustible) -->
+    <div class="hud-topbar">
+      <button type="button" id="flight-free-explore">Explorar libremente</button>
+      <!-- Integridad del Casco -->
+      <div class="hud-meter-box glass-panel" id="meter-hull-box">
+        <div class="meter-header">
+          <span class="meter-icon">🛡️</span>
+          <span class="meter-title">ESTADO DEL CASCO</span>
+          <span class="meter-num text-success" id="hull-value">100%</span>
+        </div>
+        <div class="meter-track">
+          <div class="meter-fill hull-fill" id="hull-bar" style="width: 100%;"></div>
+        </div>
+        <div class="damage-status-badge" id="damage-status-badge">CASCO INTACTO</div>
+      </div>
+
+      <!-- Oxígeno -->
+      <div class="hud-meter-box glass-panel" id="meter-oxygen-box">
+        <div class="meter-header">
+          <span class="meter-icon">🫧</span>
+          <span class="meter-title">OXÍGENO</span>
+          <span class="meter-num text-cyan" id="oxygen-value">100%</span>
+        </div>
+        <div class="meter-track">
+          <div class="meter-fill oxygen-fill" id="oxygen-bar" style="width: 100%;"></div>
+        </div>
+        <div class="damage-status-badge">SOPORTE VITAL ACTIVO</div>
+      </div>
+
+      <!-- Combustible -->
+      <div class="hud-meter-box glass-panel" id="meter-fuel-box">
+        <div class="meter-header">
+          <span class="meter-icon">⚡</span>
+          <span class="meter-title">COMBUSTIBLE</span>
+          <span class="meter-num text-warning" id="fuel-value">100%</span>
+        </div>
+        <div class="meter-track">
+          <div class="meter-fill fuel-fill" id="fuel-bar" style="width: 100%;"></div>
+        </div>
+        <div class="damage-status-badge">PROPULSIÓN IÓNICA</div>
+      </div>
+
+      <!-- Botón de Modo Cinemático / Nave a la Deriva y Botón de Inmensidad -->
+      <div class="hud-cinema-trigger-wrap" style="display: flex; gap: 0.4rem;">
+        <button type="button" id="flight-toggle-vastness-top-btn" class="flight-hud-cinema-btn glass-panel" title="Alternar Vista Panorámica de la Inmensidad Cósmica [Tecla V]">
+          <span class="cinema-icon">🌌</span>
+          <span class="cinema-label">INMENSIDAD [V]</span>
+        </button>
+        <button type="button" id="flight-force-failure-btn" class="flight-hud-cinema-btn glass-panel" title="Activar cinemática de nave a la deriva [Tecla C]">
+          <span class="cinema-icon">✨</span>
+          <span class="cinema-label">MODO DERIVA [C]</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Indicador Central de Aproximación al Planeta y Etapa de Misión -->
+    <div class="planet-approach-hud glass-panel">
+      <div class="approach-header">
+        <span class="nav-target-name" id="nav-target-name">APROXIMACIÓN: MARTE</span>
+        <span class="nav-distance-text" id="nav-distance-text">225,000,000 km</span>
+      </div>
+      <div class="approach-track">
+        <div class="approach-ship-marker" id="approach-ship-marker" style="left: 0%;">🚀</div>
+        <div class="approach-fill" id="approach-fill" style="width: 0%;"></div>
+        <div class="approach-planet-marker" id="approach-planet-icon">🪐</div>
+      </div>
+      <div class="nav-stage-banner" id="nav-stage-text">
+        ETAPA 1: SALIDA DE LA TIERRA // INYECCIÓN TRANSLUNAR
+      </div>
+      <p id="flight-context-notice" class="flight-context-notice" role="status" aria-live="polite" hidden></p>
+      <div class="cosmic-scale-badge" id="cosmic-scale-badge" style="margin-top: 0.35rem;">
+        <span class="vastness-dot"></span>
+        <span id="cosmic-scale-text">ESCALA CÓSMICA: 1 UA = 149.6M km // VACÍO: 10⁻²⁴ g/cm³ [V]</span>
+      </div>
+    </div>
+
+    <!-- Retícula Central de Vuelo -->
+    <div class="cockpit-crosshair" id="cockpit-crosshair">
+      <div class="crosshair-center"></div>
+      <div class="crosshair-ring"></div>
+      <div class="crosshair-wings left"></div>
+      <div class="crosshair-wings right"></div>
+    </div>
+
+    <!-- Notificaciones y Alertas Holográficas -->
+    <div class="hud-alert-container" id="hud-alert-container"></div>
+
+    <!-- BARRA CONTEXTUAL DE APROXIMACIÓN PLANETARIA Y CONTROL DE VUELO -->
+    <div id="flight-approach-bar" class="flight-approach-bar glass-panel">
+      <div class="approach-left">
+        <span class="radar-ping-dot"></span>
+        <div class="approach-label-wrap">
+          <span class="approach-planet-title" id="approach-planet-title">APROXIMACIÓN: MARTE</span>
+          <span class="approach-dist-val" id="approach-dist-val">225,000,000 km</span>
+        </div>
+      </div>
+      <div class="approach-actions-cluster">
+        <button type="button" id="flight-calc-hohmann-btn" class="approach-btn hohmann" title="Calcular trayectoria de transferencia orbital [Tecla T]">
+          <span class="btn-icon">🧮</span>
+          <span>CALCULAR TRAYECTORIA [T]</span>
+        </button>
+        <button type="button" id="flight-deploy-drones-btn" class="approach-btn drones" title="Desplegar enjambre de 3 drones orbitales [Tecla R]">
+          <span class="btn-icon">🛰️</span>
+          <span>ESCANEAR CON DRONES [R]</span>
+        </button>
+        <button type="button" id="flight-land-direct-btn" class="approach-btn landing" style="display: none;" title="Iniciar descenso atmosférico">
+          <span class="btn-icon">🛬</span>
+          <span>DESCENSO / ATERRIZAJE</span>
+        </button>
+        <button type="button" id="flight-boost-btn" class="approach-btn boost" title="Activar Turbo Boost Relativista [Shift / Espacio]">
+          <span class="btn-icon">⚡</span>
+          <span id="flight-boost-btn-text">TURBO BOOST [SHIFT]</span>
+        </button>
+        <button type="button" id="flight-cam-cycle-btn" class="approach-btn camera" title="Cambiar perspectiva de cámara [Tecla V]">
+          <span class="btn-icon">🎥</span>
+          <span id="flight-cam-name">CÁMARA [V]</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CHIP FLOTANTE DE TELEMETRÍA HOHMANN (Sutil y elegante) -->
+    <div id="flight-hohmann-chip" class="flight-hohmann-chip glass-panel" style="display: none;">
+      <div class="hohmann-chip-header">
+        <span>🧮 TRAYECTORIA HOHMANN BLOQUEADA</span>
+        <button type="button" id="close-hohmann-chip-btn" class="chip-close-btn">✕</button>
+      </div>
+      <div class="hohmann-chip-body">
+        <div class="hchip-row"><span>Δv Total:</span> <strong class="text-cyan" id="hchip-dv">5.7 km/s</strong></div>
+        <div class="hchip-row"><span>Tiempo de Vuelo:</span> <strong class="text-warning" id="hchip-time">62.5 h</strong></div>
+        <div class="hchip-row"><span>Combustible Req:</span> <strong class="text-danger" id="hchip-fuel">146.2%</strong></div>
+        <div class="hchip-row"><span>Arco Orbital:</span> <strong class="text-success">Trazado en 3D ✓</strong></div>
+      </div>
+    </div>
+
+    <details id="flight-science-panel" class="flight-science-panel glass-panel" hidden>
+      <summary>Datos científicos y de navegación</summary>
+      <div class="flight-science-content">
+        <h2 id="science-destination">Destino de la expedición</h2>
+        <p id="science-scan-status"></p>
+        <h3>Navegación · simulación</h3>
+        <dl>
+          <div><dt>Distancia restante</dt><dd id="science-distance"></dd></div>
+          <div><dt>Δv del plan</dt><dd id="science-deltav"></dd></div>
+          <div><dt>Acoples del plan</dt><dd id="science-dockings"></dd></div>
+          <div><dt>Consumo base de combustible</dt><dd id="science-fuel-rate"></dd></div>
+          <div><dt>Consumo de oxígeno</dt><dd id="science-oxygen-rate"></dd></div>
+        </dl>
+        <h3>Catálogo del destino</h3>
+        <dl>
+          <div><dt>Clasificación</dt><dd id="science-class"></dd></div>
+          <div><dt>Diámetro</dt><dd id="science-diameter"></dd></div>
+          <div><dt>Gravedad</dt><dd id="science-gravity"></dd></div>
+          <div><dt>Temperatura</dt><dd id="science-temperature"></dd></div>
+          <div><dt>Atmósfera</dt><dd id="science-atmosphere"></dd></div>
+          <div><dt>Presión</dt><dd id="science-pressure"></dd></div>
+          <div><dt>Radiación</dt><dd id="science-radiation"></dd></div>
+          <div><dt>Lunas</dt><dd id="science-moons"></dd></div>
+          <div><dt>Firma espectral</dt><dd id="science-spectrum"></dd></div>
+        </dl>
+        <p class="science-source-note">Datos del catálogo del juego. Las cifras de navegación y consumo corresponden al modelo de la simulación.</p>
+      </div>
+    </details>
+
+    <!-- Panel de Telemetría Plegado / Oculto para compatibilidad -->
+    <div class="flight-live-math-panel glass-panel collapsed" id="flight-math-panel" style="display: none;">
+      <button type="button" id="toggle-flight-math-btn" style="display:none;"></button>
+      <span id="live-math-dist"></span>
+      <span id="live-math-deltav"></span>
+      <span id="live-math-fuel-rate"></span>
+      <span id="live-math-o2-rate"></span>
+      <span id="live-math-docking"></span>
+      <button type="button" id="flight-scan-planet-btn" style="display:none;"></button>
+      <button type="button" id="flight-force-landing-btn" style="display:none;"></button>
+      <button type="button" id="flight-toggle-vastness-btn" style="display:none;"></button>
+      <button type="button" id="flight-open-gallery-btn" style="display:none;"></button>
+      <button type="button" id="flight-force-failure-btn-bottom" style="display:none;"></button>
+    </div>
+
+    <!-- Footer del HUD -->
+    <footer class="hud-footer">
+      <div class="controls-hint glass-panel">
+        <span class="key-badge">W</span> <span class="key-badge">A</span> <span class="key-badge">S</span> <span class="key-badge">D</span> Maniobra &nbsp;|&nbsp;
+        <span class="key-badge key-badge-turbo">SHIFT / ESPACIO</span> ⚡ TURBO BOOST &nbsp;|&nbsp;
+        <span class="key-badge">V</span> / <span class="key-badge">C</span> Cámaras &nbsp;|&nbsp;
+        <span class="key-badge">T</span> Trayectoria &nbsp;|&nbsp;
+        <span class="key-badge">R</span> Drones &nbsp;|&nbsp;
+        <span>🖱️ Giro 360°</span>
+      </div>
+      <div class="flight-telemetry glass-panel">
+        <div class="flight-speed-indicator">VELOCIDAD: <span class="text-cyan" id="hud-flight-speed">1,000 km/s</span> <span id="hud-boost-tag" class="hud-boost-badge">CRUCERO</span></div>
+        <div>MODELO: <span class="text-amber">ARWING G-DIFFUSER</span></div>
+      </div>
+    </footer>
+  </section>
+
+  <!-- PANTALLA MODAL DE QUICK TIME EVENT (QTE) DE REABASTECIMIENTO -->
+  <div id="qte-overlay" class="qte-modal-backdrop">
+    <div class="qte-card glass-panel">
+      <div class="qte-beacon-header">
+        <div class="docking-radar-pulse"></div>
+        <span class="qte-station-type" id="qte-station-name">TRANSBORDADOR ESPACIAL ORION</span>
+        <h2>MANIOBRA DE ACOPLE // REABASTECIMIENTO</h2>
+        <p>Sincroniza la compuerta de combustible y oxígeno antes de que expire el anillo de tiempo.</p>
+      </div>
+
+      <div class="qte-action-circle">
+        <svg class="qte-svg-timer" viewBox="0 0 120 120">
+          <circle class="qte-timer-bg" cx="60" cy="60" r="52"></circle>
+          <circle class="qte-timer-bar" id="qte-timer-ring" cx="60" cy="60" r="52"></circle>
+        </svg>
+        <div class="qte-key-display" id="qte-key-display">
+          <span id="qte-target-key">ESPACIO</span>
+        </div>
+      </div>
+
+      <div class="qte-status-message" id="qte-status-msg">
+        ¡PREPARA SINCRONIZACIÓN DE COMPUERTA!
+      </div>
+      <div class="qte-penalty-note">
+        Fallo: Expulsión de emergencia con pérdida crítica de combustible (-18%).
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA CINEMÁTICA: ESCENAS EN CASO DE FALLAR (IDÉNTICAS A LA IMAGEN) -->
+  <div id="stranded-deep-space-overlay" class="stranded-cinematic-screen">
+    <!-- Luz y Estrella Central con Lens Flare Anamórfico Horizontal -->
+    <div class="cinematic-anamorphic-flare"></div>
+
+    <!-- Barra de Letras Superior (Cinema Letterbox) con Barra de Herramientas -->
+    <div class="cinema-letterbox top">
+      <div class="cinema-topbar">
+        <div class="cinema-topbar-left">
+          <span class="cinema-badge-pulse"></span>
+          <span class="cinema-brand">NASA ODYSSEY // DIRECTOR CINEMÁTICO</span>
+          <div class="cinema-director-tag">
+            <span class="rec-dot"></span>
+            <span>CAMBIO AUTOMÁTICO DE CÁMARA ACTIVO</span>
+          </div>
+        </div>
+        
+        <div class="cinema-scene-switcher">
+          <button type="button" id="prev-failure-scene-btn" class="cinema-nav-btn" title="Escena anterior">◀</button>
+          <div class="cinema-scene-indicator" id="scene-counter-display">
+            <span class="scene-num-badge" id="scene-counter-badge">ESCENA 1 / 4</span>
+            <span class="scene-sub-title" id="scene-counter-title">Nebulosa de Fuego y Hielo</span>
+          </div>
+          <button type="button" id="next-failure-scene-btn" class="cinema-nav-btn" title="Escena siguiente">▶</button>
+        </div>
+
+        <div class="cinema-topbar-right">
+          <button type="button" id="toggle-free-cam-btn" class="cinema-pill-btn" title="Activar rotación libre con el ratón">
+            <span id="free-cam-icon">🎥</span> <span id="free-cam-text">CÁMARA LIBRE 360°</span>
+          </button>
+          <button type="button" id="toggle-cinema-text-btn" class="cinema-pill-btn" title="Ocultar interfaz para ver la imagen limpia">
+            👁️ PANTALLA LIMPIA
+          </button>
+          <button type="button" id="exit-stranded-btn" class="cinema-pill-btn danger" title="Volver al simulador">
+            ✕ SALIR
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Píldoras de Selección Directa de Escenas -->
+    <div class="failure-scenes-tabs" id="failure-scenes-tabs">
+      <button type="button" class="scene-tab-chip active" data-scene-index="0">
+        <span class="chip-index">1</span>
+        <span class="chip-title">NEBULOSA FUEGO Y HIELO</span>
+      </button>
+      <button type="button" class="scene-tab-chip" data-scene-index="1">
+        <span class="chip-index">2</span>
+        <span class="chip-title">CERO ABSOLUTO 2.7K</span>
+      </button>
+      <button type="button" class="scene-tab-chip" data-scene-index="2">
+        <span class="chip-index">3</span>
+        <span class="chip-title">COLAPSO EN CINTURÓN</span>
+      </button>
+      <button type="button" class="scene-tab-chip" data-scene-index="3">
+        <span class="chip-index">4</span>
+        <span class="chip-title">ABISMO SIN RETORNO</span>
+      </button>
+      <button type="button" class="scene-tab-chip" data-scene-index="4">
+        <span class="chip-index">5</span>
+        <span class="chip-title">🌑 AGUJERO NEGRO SAGITARIO A*</span>
+      </button>
+      <button type="button" class="scene-tab-chip" data-scene-index="5">
+        <span class="chip-index">6</span>
+        <span class="chip-title">🌌 VASTEDAD PROFUNDA JWST</span>
+      </button>
+    </div>
+
+    <!-- Botón Flotante para Restaurar el HUD en Modo Pantalla Limpia -->
+    <button type="button" id="restore-hud-btn" class="restore-hud-btn" style="display: none;">
+      👁️ MOSTRAR CONTROLES
+    </button>
+    
+    <!-- Cuadro Inferior de Información Dramática, Causa del Fallo y Acciones -->
+    <div class="stranded-bottom-caption" id="stranded-caption-box">
+      <div class="stranded-beacon-signal">
+        <span class="beacon-pulse"></span>
+        <span id="stranded-beacon-text">SEÑAL DE BALIZA: MAYDAY // SOPORTE VITAL AGOTADO EN EL CERO ABSOLUTO</span>
+      </div>
+      
+      <div class="failure-cause-pill" id="stranded-cause-pill">
+        ⚠️ CAUSA DEL FALLO: Error de Cálculo en Inyección Orbital Hohmann (Δv insuficiente)
+      </div>
+
+      <h2 class="stranded-title" id="stranded-title-text">NAVE ARWING A LA DERIVA EN EL VACÍO CÓSMICO</h2>
+      
+      <div class="failure-telemetry-strip" id="stranded-telemetry-strip">
+        <span>📍 DISTANCIA: <strong id="stranded-dist-display">225,000,000 km</strong></span>
+        <span>🌡️ TEMP: <strong>-270.4°C (2.75 K)</strong></span>
+        <span>⚡ ESTADO: <strong>MOTORES APAGADOS</strong></span>
+        <span>📡 TELEMETRÍA: <strong>BALIZA PASIVA</strong></span>
+      </div>
+
+      <p class="stranded-desc" id="stranded-desc-text">
+        Cálculos de trayectoria fallidos. Sin combustible y sin oxígeno a 225,000,000 km de la Tierra.
+        Los propulsores se apagaron. La nave flota inerte y congelada en medio de la inmensidad de la nebulosa estelar, en el silencio más absoluto y desolado del universo.
+      </p>
+      
+      <div class="stranded-actions">
+        <button type="button" id="resume-idle-flight-btn" class="launch-btn glow-effect retry-btn resume-action-btn" style="display: none;">
+          <span class="btn-text">▶️ RETOMAR VUELO INMEDIATO [W / A / S / D]</span>
+        </button>
+        <button id="recalculate-mission-btn" class="launch-btn glow-effect retry-btn">
+          <span class="btn-text">RECALCULAR TRAYECTORIA Y REINTENTAR MISIÓN</span>
+        </button>
+        <button id="return-selector-btn" class="secondary-btn">
+          <span>VOLVER AL SELECTOR DE PLANETAS</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Barra de Letras Inferior (Cinema Letterbox) -->
+    <div class="cinema-letterbox bottom">
+      <div class="cinema-footer-hint">
+        <span>[W / A / S / D / ESPACIO] RETOMAR VUELO INMEDIATO • [C] SALIR DEL DIRECTOR • [RATÓN] CÁMARA LIBRE 360°</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 3: MISIÓN COMPLETADA (LLEGADA A LA ÓRBITA) -->
+  <div id="mission-complete-modal" class="endgame-modal">
+    <div class="endgame-card glass-panel">
+      <div class="endgame-badge success-badge">MISIÓN CUMPLIDA</div>
+      <h2 id="complete-planet-name">¡HAS LLEGADO A LA ÓRBITA DE MARTE!</h2>
+      <p>La nave Arwing completó el tránsito interplanetario desde la Tierra a través del campo de asteroides y basura espacial.</p>
+      
+      <div class="endgame-stats-grid">
+        <div class="stat-box">
+          <span class="stat-label">DISTANCIA TOTAL DESDE TIERRA</span>
+          <span class="stat-num text-cyan" id="stat-dist">225,000,000 km</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">REABASTECIMIENTOS EXITOSOS</span>
+          <span class="stat-num text-success" id="stat-dockings">4</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">INTEGRIDAD FINAL DEL CASCO</span>
+          <span class="stat-num text-amber" id="stat-integrity">85%</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">DATOS CIENTÍFICOS</span>
+          <span class="stat-num text-cyan">DESCARGADOS</span>
+        </div>
+      </div>
+
+      <button id="restart-success-btn" class="launch-btn glow-effect">
+        <span class="btn-text">SELECCIONAR NUEVO DESTINO</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 4: GAME OVER (CASCO DESTRUIDO POR COLISIONES) -->
+  <div id="game-over-modal" class="endgame-modal">
+    <div class="endgame-card glass-panel failure-card">
+      <div class="endgame-badge failure-badge">MISIÓN FALLIDA</div>
+      <h2 id="gameover-reason-title">SISTEMA CRÍTICO // CASCO DESTRUIDO</h2>
+      <p id="gameover-reason-desc">El impacto acumulado con asteroides y restos de basura espacial desintegró la estructura de la nave.</p>
+      
+      <div style="display: flex; gap: 0.8rem; margin-top: 1.1rem; width: 100%;">
+        <button id="retry-mission-btn" class="launch-btn glow-effect retry-btn" style="flex: 1;">
+          <span class="btn-text">REINTENTAR MISIÓN</span>
+        </button>
+        <button type="button" id="gameover-view-stranded-btn" class="secondary-btn" style="flex: 1; border-color: var(--color-cyan); color: var(--color-cyan); display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+          <span>🌌</span> <span>VER A LA DERIVA (FUEGO Y HIELO)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 5: SIMULACIÓN DE DESCENSO Y ATERRIZAJE EN EL CAÑÓN PLANETARIO (3D) -->
+  <section id="landing-simulation-screen" class="screen">
+    <!-- Barra Superior de Telemetría de Descenso -->
+    <header class="landing-topbar glass-panel">
+      <div class="landing-site-info">
+        <span class="landing-radar-dot"></span>
+        <span id="landing-stage-title">DESCENSO ATMOSFÉRICO // VALLES MARINERIS</span>
+      </div>
+      <div class="landing-meters-row">
+        <div class="meter-chip">
+          <span class="chip-label">ALTITUD RADAR:</span>
+          <span class="chip-val text-cyan" id="landing-alt-value">65 m</span>
+        </div>
+        <div class="meter-chip">
+          <span class="chip-label">DISTANCIA A PISTA:</span>
+          <span class="chip-val text-warning" id="landing-dist-value">3,000 m</span>
+        </div>
+        <div class="meter-chip speed-chip">
+          <span class="chip-label">VELOCIDAD AÉREA:</span>
+          <span class="chip-val text-warning" id="landing-speed-value">160 m/s</span>
+        </div>
+        <div class="meter-chip brake-chip">
+          <span class="chip-label">RETRO-PROPULSIÓN:</span>
+          <span class="chip-val" id="landing-brake-status">INACTIVO</span>
+        </div>
+        <div class="meter-chip">
+          <span class="chip-label">APROXIMACIÓN:</span>
+          <span class="chip-val text-success" id="landing-track-pct">0%</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Barra de Progreso del Cañón hasta la Pista de Aterrizaje -->
+    <div class="landing-track-box">
+      <div class="landing-track-track">
+        <div class="landing-ship-icon" id="landing-ship-icon" style="left: 0%;">🚀</div>
+        <div class="landing-track-fill" id="landing-track-fill" style="width: 0%;"></div>
+        <div class="landing-base-icon">🏁 BASE NASA</div>
+      </div>
+    </div>
+
+    <!-- Corredor de Velocidad de Descenso y Frenado Gradual -->
+    <div class="speed-corridor-box" id="speed-corridor-box">
+      <div class="speed-corridor-header">
+        <div class="speed-corridor-title">
+          <span class="radar-dot-pulse"></span>
+          <span>CORREDOR DE TOMA DE TIERRA // CONTROL GRADUAL DE VELOCIDAD</span>
+        </div>
+        <div class="speed-corridor-status" id="speed-corridor-status">
+          <span class="status-pill warning">⚡ FRENO REQUERIDO (&gt; 40 m/s)</span>
+        </div>
+      </div>
+      <div class="speed-corridor-bar-track">
+        <div class="speed-corridor-fill" id="speed-corridor-fill" style="width: 72%;"></div>
+        <div class="speed-corridor-safe-zone" title="Zona Segura de Contacto &lt; 40 m/s">
+          <span class="safe-zone-text">TOMA SUAVE &lt; 40 m/s</span>
+        </div>
+      </div>
+      <div class="speed-corridor-subtext">
+        <span>Usa <strong>[ESPACIO]</strong> o <strong>[S]</strong> o mantén pulsado <strong>[RETRO-FRENOS]</strong> para reducir velocidad gradualmente antes de tocar tierra.</span>
+      </div>
+    </div>
+
+    <!-- Banner de Alarma de Terreno (GPWS) -->
+    <div class="terrain-warning-banner" id="terrain-warning-banner">
+      ⚠️ ALERTA GPWS: ¡PROXIMIDAD CRÍTICA AL TERRENO / PAREDES DEL CAÑÓN! ¡CORRIJA ALTITUD!
+    </div>
+
+    <!-- Banner de Estado VTOL: Estacionamiento Vertical -->
+    <div class="vtol-status-hud glass-panel" id="vtol-status-hud">
+      <span class="vtol-radar-dot"></span>
+      <span class="vtol-status-text" id="vtol-status-text">VTOL // ATERRIZAJE Y ESTACIONAMIENTO VERTICAL ACTIVO</span>
+    </div>
+
+    <!-- Retícula de Descenso -->
+    <div class="cockpit-crosshair landing-crosshair">
+      <div class="crosshair-center"></div>
+      <div class="crosshair-ring"></div>
+      <div class="crosshair-wings left"></div>
+      <div class="crosshair-wings right"></div>
+    </div>
+
+    <!-- Controles de Descenso y Pedales de Aceleración/Frenado Gradual -->
+    <footer class="landing-footer glass-panel">
+      <!-- Pedales Interactivos Táctiles/Ratón -->
+      <div class="landing-pedals-row">
+        <button type="button" id="brake-pedal-btn" class="pedal-btn brake-pedal" title="Mantener pulsado para frenar gradualmente">
+          <span class="pedal-icon">🛑</span>
+          <div class="pedal-info">
+            <span class="pedal-title">RETRO-FRENOS GRADUALES</span>
+            <span class="pedal-key-hint">[ESPACIO] / [S] / Mantener Clic</span>
+          </div>
+        </button>
+        <button type="button" id="throttle-pedal-btn" class="pedal-btn throttle-pedal" title="Mantener pulsado para acelerar">
+          <span class="pedal-icon">⚡</span>
+          <div class="pedal-info">
+            <span class="pedal-title">PROPULSORES ADELANTE</span>
+            <span class="pedal-key-hint">[W] / [↑] / Mantener Clic</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="landing-hint">
+        <span class="key-badge">ESPACIO</span> / <span class="key-badge">S</span> Frenado gradual &nbsp;|&nbsp;
+        <span class="key-badge">W</span> Impulso &nbsp;|&nbsp;
+        <span class="key-badge">A</span> <span class="key-badge">D</span> Virar y esquivar obstáculos
+      </div>
+      <div class="landing-status-badge">
+        SISTEMA DE GUÍA ILS: <span class="text-success">CONECTADO</span>
+      </div>
+    </footer>
+  </section>
+
+  <!-- PANTALLA 4: MODO EXPLORACIÓN CÓSMICA LIBRE (GALAXIAS, AGUJEROS NEGROS Y GUÍA IA EN VIVO) -->
+  <section id="space-exploration-screen" class="screen">
+    <!-- Contenedor 3D de Exploración -->
+    <div id="exploration-canvas-container" class="exploration-canvas"></div>
+
+    <!-- Barra Superior de Navegación -->
+    <header class="exploration-topbar">
+      <div class="topbar-left">
+        <button type="button" id="exit-exploration-btn" class="back-btn glass-panel">
+          <span class="icon">⬅</span>
+          <span>REGRESAR AL SISTEMA SOLAR</span>
+        </button>
+      </div>
+
+      <div class="exploration-center-status glass-panel">
+        <span class="status-radar-ping"></span>
+        <div class="status-texts">
+          <span class="status-title">ODYSSEY · EXPLORACIÓN LIBRE</span>
+          <span class="status-sub">NAVEGACIÓN LIBRE 3D • UNIVERSO VISIBLE</span>
+        </div>
+      </div>
+
+      <details id="flight-tools"><summary aria-label="Ajustes">⚙</summary><div class="topbar-right"><small>W avanzar · S reversa · Espacio frenar · Doble A/D: giro 360°</small>
+        <button type="button" id="exploration-music-toggle" class="glass-panel voice-toggle-btn">Música: activar</button>
+        <button type="button" id="exploration-camera-toggle" class="glass-panel voice-toggle-btn">Cabina / Nave · V</button>
+        <button type="button" id="orbital-drone-scan" class="glass-panel voice-toggle-btn">Drones</button>
+        <button type="button" id="expedition-mission" class="glass-panel voice-toggle-btn">Misión de aproximación</button>
+        <button type="button" id="surface-menu-toggle" class="glass-panel voice-toggle-btn">Explorar planeta</button>
+        <button type="button" id="exploration-cinema-toggle" class="glass-panel voice-toggle-btn">Escenas de cine</button>
+
+        <button type="button" id="exploration-map-toggle" class="glass-panel voice-toggle-btn">Destinos · M</button>
+        <button type="button" id="exploration-guide-toggle" class="glass-panel voice-toggle-btn">Ficha · G</button>
+        <!-- Selector/Cambiador de Fondos Fotorrealistas del Universo -->
+        <button type="button" id="toggle-skybox-btn" class="glass-panel skybox-switcher-btn" title="Alternar panorama fotográfico e ilustraciones del espacio">
+          <span class="skybox-icon">🌌</span>
+          <span class="skybox-label">FONDO: <strong id="exploration-skybox-name" class="text-cyan">🔭 Campo Ultra-Profundo Hubble/JWST</strong></span>
+          <span class="skybox-cycle-tag">CAMBIAR ⟳</span>
+        </button>
+
+        <button type="button" id="toggle-exploration-voice-btn" class="glass-panel voice-toggle-btn" title="Activar/Silenciar voz de la computadora">
+          <span class="voice-icon">🎙️</span>
+          <span>VOZ IA: <strong id="exploration-voice-status" class="text-cyan">ACTIVA</strong></span>
+        </button>
+      </div></details>
+    </header>
+
+    <!-- Radar Lateral Flotante: Puntos de Interés Cósmico (Waypoints & Saltos Warp) -->
+    <aside class="exploration-radar-panel glass-panel">
+      <div class="radar-header">
+        <span class="radar-icon">🌌</span>
+        <span class="radar-title">DESTINOS</span>
+      </div>
+      <div class="waypoints-list" id="exploration-waypoints-list">
+        <!-- Generado dinámicamente por SpaceExplorationEngine -->
+      </div>
+    </aside>
+
+    <!-- Panel Inferior: Guía Holográfica del Cosmos (Explicación Dinámica en Vivo de lo que Ves) -->
+    <article class="exploration-guide-panel glass-panel" id="exploration-guide-panel">
+      <div class="guide-header">
+        <div class="guide-badge-row">
+          <span class="guide-icon" id="guide-target-icon">🕳️</span>
+          <div class="guide-title-wrap">
+            <h2 class="guide-title" id="guide-target-title">SAGITARIO A* (CENTRO GALÁCTICO)</h2>
+            <span class="guide-class text-cyan" id="guide-target-class">SUPERAGUJERO NEGRO SUPERMASIVO</span>
+          </div>
+        </div>
+        <div class="guide-header-actions">
+          <div class="guide-distance-badge">
+            <span>DISTANCIA:</span>
+            <strong class="text-amber" id="guide-target-dist">26,670 Años Luz</strong>
+          </div>
+          <button type="button" id="close-guide-panel-btn" class="guide-close-btn" title="Cerrar panel de guía holográfica">✕</button>
+        </div>
+      </div>
+
+      <div class="guide-body">
+        <div class="guide-narrative-box">
+          <div class="ai-speech-indicator">
+            <span class="sound-wave"></span>
+            <span class="ai-speaker-tag">ORACULUM IA // TELEMETRÍA EN DIRECTO:</span>
+          </div>
+          <p class="guide-explanation" id="guide-explanation-text">
+            Acércate a un monumento cósmico o realiza un Salto Warp para recibir el análisis astrofísico en directo.
+          </p>
+        </div>
+
+        <div class="guide-relativity-strip" id="guide-relativity-strip">
+          <!-- Datos dinámicos de masa, temperatura, radiación y dilatación temporal -->
+        </div>
+      </div>
+
+      <div class="guide-footer">
+        <button type="button" id="guide-read-aloud-btn" class="audio-narration-btn">
+          <span>🔊</span> REPETIR EXPLICACIÓN EN VOZ ALTA
+        </button>
+        <span class="guide-source-note">Datos: NASA NuSTAR, Chandra X-Ray Y Event Horizon Telescope (EHT)</span>
+      </div>
+    </article>
+
+    <!-- HUD Inferior Izquierdo: Instrumentos de Vuelo de la Nave -->
+    <div class="explorer-flight-instruments glass-panel">
+      <div class="instrument-meter">
+        <span class="meter-label">VELOCIDAD</span>
+        <span class="meter-val text-cyan" id="hud-explorer-speed">35 km/s</span>
+      </div>
+      <div class="instrument-warp">
+        <span id="hud-explorer-height">0 u · vertical 0 u/s</span>
+        <span class="hud-warp-tag" id="hud-explorer-warp-tag">SUB-LUZ CRUCERO</span>
+      </div>
+      <div class="flight-controls-hint">
+        <span>[W] Avanzar · [S] Retroceder · [A/D] Girar · [Q/E o ↑/↓] Subir/bajar · [Z/X] Lateral · [B] Retroceder &nbsp;|&nbsp; [ESPACIO] Frenar · [SHIFT] Impulso · [V/C] Cabina / detrás · [R] Crucero &nbsp;|&nbsp; Arrastra ratón: orientar</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL: ATERRIZAJE EXITOSO EN EL TERRENO PLANETARIO -->
+  <div id="touchdown-success-modal" class="endgame-modal">
+    <div class="endgame-card glass-panel touchdown-card">
+      <div class="endgame-badge success-badge" id="touchdown-badge">ATERRIZAJE VERTICAL EXITOSO // TOUCHDOWN VTOL</div>
+      <h2 id="touchdown-planet-name">¡HAS ESTACIONADO EN VALLES MARINERIS!</h2>
+      <p id="touchdown-site-desc">La nave Arwing ejecutó con éxito la maniobra de aproximación y flare vertical (VTOL), desplegó su tren de aterrizaje hidráulico y estacionó verticalmente con precisión sobre la plataforma balizada de la NASA.</p>
+      
+      <div class="endgame-stats-grid">
+        <div class="stat-box">
+          <span class="stat-label">SITIO DE TOMA DE TIERRA</span>
+          <span class="stat-num text-cyan" id="touchdown-site-name">VALLES MARINERIS</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">VELOCIDAD DE CONTACTO</span>
+          <span class="stat-num text-success" id="touchdown-speed">32 m/s (Suave)</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">TEMPERATURA SUPERFICIAL</span>
+          <span class="stat-num text-amber" id="touchdown-temp">-63°C</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">CALIDAD DE MANIOBRA</span>
+          <span class="stat-num text-cyan" id="touchdown-quality">⭐⭐⭐ PERFECTO</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">INTEGRIDAD TRAS EL IMPACTO</span>
+          <span class="stat-num text-success" id="touchdown-hull">92%</span>
+        </div>
+      </div>
+
+      <!-- Materiales y Recursos Detectados en el Terreno -->
+      <div class="touchdown-materials-box">
+        <div class="materials-box-header">
+          <span>🧪 MATERIALES Y RECURSOS ENCONTRADOS EN EL SITIO:</span>
+        </div>
+        <div class="touchdown-materials-grid" id="touchdown-materials-grid">
+          <!-- Renderizado dinámico -->
+        </div>
+      </div>
+
+      <button id="touchdown-continue-btn" class="launch-btn glow-effect">
+        <span class="btn-text">REGRESAR A LA BASE (NUEVA MISIÓN)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL DE ESCANEO DE PLANETA EN CABINA DE VUELO -->
+  <div id="flight-scan-modal" class="endgame-modal">
+    <div class="flight-scan-card glass-panel">
+      <div class="scan-modal-header">
+        <div class="scan-modal-title-row">
+          <span class="radar-dot-pulse"></span>
+          <h3>🔬 ANÁLISIS ESPECTROGRÁFICO // ESCANEO DE PLANETA</h3>
+        </div>
+        <button type="button" id="close-flight-scan-btn" class="icon-btn">✕</button>
+      </div>
+      <div class="flight-scan-body">
+        <div class="scan-planet-hero" id="flight-scan-hero">
+          <div class="scan-hero-meta">
+            <h2 id="flight-scan-planet-title">MARTE</h2>
+            <div class="scan-pill" id="flight-scan-class-badge">Planeta Terrestre Clase M</div>
+            <p id="flight-scan-spectral-text">Albedo 0.17 // Óxidos férricos Fe₂O₃</p>
+          </div>
+          <div class="scan-resource-score-wrap">
+            <span class="score-title">POTENCIAL MINERO</span>
+            <span class="score-val text-cyan" id="flight-scan-score-val">88%</span>
+          </div>
+        </div>
+        <div class="flight-scan-materials-wrap">
+          <h4>🧪 RECURSOS Y ELEMENTOS IDENTIFICADOS EN EL PLANETA:</h4>
+          <div class="materials-list-container" id="flight-scan-materials-list">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+      </div>
+      <div class="flight-scan-footer">
+        <button type="button" id="flight-scan-confirm-btn" class="launch-btn glow-effect">
+          <span class="btn-text">CONTINUAR MISIÓN</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- MODAL DE ORDENADOR DE CÁLCULO MATEMÁTICO ORBITAL (NASA FLIGHT DYNAMICS) -->
+  <div id="orbital-math-modal" class="endgame-modal orbital-calc-modal">
+    <div class="orbital-calc-card glass-panel">
+      <!-- Encabezado de la Computadora de Vuelo -->
+      <div class="calc-modal-header">
+        <div class="calc-title-row">
+          <div class="calc-radar-pulse"></div>
+          <div>
+            <h3 class="calc-sys-title">NASA FLIGHT DYNAMICS // ORDENADOR DE CÁLCULO ORBITAL</h3>
+            <div class="calc-route-badge" id="calc-modal-route">
+              RUTA: TIERRA (1.000 AU) ➔ MARTE (225,000,000 km)
+            </div>
+          </div>
+        </div>
+        <button type="button" id="close-orbital-math-btn" class="icon-btn" title="Cerrar ordenador de cálculo">✕</button>
+      </div>
+
+      <!-- Barra de Progreso y Escaneo Matemático en Tiempo Real -->
+      <div class="calc-progress-section">
+        <div class="calc-progress-label-row">
+          <span class="calc-status-text" id="calc-status-indicator">PROCESANDO INTEGRACIÓN ORBITAL KEPLERIANA...</span>
+          <span class="calc-pct-text text-cyan" id="calc-progress-pct">0%</span>
+        </div>
+        <div class="calc-progress-track">
+          <div class="calc-progress-fill" id="calc-progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Grid de Tarjetas de Pasos Matemáticos con Fórmulas Auténticas -->
+      <div class="calc-steps-grid" id="calc-steps-grid">
+        <!-- Paso 1: Geometría Orbital y Posición Espacial -->
+        <div class="calc-step-card" id="calc-step-1">
+          <div class="step-card-header">
+            <span class="step-badge">PASO 01</span>
+            <span class="step-title">GEOMETRÍA ORBITAL Y DISTANCIA EUCLIDIANA</span>
+            <span class="step-lock-tag" id="step-lock-1">CALCULANDO...</span>
+          </div>
+          <div class="step-formula-box">
+            <code>D = √(ΔX² + ΔY² + ΔZ²) | a = (r₁ + r₂) / 2</code>
+          </div>
+          <div class="step-details-grid">
+            <div class="step-stat-item">
+              <span class="stat-lbl">Radio Órbita Tierra (r₁):</span>
+              <span class="stat-val text-cyan" id="cstat-r1">149.60 × 10⁶ km (1.000 AU)</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Radio Órbita Destino (r₂):</span>
+              <span class="stat-val text-cyan" id="cstat-r2">227.94 × 10⁶ km (1.524 AU)</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Semieje Mayor Hohmann (a):</span>
+              <span class="stat-val text-warning" id="cstat-a">188.77 × 10⁶ km (1.262 AU)</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Distancia Euclidiana Total (D):</span>
+              <span class="stat-val text-accent" id="cstat-dist">225,000,000 km</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 2: Impulso Delta-V y Maniobra de Hohmann -->
+        <div class="calc-step-card" id="calc-step-2">
+          <div class="step-card-header">
+            <span class="step-badge">PASO 02</span>
+            <span class="step-title">IMPULSO ORBITAL Δv (TRANSFERENCIA DE HOHMANN)</span>
+            <span class="step-lock-tag" id="step-lock-2">PENDIENTE</span>
+          </div>
+          <div class="step-formula-box">
+            <code>Δv₁ = √(μ/r₁)·[√(2r₂/(r₁+r₂)) - 1] | Δv₂ = √(μ/r₂)·[1 - √(2r₁/(r₁+r₂))]</code>
+          </div>
+          <div class="step-details-grid">
+            <div class="step-stat-item">
+              <span class="stat-lbl">Parámetro Gravitacional Sol (μ):</span>
+              <span class="stat-val text-muted">1.327 × 10¹¹ km³/s²</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Inyección de Escape (Δv₁):</span>
+              <span class="stat-val text-cyan" id="cstat-dv1">+2.94 km/s</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Freno / Inserción Orbital (Δv₂):</span>
+              <span class="stat-val text-cyan" id="cstat-dv2">+2.65 km/s</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Presupuesto Impulso Total (Δv_tot):</span>
+              <span class="stat-val text-success" id="cstat-dv-total">5.59 km/s</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 3: Ecuación del Cohete de Tsiolkovsky -->
+        <div class="calc-step-card" id="calc-step-3">
+          <div class="step-card-header">
+            <span class="step-badge">PASO 03</span>
+            <span class="step-title">PROPELENTE Y MASA (ECUACIÓN DE TSIOLKOVSKY)</span>
+            <span class="step-lock-tag" id="step-lock-3">PENDIENTE</span>
+          </div>
+          <div class="step-formula-box">
+            <code>Δv = Isp·g₀·ln(m₀ / m_f) ⟹ m_p = m₀·(1 - e^(-Δv / (Isp·g₀)))</code>
+          </div>
+          <div class="step-details-grid">
+            <div class="step-stat-item">
+              <span class="stat-lbl">Masa Inicial Arwing (m₀):</span>
+              <span class="stat-val text-cyan">12,500 kg</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Impulso Específico Plasma (Isp):</span>
+              <span class="stat-val text-warning">4,850 s (g₀ = 9.81 m/s²)</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Propelente Requerido (m_p):</span>
+              <span class="stat-val text-accent" id="cstat-fuel-mass">1,385 kg</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Estado de Tanques Base:</span>
+              <span class="stat-val" id="cstat-fuel-status">65.2% Consumo (Suficiente)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 4: Cinemática Relativista y Ventana de Vuelo -->
+        <div class="calc-step-card" id="calc-step-4">
+          <div class="step-card-header">
+            <span class="step-badge">PASO 04</span>
+            <span class="step-title">CINEMÁTICA, FACTOR LORENTZ Y VENTANA DE LANZAMIENTO</span>
+            <span class="step-lock-tag" id="step-lock-4">PENDIENTE</span>
+          </div>
+          <div class="step-formula-box">
+            <code>T_kepler = π·√(a³ / μ) | γ = 1 / √(1 - v²/c²) | θ_fase = π·[1 - (a/r₂)^1.5]</code>
+          </div>
+          <div class="step-details-grid">
+            <div class="step-stat-item">
+              <span class="stat-lbl">Tránsito Hohmann Puro (Kepler):</span>
+              <span class="stat-val text-cyan" id="cstat-time-kepler">258.9 días</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Tránsito Crucero Odyssey (1,000 km/s):</span>
+              <span class="stat-val text-warning" id="cstat-time-odyssey">62.5 horas</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Factor Dilatación Lorentz (γ):</span>
+              <span class="stat-val text-muted" id="cstat-lorentz">1.0000055 (v ≪ c)</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Ángulo de Fase Orbital (θ):</span>
+              <span class="stat-val text-cyan" id="cstat-phase-angle">44.3° de adelanto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 5: Diagnóstico de Supervivencia y Reabastecimiento -->
+        <div class="calc-step-card" id="calc-step-5">
+          <div class="step-card-header">
+            <span class="step-badge">PASO 05</span>
+            <span class="step-title">MATRIZ DE SUPERVIVENCIA Y ACOPLE REQUERIDO</span>
+            <span class="step-lock-tag" id="step-lock-5">PENDIENTE</span>
+          </div>
+          <div class="step-formula-box">
+            <code>N_docking = max(1, ⌈D / 1.2×10⁸ km⌉) | Deriva_Espacial = f(Fallo_QTE)</code>
+          </div>
+          <div class="step-details-grid">
+            <div class="step-stat-item">
+              <span class="stat-lbl">Suministro de Oxígeno Vital:</span>
+              <span class="stat-val" id="cstat-o2-status">55.0% Consumo</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Acoples QTE Obligatorios en Ruta:</span>
+              <span class="stat-val text-danger" id="cstat-dockings-needed">2 ACOPLE(S)</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Riesgo si Falla Reabastecimiento:</span>
+              <span class="stat-val text-danger">Deriva Desolada en Vacío</span>
+            </div>
+            <div class="step-stat-item">
+              <span class="stat-lbl">Solución de Trayectoria:</span>
+              <span class="stat-val text-success" id="cstat-trajectory-status">BLOQUEO EXITOSO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer con Acciones -->
+      <div class="calc-modal-footer">
+        <button type="button" id="recalc-orbital-math-btn" class="secondary-btn calc-recalc-btn">
+          <span>🔄</span> <span>RECALCULAR / VARIAR INTEGRACIÓN</span>
+        </button>
+        <button type="button" id="execute-flight-plan-btn" class="launch-btn glow-effect calc-execute-btn" disabled>
+          <span class="btn-flare"></span>
+          <span class="btn-text">🚀 INICIAR VIAJE CON TRAYECTORIA CALCULADA</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL DE VISUALIZACIÓN CIENTÍFICA ARCHIVO NASA & MODELOS REALES DE LA NASA -->
+  <div id="nasa-photo-modal" class="nasa-photo-modal">
+    <div class="photo-modal-backdrop"></div>
+    <div class="photo-modal-container glass-panel">
+      <!-- Encabezado de la Galería  -->
+      <div class="photo-modal-header">
+        <div class="header-left">
+          <div class="nasa-insignia small">
+            <span class="nasa-meatball"></span>
+            <span class="nasa-text">NASA</span>
+          </div>
+          <div class="modal-title-wrap">
+            <h2 id="photo-modal-title" class="photo-modal-title">GALERÍA DE IMÁGENES ARCHIVO NASA // NASA OPEN API</h2>
+            <div class="modal-subtitle-strip">
+              <span class="badge-4k-pill">ARCHIVO NASA</span>
+              <span class="badge-api-live">LIVE API // IMAGES-API.NASA.GOV</span>
+              <span id="photo-modal-credit" class="modal-credit-tag">NASA Jet Propulsion Laboratory (JPL)</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" id="close-photo-modal-btn" class="close-modal-btn" title="Cerrar visor ">✕</button>
+      </div>
+
+      <!-- Barra de Filtros Rápidos por Mundo y Búsqueda en Vivo en la API de la NASA -->
+      <div class="nasa-api-search-bar">
+        <div class="search-input-group">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="nasa-api-search-input" placeholder="Buscar en la API de la NASA (ej: JWST, Mars Perseverance, Europa, Cassini, Nebula)..." autocomplete="off">
+          <button type="button" id="nasa-api-search-btn" class="search-submit-btn">BUSCAR EN NASA API</button>
+        </div>
+        <div class="quick-filter-chips" id="nasa-quick-filter-chips">
+          <button type="button" class="filter-chip active" data-filter="current">Mundo Actual</button>
+          <button type="button" class="filter-chip" data-filter="mars">Marte </button>
+          <button type="button" class="filter-chip" data-filter="earth">Tierra </button>
+          <button type="button" class="filter-chip" data-filter="moon">Luna </button>
+          <button type="button" class="filter-chip" data-filter="jupiter">Júpiter </button>
+          <button type="button" class="filter-chip" data-filter="saturn">Saturno </button>
+          <button type="button" class="filter-chip" data-filter="jwst">JWST / Hubble</button>
+          <button type="button" class="filter-chip" data-filter="blackhole">Agujeros Negros</button>
+        </div>
+      </div>
+
+      <!-- Cuerpo Principal del Visor  -->
+      <div class="photo-modal-body">
+        <!-- Visor de Imagen de imágenes con Controles Superpuestos -->
+        <div class="photo-viewport-box">
+          <div class="photo-loading-spinner" id="photo-loading-spinner" style="display: none;">
+            <div class="spinner-circle"></div>
+            <span>DESCARGANDO ASSET  ORIGINAL DE LA NASA...</span>
+          </div>
+          <img id="photo-modal-img" src="https://images-assets.nasa.gov/image/PIA00407/PIA00407~large.jpg" alt="Fotografía  de la NASA" class="photo-modal-main-img">
+          
+          <!-- Barra de Acciones Directas Sobre la Imagen -->
+          <div class="photo-actions-overlay">
+            <button type="button" id="apply-texture-to-planet-btn" class="photo-action-btn action-apply" title="Mapear esta fotografía  en la esfera 3D del planeta">
+              <span>🌐</span> <span>APLICAR TEXTURA AL MODELO 3D</span>
+            </button>
+            <button type="button" id="reset-planet-texture-btn" class="photo-action-btn action-reset" title="Restaurar el mapa PBR científico de elevación original">
+              <span>⟲</span> <span>RESTAURAR MAPA PBR</span>
+            </button>
+            <a id="photo-download-link" href="https://images-assets.nasa.gov/image/PIA00407/PIA00407~orig.jpg" target="_blank" rel="noopener noreferrer" class="photo-action-btn action-orig" title="Abrir archivo de imágenes / Raw Original sin comprimir de la NASA">
+              <span>↗</span> <span>ABRIR IMAGEN ORIGINAL</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Panel Lateral de Telemetría Científica de la Misión -->
+        <div class="photo-telemetry-sidebar">
+          <div class="sidebar-block">
+            <span class="block-label">ASSET CIENTÍFICO SELECCIONADO</span>
+            <h3 id="photo-item-title" class="photo-item-title">Hemisferio de Valles Marineris</h3>
+            <div class="item-meta-strip">
+              <span id="photo-item-date" class="meta-pill">FECHA: 1980-02-22</span>
+              <span id="photo-item-res" class="meta-pill text-cyan">RESOLUCIÓN: PENDIENTE</span>
+            </div>
+          </div>
+
+          <div class="sidebar-block">
+            <span class="block-label">DESCRIPCIÓN TÉCNICA // ARCHIVO NASA</span>
+            <p id="photo-modal-desc" class="photo-item-desc">
+              Mosaico global capturado por el orbitador Viking 1 de la NASA. Muestra la fractura tectónica colosal de Valles Marineris con 4,000 km de longitud y 7 km de profundidad.
+            </p>
+          </div>
+
+          <div class="sidebar-block">
+            <span class="block-label">DATOS DE LA PLATAFORMA ORBITAL / INSTRUMENTO</span>
+            <div class="tech-specs-grid" id="photo-tech-specs">
+              <div class="tech-spec-item">
+                <span class="ts-lbl">Agencia / Centro:</span>
+                <span class="ts-val" id="ts-center">NASA JPL / Caltech</span>
+              </div>
+              <div class="tech-spec-item">
+                <span class="ts-lbl">Espectro Óptico:</span>
+                <span class="ts-val" id="ts-spectrum">Visible / Mosaico Multibanda</span>
+              </div>
+              <div class="tech-spec-item">
+                <span class="ts-lbl">Identificador NASA ID:</span>
+                <span class="ts-val text-cyan" id="ts-nasa-id">PIA00407</span>
+              </div>
+              <div class="tech-spec-item">
+                <span class="ts-lbl">Integración 3D:</span>
+                <span class="ts-val text-success">Mapeable en Esfera PBR</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carrusel Inferior de Miniaturas  -->
+      <div class="photo-modal-gallery-footer">
+        <div class="gallery-footer-bar">
+          <span class="gallery-counter" id="photo-gallery-counter">IMÁGENES DISPONIBLES (4)</span>
+          <span class="gallery-hint">Haz clic en cualquier fotografía para cargar en alta definición o aplicarla como textura</span>
+        </div>
+        <div class="gallery-thumbnails-strip" id="photo-thumbnails-strip">
+          <!-- Miniaturas dinámicas -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Efecto Flash de Daño / Colisión -->
+  <div id="damage-flash" class="damage-flash"></div>
+
+  <dialog id="mission-intro" class="mission-dialog mission-intro" aria-labelledby="mission-intro-title">
+    <p class="mission-eyebrow">NASA ODYSSEY // EXPEDICIÓN GÉNESIS 2084</p>
+    <div class="mission-orbit" aria-hidden="true"><span>✦</span></div>
+    <h1 id="mission-intro-title">El Siguiente Horizonte</h1>
+
+    <div class="mission-motive-box">
+      <h3>🚀 Motivo de la Misión</h3>
+      <p>Tras la detección de firmas energéticas anómalas y biomas inexplorados en los confines del Sistema Solar, la NASA envía a la nave <strong>Odyssey</strong> en su expedición más ambiciosa: cartografiar planetas desolados, investigar la fauna terrestre y los titanes de la era cretácica, recolectar telemetría de asteroides cercanos (NeoWs) y clima espacial (DONKI), y asegurar el futuro de la humanidad entre las estrellas.</p>
+    </div>
+
+    <div class="mission-crew-section">
+      <h3>👥 Tripulación de la Nave Odyssey</h3>
+      <div class="crew-roster-grid">
+        <div class="crew-card-intro">
+          <div class="crew-badge">👩‍🚀</div>
+          <div class="crew-info">
+            <strong>Capitana Sofía Parker</strong>
+            <span class="crew-role">Comandante de Misión & Astrobióloga</span>
+            <p class="crew-quote">"El cosmos guarda respuestas que la Tierra olvidó. Mantendremos el rumbo."</p>
+          </div>
+        </div>
+
+        <div class="crew-card-intro">
+          <div class="crew-badge">👨‍🔧</div>
+          <div class="crew-info">
+            <strong>Ing. Leo Chen</strong>
+            <span class="crew-role">Jefe de Propulsión & Núcleo Warp</span>
+            <p class="crew-quote">"El reactor G-Diffuser y los propulsores iónicos responderán al milisegundo."</p>
+          </div>
+        </div>
+
+        <div class="crew-card-intro">
+          <div class="crew-badge">👨‍🔬</div>
+          <div class="crew-info">
+            <strong>Oficial Marcus Vance</strong>
+            <span class="crew-role">Navegación Táctica & Muestras</span>
+            <p class="crew-quote">"Cada muestra geológica y biosfera nos acerca a desvelar el origen del universo."</p>
+          </div>
+        </div>
+
+        <div class="crew-card-intro">
+          <div class="crew-badge">📡</div>
+          <div class="crew-info">
+            <strong>Dr. Arthur Vance (Houston)</strong>
+            <span class="crew-role">Director de Vuelo NASA en Tierra</span>
+            <p class="crew-quote">"Odyssey, telemetría confirmada. Todo el planeta los acompaña."</p>
+          </div>
+        </div>
+
+        <div class="crew-card-intro">
+          <div class="crew-badge">🤖</div>
+          <div class="crew-info">
+            <strong>J.A.R.V.I.S.</strong>
+            <span class="crew-role">IA Sintética de Navegación Táctica</span>
+            <p class="crew-quote">"Sistemas de a bordo al 100%. Cálculos orbitales y análisis listos para su orden, capitana."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mission-intro-actions">
+
+      <button type="button" id="mission-intro-nasa-btn" class="mission-start-btn" style="background: linear-gradient(135deg, #0284c7, #2563eb); margin-right: 0.5rem;">🛰️ Consola NASA en Vivo [N]</button>
+      <button type="button" id="mission-intro-skip" class="mission-start-btn" autofocus>Comenzar Misión Espacial</button>
+    </div>
+  </dialog>
+
+  <dialog id="orbital-hangar" class="mission-dialog" aria-labelledby="hangar-title" aria-describedby="hangar-description">
+    <form id="hangar-form">
+      <p class="mission-eyebrow">PREPARACIÓN DE EXPEDICIÓN</p>
+      <h1 id="hangar-title">Hangar orbital</h1>
+      <p id="hangar-description">Tu nave está preparada. Revisa la configuración sugerida antes de salir.</p>
+      <div class="hangar-ship" aria-hidden="true">✦</div>
+      <p class="hangar-destination">Destino: <strong id="hangar-destination"></strong></p>
+      <dl class="hangar-supplies">
+        <div><dt>Combustible</dt><dd>100%</dd></div>
+        <div><dt>Oxígeno</dt><dd>100%</dd></div>
+        <div><dt>Casco</dt><dd>100%</dd></div>
+      </dl>
+      <p id="hangar-route" class="hangar-route"></p>
+      <label for="hangar-camera">Cámara inicial</label>
+      <select id="hangar-camera" name="camera">
+        <option value="chase">Persecución · sugerida</option>
+        <option value="cockpit">Cabina</option>
+        <option value="top">Desde arriba</option>
+        <option value="bottom">Desde abajo</option>
+        <option value="far">Vista lejana</option>
+      </select>
+      <label class="hangar-audio"><input id="hangar-audio" type="checkbox" checked> Audio activado</label>
+      <p class="hangar-hint">Puedes cambiar la cámara y el audio durante el vuelo.</p>
+      <div class="hangar-actions">
+        <button type="button" id="hangar-cancel">Volver al plan</button>
+        <button type="submit" class="hangar-launch">Iniciar expedición</button>
+      </div>
+    </form>
+  </dialog>
+
+  <aside id="adaptive-tutorial" class="adaptive-tutorial" hidden aria-label="Ayuda de la actividad">
+    <div role="status" aria-live="polite" aria-atomic="true">
+      <strong id="tutorial-title"></strong>
+      <p id="tutorial-message"></p>
+    </div>
+    <button type="button" id="tutorial-dismiss" aria-label="Cerrar ayuda">Entendido</button>
+  </aside>
+
+  <button id="partial-pause-button" class="partial-pause-button" type="button" aria-haspopup="dialog" aria-controls="partial-pause-dialog" hidden>Ⅱ Pausa <kbd>Esc</kbd></button>
+  <dialog id="partial-pause-dialog" class="mission-dialog pause-dialog" aria-labelledby="pause-title" aria-describedby="pause-description">
+    <p class="mission-eyebrow">EXPEDICIÓN EN PAUSA</p>
+    <h1 id="pause-title">Configuración</h1>
+    <p id="pause-description">Juego en pausa. Ajusta el sonido a tu gusto.</p>
+    <button id="partial-pause-resume" type="button" autofocus>Continuar expedición</button>
+    <button type="button" id="pause-prologue-btn" hidden style="display:none;" aria-hidden="true"></button>
+    <button type="button" id="pause-epilogue-btn" hidden style="display:none;" aria-hidden="true"></button>
+    <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;">
+
+      <button type="button" id="pause-nasa-btn" style="background:#0c4a6e;border:1px solid #00f3ff;color:#e0f2fe;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;">🛰️ Consola NASA en Vivo [N]</button>
+    </div>
+    <p class="hangar-hint">También puedes continuar con Escape.</p>
+    <details id="performance-report" class="performance-report">
+      <summary>Rendimiento · referencia Full HD</summary>
+      <p>Referencia: 1920 × 1080. Objetivo: 60 FPS. Referencia en escenas exigentes: 45 FPS.</p>
+      <p>Se excluyen la pausa, las pestañas ocultas y los primeros 2 segundos tras cada interrupción o cambio de actividad. Las muestras se separan por actividad y resolución.</p>
+      <div id="performance-report-body"></div>
+    </details>
+  </dialog>
+
+  <p id="recovery-status" class="recovery-status" role="status" aria-live="polite" hidden></p>
+
+  <!-- Scripts Modulares del Juego -->
+  <dialog id="mission-challenge" class="mission-dialog" aria-labelledby="challenge-title">
+    <header class="challenge-heading">
+      <div><span class="challenge-eyebrow" id="challenge-eyebrow">CONTROL DE NAVEGACIÓN · J.A.R.V.I.S.</span><h2 id="challenge-title">Autorizar maniobra</h2></div>
+      <div class="challenge-clock"><span>ESTADO</span><strong id="challenge-time">40 s</strong></div>
+    </header>
+    <p id="challenge-rules"></p>
+    <div id="challenge-steps" class="challenge-steps" aria-label="Progreso del reto" hidden></div>
+    <aside id="challenge-planet-card" class="challenge-planet-card" aria-label="Ficha de datos reales del planeta" hidden></aside>
+    <div class="challenge-prompt">
+      <span class="challenge-eyebrow" id="challenge-step-label">TU RETO</span>
+      <p id="challenge-question"></p>
+      <div id="challenge-equation" class="challenge-equation" hidden></div>
+    </div>
+    <div id="challenge-options" class="challenge-options" role="group" aria-label="Opciones de respuesta rápida" hidden></div>
+    <section id="challenge-sequence" hidden><p id="challenge-sequence-steps" aria-live="polite"></p><div id="challenge-keypad" aria-label="Teclas de navegación"></div></section>
+    <form id="challenge-form">
+      <label for="challenge-answer">Escribe el resultado o elige una opción arriba · <span id="challenge-unit"></span></label>
+      <input id="challenge-answer" inputmode="decimal" autocomplete="off" placeholder="Escribe tu respuesta numérica" aria-describedby="challenge-feedback" required>
+      <button id="challenge-submit" type="submit">Comprobar</button>
+    </form>
+    <p id="challenge-feedback" role="status"></p>
+    <footer class="challenge-actions">
+    <button id="challenge-retry" type="button" hidden>Otra pregunta</button>
+    <button id="challenge-cancel" type="button">Cancelar maniobra</button>
+    </footer>
+    <details class="challenge-history"><summary>Historial de maniobras</summary><p id="challenge-record"></p></details>
+  </dialog>
+  <script src="js/flight/mission-challenges.js"></script>
+  <script src="js/flight/mission-checkpoints.js"></script>
+  <script src="js/core/partial-pause.js"></script>
+  <script src="js/flight/flight-science-hud.js"></script>
+  <script src="js/core/performance-monitor.js"></script>
+  <script src="js/flight/adaptive-tutorial.js"></script>
+  <script src="js/flight/mission-preparation.js"></script>
+  <script src="js/audio/audio.js"></script>
+  <script src="js/cinematic/cinematic-visuals.js"></script>
+  <script src="js/core/spanish-audio-data.js"></script>
+  <script src="js/core/spanish-voices.js"></script>
+  <script src="js/cinematic/crew-dialogue.js"></script>
+  <script src="js/cinematic/crew-exchanges.js"></script>
+  <script src="js/cinematic/story-system.js"></script>
+  <script src="js/jarvis/nasa-api.js"></script>
+  <script src="js/world/world-visuals.js"></script>
+  <script src="js/world/planet-environments.js"></script>
+  <script src="js/world/expedition-systems.js"></script>
+  <script src="js/world/expedition-approach.js"></script>
+  <script src="js/world/planet-viewer.js"></script>
+  <script src="js/core/original-ship-data.js"></script>
+  <script src="js/flight/ship-controller.js"></script>
+  <script src="js/flight/space-hazards.js"></script>
+  <script src="js/flight/docking-stations.js"></script>
+  <script src="js/flight/qte-system.js"></script>
+  <script src="js/flight/flight-game.js"></script>
+  <script src="js/flight/landing-game.js"></script>
+  <script src="js/flight/flight-roll.js"></script>
+  <script src="js/flight/navigation-physics.js"></script>
+  <script src="js/flight/cinema-director.js"></script>
+  <script src="js/core/planet-scale.js"></script>
+<script src="js/core/fluidity.js"></script>
+<script src="js/world/space-explorer.js"></script>
+  <script src="js/jarvis/planet-narrator.js"></script><script src="js/world/planet-curiosities.js"></script><script src="js/world/planet-proximity.js"></script>
+  <script src="js/core/realism-materials.js"></script>
+  <script src="js/world/planet-ecology.js"></script>
+  <script src="assets/vendor/GLTFLoader.js"></script>
+<script src="assets/vendor/SkeletonUtils-r128.js"></script>
+<script src="js/world/earth-regions.js"></script>
+<script src="js/fauna/cretaceous-fauna.js"></script><script src="js/fauna/earth-assets.js"></script>
+<script src="js/fauna/earth-fauna-catalog.js"></script><script src="js/fauna/living-earth.js"></script>
+  <script src="js/world/airless-landscape.js"></script>
+  <script src="js/audio/fx-audio.js"></script><script src="js/audio/entry-fx.js"></script>
+  <script src="js/world/planet-phenomena.js"></script><script src="js/flight/reactive-flight.js"></script><script src="js/world/world-details.js"></script><script src="js/world/nasa-ground-points.js"></script><script src="js/world/surface-explorer.js"></script>
+  <script src="js/cinematic/immersion-view.js"></script>
+  <script src="js/cinematic/sofia-tragedy.js"></script>
+  <script src="js/audio/situational-music.js"></script>
+  <script src="js/flight/cruise-systems.js"></script>
+  <script src="js/world/planet-navigation.js"></script>
+  <script src="js/audio/folder-music.js"></script>
+  <script src="js/jarvis/jarvis-facts.js"></script>
+  <script src="js/jarvis/jarvis-live.js"></script>
+  <script src="js/jarvis/jarvis-chat.js"></script>
+<script src="js/jarvis/jarvis-planets.js"></script>
+  <script src="js/core/main.js"></script>
+
+  <aside class="visual-credit">Cielo: <a href="https://www.eso.org/public/images/eso0932a/" target="_blank" rel="noopener noreferrer">ESO/S. Brunier</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> · Mapas: <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener noreferrer">Solar System Scope</a> · CC BY 4.0 · adaptación 3D · <a href="assets/models/CREDITOS.txt" target="_blank">Créditos de fauna y edificios</a></aside>
+  <details id="planet-audio-panel" class="planet-audio-panel">
+    <summary>Guía automática de planetas</summary>
+    <label for="spanish-voice-select">Voz en español</label>
+    <select id="spanish-voice-select"></select>
+    <button type="button" id="spanish-voice-preview">Probar voz</button>
+    <p id="spanish-voice-status" role="status"></p>
+    <label for="auto-planet-label">Planeta detectado automáticamente</label><output id="auto-planet-label">Acércate a un planeta para escuchar sus curiosidades.</output>
+    <select id="planet-audio-select" hidden aria-hidden="true" tabindex="-1"></select>
+    <button type="button" id="planet-audio-read" disabled>Repetir datos</button>
+    <button type="button" id="planet-audio-stop">Detener lectura</button>
+    <p id="planet-audio-status" role="status">Selecciona un mundo para escuchar su ficha científica.</p>
+  </details>
+  <audio id="local-spanish-audio" preload="none" hidden></audio>
+  <section id="planet-surface-screen" class="screen">
+    <header class="surface-toolbar"><button type="button" id="surface-exit">Volver a la órbita</button><strong id="surface-world-name">Marte</strong><button type="button" id="surface-music">Música</button><button type="button" id="surface-view">Cabina / Nave · V</button><button type="button" id="surface-prologue-btn" hidden style="display:none;" aria-hidden="true"></button><button type="button" id="surface-epilogue-btn" hidden style="display:none;" aria-hidden="true"></button><button type="button" id="surface-nasa-live-btn" style="border:1px solid #00f3ff;color:#00f3ff;background:rgba(0,243,255,0.15);padding:4px 10px;border-radius:4px;cursor:pointer;">🛰️ NASA Datos [N]</button></header>
+    <div class="surface-instruments"><div id="surface-thermal-filter" aria-hidden="true"></div><span id="surface-telemetry">0 m/s</span><p>W/S avanzar/reversa · Espacio frenar · A/D girar · Q/E subir/bajar · doble A/D: giro 360° · ratón orientar</p></div>
+  </section>
+  <aside id="expedition-console" class="glass-panel"><output id="expedition-resources">COMB 100% · O₂ 100% · CASCO 100% · KITS 2</output><p id="expedition-status" role="status">Acércate a un planeta para iniciar el análisis orbital y descenso.</p><details><summary>Administrar recursos y música</summary><p id="situational-music-status" role="status">Música adaptativa: calma al detenerte y aventura al viajar.</p><label for="custom-music-profile">Asignar audio propio</label><select id="custom-music-profile"><option value="bright">Viaje luminoso · Tierra y espacio</option><option value="rock">Rock · Marte</option><option value="ambient">Calma · Luna y Neptuno</option><option value="epic">Aventura · gigantes</option><option value="tension">Tensión · mundos extremos</option></select><label for="custom-music-file">Archivo MP3, WAV u OGG</label><input id="custom-music-file" type="file" accept="audio/*"><p id="custom-music-status" role="status">Puedes seleccionar aquí tus canciones. Se reproducen localmente, sin subirlas.</p><label><input type="checkbox" id="expedition-economy"> Ahorro: menos consumo y velocidad limitada</label><button id="expedition-repair" type="button">Usar kit de reparación</button><button id="expedition-resupply" type="button">Solicitar remolque a base y abastecer</button></details></aside>
+  <section id="surface-menu" class="cinema-menu" hidden aria-label="Explorar superficie">
+    <h2>Explorar el planeta</h2><p id="surface-lock-status">Completa la aproximación, los QTE y el aterrizaje para desbloquear la superficie.</p><label for="surface-planet">Mundo de superficie</label>
+    <select id="surface-planet"><option value="mars">Marte</option><option value="earth">Tierra</option><option value="cretaceous">🦖 Planeta Cretácico (Dinosaurios, Volcanes y Vista 360°)</option><option value="moon">Luna</option><option value="mercury">Mercurio</option><option value="venus">Venus</option><option value="uranus">Urano · vuelo atmosférico</option></select>
+    <p>La superficie se habilita al completar el aterrizaje de la misión. Los gigantes gaseosos se exploran desde la órbita.</p><button type="button" id="surface-enter">Descender y explorar</button><button type="button" id="surface-close">Cerrar</button>
+  </section>
+  <dialog id="sofia-tragedy" aria-labelledby="sofia-tragedy-title"><div class="tragedy-heading"><small>ODYSSEY · SEÑAL DE EMERGENCIA</small><h2 id="sofia-tragedy-title">A la deriva</h2><p id="tragedy-cause"></p></div><div id="drift-canvas"></div><p id="tragedy-subtitle"></p><button type="button" id="tragedy-skip">Continuar</button></dialog>
+  <section id="cinema-menu" class="cinema-menu" hidden aria-label="Escenas de cine">
+    <h2>Ventanas al universo</h2>
+    <label for="cinema-destination">Elige el escenario</label>
+    <select id="cinema-destination"></select>
+    <p>Un recorrido de 18 segundos: panorama, sobrevuelo y revelación. Puedes omitirlo en cualquier momento.</p>
+    <button type="button" id="cinema-play">Ver escena</button>
+    <button type="button" id="cinema-close">Cerrar</button>
+  </section>
+  <div id="cinematic-caption" class="cinematic-caption"><span id="cinematic-chapter"></span><h2 id="cinematic-scene-title"></h2></div>
+  <div id="cinematic-fade" class="cinematic-fade"></div>
+  <aside id="planet-curiosity" class="planet-curiosity" hidden aria-live="polite"><strong id="curiosity-name"></strong><p id="curiosity-text"></p></aside>
+  <p id="collision-status" class="collision-status" role="status"></p>
+  <button type="button" id="cinematic-skip" class="cinematic-skip">Omitir escena · Espacio</button>
+  <button type="button" id="drift-return-btn" aria-label="Volver al selector de planetas">← Volver</button>
+  <script src="js/flight/rescue-fleet.js"></script>
+  <script src="js/ui/clean-hud.js"></script>
+  <link rel="stylesheet" href="css/clean-hud.css">
+<script src="js/ui/player-experience.js"></script>
+<script src="js/ui/ship-status-preview.js"></script>
+<script src="js/world/exploration-upgrades.js"></script><script src="js/jarvis/jarvis-copilot.js"></script>
+<script src="js/world/secret-earth.js"></script><script src="js/fauna/nature-journal.js"></script>
+<link rel="stylesheet" href="css/player-experience.css">
+<script src="js/world/stellar-map.js"></script><link rel="stylesheet" href="css/stellar-map.css">
+<script src="js/ui/nasa-hud-console.js"></script>
+<script src="js/cinematic/cinematic-slides.js"></script>
+<div id="vertical-flight-controls" aria-label="Altura"><button id="explorer-up" aria-label="Subir">↑ Q</button><button id="explorer-down" aria-label="Bajar">↓ E</button></div>
+</body>
+</html>
+

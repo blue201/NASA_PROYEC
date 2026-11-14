@@ -1,0 +1,7540 @@
+/* ==========================================================================
+   NASA ODYSSEY // STAR FOX DEEP SPACE MISSION
+   Design System, Math Orbital Console, Desolate Planet Reports & Damage States
+   ========================================================================== */
+
+:root {
+  --bg-deep-space: #020617;
+  --bg-panel: rgba(8, 14, 28, 0.82);
+  --bg-panel-border: rgba(0, 243, 255, 0.25);
+  --bg-panel-glow: rgba(0, 243, 255, 0.12);
+
+  --color-cyan: #00f3ff;
+  --color-cyan-glow: rgba(0, 243, 255, 0.6);
+  --color-amber: #f59e0b;
+  --color-amber-glow: rgba(245, 158, 11, 0.5);
+  --color-red: #ef4444;
+  --color-red-glow: rgba(239, 68, 68, 0.6);
+  --color-emerald: #10b981;
+  --color-emerald-glow: rgba(16, 185, 129, 0.6);
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+
+  --font-display: 'Orbitron', -apple-system, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+
+  --transition-smooth: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reset y Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-deep-space);
+  color: var(--color-text-main);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+#canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.screen.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none; /* Permite que el arrastre y clics pasen directamente al Canvas 3D de los planetas */
+}
+
+/* Habilitar eventos de puntero exclusivamente en paneles, botones y controles interactivos */
+.nasa-topbar,
+.planet-selector-carousel,
+.planet-info-panel,
+.panel-expand-pill-btn,
+.orbit-hint,
+.flight-approach-bar,
+.hud-footer,
+.starfox-radio-box,
+.captain-padd-modal,
+.qte-modal-backdrop,
+.drone-scan-hud,
+.modal,
+.glass-panel,
+button,
+a,
+input,
+select {
+  pointer-events: auto;
+}
+
+.planet-smash-overlay {
+  pointer-events: none; /* Permite arrastrar el planeta en 360° en cualquier zona vacía */
+}
+
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 20px 0 var(--bg-panel-glow);
+}
+
+/* ==========================================================================
+   HEADER NASA
+   ========================================================================== */
+
+.nasa-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 20;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0) 100%);
+  pointer-events: auto;
+}
+
+.nasa-branding {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.nasa-insignia {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nasa-meatball {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #0b3d91, #04143a);
+  border: 2px solid #fc3d21;
+  box-shadow: 0 0 12px rgba(252, 61, 33, 0.4);
+}
+
+.nasa-text {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.mission-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-cyan);
+  letter-spacing: 1.5px;
+}
+
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  background: var(--color-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--color-cyan);
+  animation: pulseGlow 1.8s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.live-epic-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(0, 243, 255, 0.08);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 9999px;
+  padding: 0.4rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-cyan);
+  text-shadow: 0 0 8px var(--color-cyan-glow);
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: var(--transition-smooth);
+}
+
+.icon-btn:hover {
+  background: var(--color-cyan);
+  color: #000;
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 15px var(--color-cyan-glow);
+}
+
+/* ==========================================================================
+   PANTALLA 1: SELECTOR DE PLANETAS & CALCULADORA ORBITAL
+   ========================================================================== */
+
+.planet-smash-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.8rem 2rem 1.5rem;
+  overflow: hidden;
+}
+
+.orbit-hint {
+  align-self: flex-start;
+  margin-left: 1rem;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  padding: 0.45rem 1.25rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  pointer-events: auto;
+  margin-top: 0.25rem;
+  z-index: 15;
+}
+
+.drag-icon {
+  font-size: 1.1rem;
+  color: var(--color-cyan);
+  animation: rotateIcon 4s linear infinite;
+}
+
+@keyframes rotateIcon {
+  100% { transform: rotate(360deg); }
+}
+
+/* Carrusel de Planetas: Anclado en la parte inferior izquierda con margen seguro para no sobremontarse con el panel derecho */
+.planet-selector-carousel {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 2rem;
+  display: flex;
+  gap: 0.6rem;
+  background: rgba(8, 14, 28, 0.88);
+  backdrop-filter: blur(16px);
+  padding: 0.45rem 0.65rem;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 243, 255, 0.25);
+  pointer-events: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  max-width: calc(100vw - 470px);
+  overflow-x: auto;
+  z-index: 15;
+  transition: max-width 0.35s ease, left 0.35s ease, transform 0.35s ease;
+}
+
+/* Modo expandido cuando el panel de la derecha se minimiza */
+.planet-selector-carousel.wide-mode {
+  max-width: calc(100vw - 4rem);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.planet-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0.45rem 0.85rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-text-muted);
+  transition: var(--transition-smooth);
+  flex-shrink: 0;
+}
+
+.planet-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.planet-tab.active {
+  background: rgba(0, 243, 255, 0.12);
+  border-color: var(--color-cyan);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.25);
+}
+
+.planet-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: inset -2px -2px 6px rgba(0,0,0,0.8), 0 0 8px rgba(255,255,255,0.2);
+}
+
+.earth-thumb { background: radial-gradient(circle, #2276bb, #0b3d91); }
+.moon-thumb { background: radial-gradient(circle, #cccccc, #777777); }
+.mars-thumb { background: radial-gradient(circle, #e25822, #8c2607); }
+.venus-thumb { background: radial-gradient(circle, #eab308, #a16207); }
+.mercury-thumb { background: radial-gradient(circle, #9ca3af, #4b5563); }
+.jupiter-thumb { background: radial-gradient(circle, #d4a373, #a9693e); }
+.saturn-thumb { background: radial-gradient(circle, #e6ca65, #a38c35); }
+.neptune-thumb { background: radial-gradient(circle, #4b70dd, #1b358a); }
+.sagittarius-thumb { background: radial-gradient(circle at 45% 45%, #000000 45%, #f59e0b 80%, #dc2626 100%); box-shadow: 0 0 10px rgba(245, 158, 11, 0.7); }
+.cygnus-thumb { background: radial-gradient(circle at 45% 45%, #000000 45%, #00f3ff 80%, #0369a1 100%); box-shadow: 0 0 10px rgba(0, 243, 255, 0.7); }
+.pillars-thumb { background: radial-gradient(circle at 35% 35%, #ec4899, #8b5cf6, #0f172a); box-shadow: 0 0 10px rgba(236, 72, 153, 0.7); }
+
+.blackhole-tab.active {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: #f59e0b;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.4);
+}
+
+.deepspace-tab.active {
+  background: rgba(236, 72, 153, 0.18);
+  border-color: #ec4899;
+  box-shadow: 0 0 18px rgba(236, 72, 153, 0.4);
+}
+
+.tab-meta {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.tab-name {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.tab-sub {
+  font-size: 0.65rem;
+  color: var(--color-cyan);
+  font-family: var(--font-mono);
+}
+
+/* Botón Flotante para Reabrir Panel cuando está Minimizado */
+.panel-expand-pill-btn {
+  position: absolute;
+  top: 4.8rem;
+  right: 2rem;
+  z-index: 30;
+  background: rgba(8, 14, 28, 0.92);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 0.6rem 1.15rem;
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  box-shadow: 0 6px 25px rgba(0, 243, 255, 0.35);
+  backdrop-filter: blur(16px);
+  pointer-events: auto;
+  transition: var(--transition-smooth);
+}
+
+.panel-expand-pill-btn:hover {
+  background: var(--color-cyan);
+  color: #020617;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 243, 255, 0.6);
+}
+
+/* Panel Lateral Derecho: Telemetría, Condiciones Desoladas y Calculadora Matemática */
+.planet-info-panel {
+  position: absolute;
+  top: 4.8rem;
+  right: 2rem;
+  width: 320px;
+  max-width: calc(100vw - 4rem);
+  max-height: calc(100vh - 6.2rem);
+  overflow-y: auto;
+  padding: 1.1rem 1.2rem;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  border-top: 3px solid var(--color-cyan);
+  z-index: 20;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  animation: slidePanelIn 0.45s ease-out;
+}
+
+.planet-info-panel.collapsed {
+  transform: translateX(calc(100% + 3rem));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Selector de Perspectiva de Cámara en Topbar */
+.topbar-center-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cam-switch-pill {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-text-main);
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 0.45rem 1.15rem;
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  box-shadow: 0 4px 18px rgba(0, 243, 255, 0.25);
+  backdrop-filter: blur(14px);
+  transition: var(--transition-smooth);
+}
+
+.cam-switch-pill:hover {
+  background: var(--color-cyan);
+  color: #020617;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 243, 255, 0.55);
+}
+
+.cam-switch-pill strong {
+  color: var(--color-cyan);
+}
+
+.cam-switch-pill:hover strong {
+  color: #020617;
+}
+
+.cam-key-hint {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.cam-switch-pill.comms-pill {
+  border-color: rgba(0, 229, 255, 0.6);
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--color-cyan);
+}
+
+.cam-switch-pill.comms-pill:hover {
+  background: rgba(0, 229, 255, 0.35);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+}
+
+.cam-switch-pill.padd-pill {
+  border-color: rgba(245, 158, 11, 0.6);
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-amber);
+}
+
+.cam-switch-pill.padd-pill:hover {
+  background: rgba(245, 158, 11, 0.35);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+}
+
+/* Sub-fila de botones de acción en Dock */
+.action-dock-subrow {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.action-sub-btn {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-text-main);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.5rem 0.4rem;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition-smooth);
+  backdrop-filter: blur(10px);
+}
+
+.action-sub-btn:hover {
+  border-color: var(--color-cyan);
+  background: rgba(0, 243, 255, 0.15);
+  color: var(--color-cyan);
+  transform: translateY(-1px);
+}
+
+/* Barra Contextual de Aproximación Planetaria (Unificada y Minimalista) */
+.flight-approach-bar {
+  position: fixed;
+  bottom: 4.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 0.65rem 1.4rem;
+  background: rgba(8, 14, 28, 0.92);
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  border-radius: 36px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(0, 243, 255, 0.2);
+  backdrop-filter: blur(20px);
+  pointer-events: auto;
+  max-width: 95vw;
+}
+
+.approach-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.radar-ping-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 12px var(--color-cyan);
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.4; }
+}
+
+.approach-label-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.approach-planet-title {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--color-text-main);
+  letter-spacing: 0.8px;
+}
+
+.approach-dist-val {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-cyan);
+}
+
+.approach-actions-cluster {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.approach-btn {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-text-main);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.45rem 0.95rem;
+  border-radius: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: var(--transition-smooth);
+}
+
+.approach-btn:hover {
+  transform: translateY(-2px);
+}
+
+.approach-btn.hohmann:hover {
+  background: rgba(0, 243, 255, 0.2);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  box-shadow: 0 0 18px rgba(0, 243, 255, 0.4);
+}
+
+.approach-btn.drones:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--color-emerald);
+  color: var(--color-emerald);
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.4);
+}
+
+.approach-btn.landing {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: var(--color-emerald);
+  color: var(--color-emerald);
+}
+
+.approach-btn.landing:hover {
+  background: var(--color-emerald);
+  color: #020617;
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.6);
+}
+
+.approach-btn.camera:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--color-amber);
+  color: var(--color-amber);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.4);
+}
+
+.approach-btn.boost {
+  background: rgba(6, 182, 212, 0.18);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+}
+
+.approach-btn.boost:hover,
+.approach-btn.boost:active,
+.approach-btn.boost.active {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.6), rgba(59, 130, 246, 0.8));
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.85), inset 0 0 10px rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Chip Flotante de Telemetría Hohmann */
+.flight-hohmann-chip {
+  position: fixed;
+  bottom: 9.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 34;
+  padding: 0.85rem 1.25rem;
+  background: rgba(8, 14, 28, 0.94);
+  border: 1px solid var(--color-cyan);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 243, 255, 0.25);
+  backdrop-filter: blur(20px);
+  pointer-events: auto;
+  min-width: 290px;
+  animation: slidePanelIn 0.3s ease-out;
+}
+
+.hohmann-chip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-cyan);
+  border-bottom: 1px solid rgba(0, 243, 255, 0.25);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.chip-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.chip-close-btn:hover {
+  color: #fff;
+}
+
+.hohmann-chip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+}
+
+.hchip-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+}
+
+@keyframes slidePanelIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.panel-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.panel-toggle-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fff;
+}
+
+/* Pestañas Rápidas del Panel para Segmentar Contenido */
+.planet-panel-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.25rem;
+  margin-top: 0.6rem;
+}
+
+.panel-tab-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.42rem 0.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition-smooth);
+  white-space: nowrap;
+}
+
+.panel-tab-btn:hover:not(.active) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.panel-tab-btn.active {
+  background: rgba(0, 243, 255, 0.18);
+  color: #00f3ff;
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
+}
+
+/* Ocultar / Mostrar contenido por pestaña para evitar sobremontado vertical */
+.panel-tab-content[data-tab-section] {
+  display: none !important;
+}
+
+.panel-tab-content[data-tab-section].active-tab-content {
+  display: flex !important;
+}
+
+.target-chip {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-cyan);
+  letter-spacing: 2px;
+}
+
+#target-planet-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0.25rem 0;
+  text-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+}
+
+.desolation-badge {
+  display: inline-block;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid var(--color-red);
+  color: #fca5a5;
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.panel-desc {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  margin-top: 0.4rem;
+}
+
+/* Condiciones del Planeta */
+.conditions-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cond-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+}
+
+.cond-label {
+  color: var(--color-text-muted);
+}
+
+.cond-val {
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Tarjeta de Fotografía Real de la NASA */
+.nasa-real-photo-card {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.photo-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-cyan);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.photo-preview-wrap {
+  position: relative;
+  width: 100%;
+  height: 155px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #020617;
+  cursor: pointer;
+}
+
+.nasa-real-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.photo-preview-wrap:hover .nasa-real-img {
+  transform: scale(1.06);
+}
+
+.photo-overlay-tag {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.photo-caption {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+
+.photo-zoom-btn {
+  background: rgba(0, 243, 255, 0.1);
+  border: 1px solid var(--color-cyan);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.photo-zoom-btn:hover {
+  background: rgba(0, 243, 255, 0.25);
+  box-shadow: 0 0 12px var(--color-cyan-glow);
+}
+
+/* Calculadora Matemática Orbital Visible y Detallada */
+.math-calculator-box {
+  background: rgba(0, 243, 255, 0.05);
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  border-radius: 10px;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  box-shadow: inset 0 0 16px rgba(0, 243, 255, 0.08);
+}
+
+.math-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  color: var(--color-cyan);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
+}
+
+.math-steps-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  background: rgba(2, 6, 23, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+
+.math-step-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 0.35rem;
+}
+
+.math-step-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.step-eq {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: #e2e8f0;
+}
+
+.math-risk-notice {
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: var(--color-amber);
+  background: rgba(245, 158, 11, 0.12);
+  padding: 0.55rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--color-amber);
+}
+
+.test-stranded-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: var(--transition-smooth);
+  text-align: center;
+}
+
+.test-stranded-btn:hover {
+  background: rgba(239, 68, 68, 0.35);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+}
+
+.test-blackhole-btn {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(147, 51, 234, 0.25));
+  border: 1px solid #f59e0b;
+  color: #fef08a;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: var(--transition-smooth);
+  text-align: center;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+}
+
+.test-blackhole-btn:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(147, 51, 234, 0.5));
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.65);
+}
+
+/* Botón de Lanzamiento */
+.launch-btn {
+  position: relative;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #00f3ff 0%, #0284c7 100%);
+  border: none;
+  border-radius: 10px;
+  color: #020617;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
+  transition: var(--transition-smooth);
+}
+
+.launch-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(0, 243, 255, 0.7);
+  background: linear-gradient(135deg, #38bdf8 0%, #00f3ff 100%);
+}
+
+.text-cyan { color: var(--color-cyan); }
+.text-warning { color: var(--color-amber); }
+.text-success { color: var(--color-emerald); }
+.text-danger { color: var(--color-red); }
+
+/* ==========================================================================
+   PANTALLA 2: VUELO ESPACIAL & DAÑO VISUAL
+   ========================================================================== */
+
+.hud-topbar {
+  position: absolute;
+  top: 1.25rem;
+  left: 2rem;
+  right: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hud-topbar .hud-meter-box {
+  flex: 1;
+}
+
+.hud-cinema-trigger-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.flight-hud-cinema-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  color: #38bdf8;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+.flight-hud-cinema-btn:hover {
+  background: rgba(0, 243, 255, 0.22);
+  border-color: #00f3ff;
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.hud-meter-box {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.meter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.meter-title {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+}
+
+.meter-num {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.meter-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s ease;
+}
+
+.hull-fill { background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+.oxygen-fill { background: linear-gradient(90deg, #0284c7, #38bdf8); box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+.fuel-fill { background: linear-gradient(90deg, #ea580c, #f59e0b); box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+
+.damage-status-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+}
+
+/* Indicador Central de Aproximación al Planeta y Etapas */
+.planet-approach-hud {
+  position: absolute;
+  top: 6.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 540px;
+  max-width: 92vw;
+  padding: 0.65rem 1.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.approach-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.nav-target-name { color: var(--color-cyan); font-weight: 700; letter-spacing: 1.5px; }
+.nav-distance-text { color: #fff; }
+
+.approach-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+}
+
+.approach-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-cyan), #fff);
+  border-radius: 3px;
+  box-shadow: 0 0 8px var(--color-cyan);
+}
+
+.approach-ship-marker {
+  position: absolute;
+  font-size: 1rem;
+  transform: translate(-50%, -1px);
+  filter: drop-shadow(0 0 6px var(--color-cyan));
+  transition: left 0.3s ease;
+}
+
+.approach-planet-marker {
+  position: absolute;
+  right: -10px;
+  font-size: 1.2rem;
+}
+
+.nav-stage-banner {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #a5f3fc;
+  letter-spacing: 1px;
+  background: rgba(0, 243, 255, 0.08);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+}
+
+/* Retícula Central de Vuelo */
+.cockpit-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+}
+
+.crosshair-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: var(--color-cyan);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px var(--color-cyan);
+}
+
+.crosshair-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 46px;
+  height: 46px;
+  border: 1px dashed rgba(0, 243, 255, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: rotateCrosshair 12s linear infinite;
+}
+
+@keyframes rotateCrosshair {
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.crosshair-wings {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 2px;
+  background: rgba(0, 243, 255, 0.6);
+}
+
+.crosshair-wings.left { left: 4px; transform: translateY(-50%); }
+.crosshair-wings.right { right: 4px; transform: translateY(-50%); }
+
+.hud-alert-container {
+  position: absolute;
+  top: 36%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  pointer-events: none;
+}
+
+.hud-alert {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid var(--color-red);
+  color: #fff;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  box-shadow: 0 0 20px var(--color-red-glow);
+  animation: pulseAlert 0.8s infinite;
+}
+
+.hud-alert.dock-alert {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: var(--color-emerald);
+  box-shadow: 0 0 20px var(--color-emerald-glow);
+}
+
+@keyframes pulseAlert {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.7; }
+}
+
+.hud-footer {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 2rem;
+  right: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.controls-hint { padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--color-text-muted); }
+.key-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.flight-telemetry {
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.key-badge-turbo {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.4), rgba(59, 130, 246, 0.5));
+  border: 1px solid #38bdf8;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.flight-speed-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hud-boost-badge {
+  display: inline-block;
+  padding: 0.12rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+}
+
+.hud-boost-badge.active {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.55), rgba(59, 130, 246, 0.75));
+  color: #fff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.85), inset 0 0 8px rgba(255, 255, 255, 0.5);
+  animation: boostGlowPulse 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes boostGlowPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.06); filter: brightness(1.35); }
+}
+
+/* ==========================================================================
+   MODAL QUICK TIME EVENT (QTE)
+   ========================================================================== */
+
+.qte-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.qte-modal-backdrop.active { opacity: 1; visibility: visible; pointer-events: auto; }
+
+.qte-card {
+  width: 440px;
+  max-width: 90vw;
+  padding: 2.25rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  border-top: 3px solid var(--color-emerald);
+  box-shadow: 0 0 50px rgba(16, 185, 129, 0.25);
+}
+
+.qte-station-type {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-emerald);
+  letter-spacing: 2px;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.qte-card h2 { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 1px; color: #fff; }
+.qte-card p { font-size: 0.8rem; color: var(--color-text-muted); }
+
+.qte-action-circle {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  display: grid;
+  place-items: center;
+}
+
+.qte-svg-timer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.qte-timer-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 8; }
+.qte-timer-bar {
+  fill: none;
+  stroke: var(--color-emerald);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 326.7;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 6px var(--color-emerald));
+}
+
+.qte-key-display {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 2px solid var(--color-emerald);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+#qte-target-key {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.qte-status-message {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-emerald);
+}
+
+.qte-penalty-note { font-size: 0.72rem; color: var(--color-amber); font-family: var(--font-mono); }
+
+/* ==========================================================================
+   MODALES DE FIN (DERIVA DESOLADA / ÉXITO / FRACASO)
+   ========================================================================== */
+
+.endgame-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.88);
+  backdrop-filter: blur(12px);
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.endgame-modal.active { opacity: 1; visibility: visible; pointer-events: auto; }
+
+.endgame-card {
+  width: 520px;
+  max-width: 92vw;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.35rem;
+}
+
+.endgame-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+.success-badge { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--color-emerald); color: var(--color-emerald); }
+.failure-badge { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--color-red); color: var(--color-red); }
+.failure-card { border-top: 3px solid var(--color-red); }
+
+/* MODAL DE NAVE DESOLADA EN EL VACÍO */
+.stranded-card {
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-top: 3px solid #38bdf8;
+  box-shadow: 0 0 60px rgba(56, 189, 248, 0.25);
+  background: radial-gradient(circle at 50% 20%, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.98));
+}
+
+.stranded-badge {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+
+.stranded-scene-log {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 3px solid #38bdf8;
+  padding: 1rem;
+  border-radius: 6px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.stranded-stats-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.endgame-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.75rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label { font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-text-muted); }
+.stat-num { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
+
+.retry-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+  color: #fff;
+}
+
+.retry-btn:hover {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.7);
+}
+
+.damage-flash {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(220, 38, 38, 0.85) 100%);
+  box-shadow: inset 0 0 80px rgba(239, 68, 68, 0.9);
+  z-index: 95;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.08s ease-out;
+}
+
+.damage-flash.active {
+  opacity: 1;
+}
+
+/* Vibración de Pantalla (Camera Trauma Shake) */
+.screen-trauma {
+  animation: cameraTrauma 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes cameraTrauma {
+  10%, 90% { transform: translate3d(-4px, 2px, 0) rotate(-0.5deg); }
+  20%, 80% { transform: translate3d(6px, -4px, 0) rotate(0.8deg); }
+  30%, 50%, 70% { transform: translate3d(-8px, 4px, 0) rotate(-1deg); }
+  40%, 60% { transform: translate3d(8px, -2px, 0) rotate(0.6deg); }
+}
+
+/* ==========================================================================
+   PANEL DE TELEMETRÍA Y CÁLCULOS MATEMÁTICOS EN VIVO DURANTE EL VUELO
+   ========================================================================== */
+.flight-live-math-panel {
+  position: absolute;
+  bottom: 4.8rem;
+  left: 2rem;
+  width: 350px;
+  max-width: calc(100vw - 4rem);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 25;
+  pointer-events: auto;
+  border-left: 3px solid var(--color-cyan);
+  transition: all 0.28s ease;
+}
+
+.flight-live-math-panel.collapsed {
+  width: auto;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+}
+
+.flight-live-math-panel.collapsed .live-math-stats,
+.flight-live-math-panel.collapsed .live-math-equation,
+.flight-live-math-panel.collapsed .hud-actions-row {
+  display: none !important;
+}
+
+.live-math-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.live-math-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-cyan);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.math-collapse-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  color: var(--color-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.math-collapse-btn:hover {
+  background: rgba(0, 243, 255, 0.25);
+  border-color: var(--color-cyan);
+  color: #fff;
+}
+
+.math-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 8px var(--color-cyan);
+  animation: pulseIndicator 1.2s infinite;
+}
+
+.live-math-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  background: rgba(2, 6, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+.live-math-equation {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: #7dd3fc;
+  background: rgba(0, 243, 255, 0.08);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.hud-actions-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+.hud-mini-btn {
+  flex: 1;
+  background: rgba(0, 243, 255, 0.12);
+  border: 1px solid var(--color-cyan);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  text-align: center;
+}
+
+.hud-mini-btn:hover {
+  background: rgba(0, 243, 255, 0.3);
+  box-shadow: 0 0 12px var(--color-cyan-glow);
+}
+
+.hud-mini-btn.danger {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--color-red);
+  color: #fca5a5;
+}
+
+.hud-mini-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.35);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+}
+
+.hud-mini-btn.vastness-glow {
+  background: rgba(129, 140, 248, 0.16);
+  border-color: #818cf8;
+  color: #e0e7ff;
+  letter-spacing: 0.04em;
+}
+
+.hud-mini-btn.vastness-glow:hover {
+  background: rgba(129, 140, 248, 0.32);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(129, 140, 248, 0.6);
+}
+
+.hud-mini-btn.vastness-glow.active {
+  background: rgba(129, 140, 248, 0.45);
+  border-color: #a5b4fc;
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(165, 180, 252, 0.8), inset 0 0 10px rgba(129, 140, 248, 0.5);
+}
+
+.cosmic-scale-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(2, 6, 23, 0.75);
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  backdrop-filter: blur(8px);
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: #c7d2fe;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 12px rgba(129, 140, 248, 0.2);
+}
+
+.cosmic-scale-badge .vastness-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #818cf8;
+  box-shadow: 0 0 8px #a5b4fc;
+  animation: cosmicPulse 2.8s infinite ease-in-out;
+}
+
+@keyframes cosmicPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* ==========================================================================
+   PANTALLA CINEMÁTICA: NAVE ARWING DESOLADA A LA DERIVA (IDÉNTICA A LA IMAGEN)
+   ========================================================================== */
+.stranded-cinematic-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stranded-cinematic-screen.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Capa de fondo con la nebulosa y estrella de referencia */
+.stranded-backdrop-layer {
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/stranded_deep_space.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  z-index: 1;
+  opacity: 0.95;
+  filter: contrast(1.1) brightness(1.05);
+}
+
+/* Destello Anamórfico Horizontal (Horizontal Lens Flare Beam) */
+.cinematic-anamorphic-flare {
+  position: absolute;
+  top: 38%;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    rgba(0, 243, 255, 0) 0%, 
+    rgba(0, 243, 255, 0.4) 20%, 
+    rgba(255, 255, 255, 0.95) 40%, 
+    rgba(255, 255, 255, 1) 42%, 
+    rgba(255, 255, 255, 0.95) 44%, 
+    rgba(0, 243, 255, 0.4) 65%, 
+    rgba(0, 243, 255, 0) 100%
+  );
+  box-shadow: 0 0 35px 6px rgba(0, 243, 255, 0.8), 0 0 100px 15px rgba(56, 189, 248, 0.6);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Barras de Cine Widescreen (Letterbox) */
+.cinema-letterbox {
+  position: relative;
+  width: 100%;
+  background: #000;
+  z-index: 10;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+}
+
+.cinema-letterbox.top {
+  height: 10vh;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cinema-letterbox.bottom {
+  height: 12vh;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Pie de Página Cinemático / Subtítulos de Deriva */
+.stranded-bottom-caption {
+  position: relative;
+  z-index: 12;
+  align-self: center;
+  max-width: 860px;
+  margin: 0 auto 1.5rem;
+  padding: 1.5rem 2rem;
+  background: rgba(2, 6, 23, 0.88);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-top: 3px solid #38bdf8;
+  border-radius: 12px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.2);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.stranded-bottom-caption.hidden-ui {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.stranded-beacon-signal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #38bdf8;
+  letter-spacing: 2px;
+}
+
+.beacon-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 12px #38bdf8;
+  animation: beaconPing 1.2s infinite;
+}
+
+@keyframes beaconPing {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.stranded-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+}
+
+.stranded-desc {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.stranded-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.cinema-toggle-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 2rem;
+  z-index: 20;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: var(--transition-smooth);
+}
+
+.cinema-toggle-btn:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+}
+
+/* ==========================================================================
+   MODAL DE FOTOGRAFÍA EN ALTA RESOLUCIÓN DE LA NASA
+   ========================================================================== */
+.photo-modal-card {
+  width: 820px;
+  max-width: 94vw;
+  max-height: 90vh;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-top: 3px solid var(--color-cyan);
+}
+
+.photo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.photo-modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.photo-modal-body {
+  width: 100%;
+  height: 55vh;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#photo-modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.photo-modal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+
+/* ==========================================================================
+   ESTADO TELEMÉTRICO Y BOTÓN DE SONDA DE ESCANEO ORBITAL
+   ========================================================================== */
+.telemetry-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.telemetry-radar-indicator {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #f59e0b;
+  display: inline-block;
+  box-shadow: 0 0 10px #f59e0b;
+}
+
+.telemetry-radar-indicator.verified {
+  background-color: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.pulse-radar {
+  animation: pulseRadar 1.4s infinite ease-in-out;
+}
+
+@keyframes pulseRadar {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+}
+
+.telemetry-status-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.telemetry-status-tag.unknown {
+  color: #f59e0b;
+}
+
+.telemetry-status-tag.verified {
+  color: #10b981;
+}
+
+.telemetry-status-tag.scanning {
+  color: #00f3ff;
+  animation: blinkFast 0.5s infinite alternate;
+}
+
+@keyframes blinkFast {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+.scan-probe-btn {
+  width: 100%;
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.9rem;
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.18) 0%, rgba(14, 116, 144, 0.35) 100%);
+  border: 1px solid #00f3ff;
+  border-radius: 6px;
+  color: #e0f2fe;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.25);
+  transition: var(--transition-smooth);
+}
+
+.scan-probe-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.35) 0%, rgba(14, 116, 144, 0.6) 100%);
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.scan-probe-btn.scanned {
+  border-color: #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.35) 100%);
+  color: #6ee7b7;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.test-landing-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(180, 83, 9, 0.35) 100%);
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  color: #fef08a;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+}
+
+.test-landing-btn:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(180, 83, 9, 0.55) 100%);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+  transform: translateY(-2px);
+}
+
+.hud-mini-btn.landing {
+  border-color: #f59e0b;
+  color: #fef08a;
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.hud-mini-btn.landing:hover {
+  background: rgba(245, 158, 11, 0.3);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+}
+
+/* ==========================================================================
+   PANTALLA DE DESCENSO Y ATERRIZAJE EN CAÑÓN 3D (LANDING ENGINE HUD)
+   ========================================================================== */
+#landing-simulation-screen {
+  background: transparent;
+}
+
+.landing-topbar {
+  position: absolute;
+  top: 1.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 960px;
+  padding: 0.75rem 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 3px solid #f59e0b;
+  z-index: 28;
+}
+
+.landing-site-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1.5px;
+}
+
+.landing-radar-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 12px #f59e0b;
+  animation: pulseRadar 1s infinite alternate;
+}
+
+.landing-meters-row {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.meter-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-family: var(--font-mono);
+}
+
+.meter-chip .chip-label {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+}
+
+.meter-chip .chip-val {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+/* Barra de Seguimiento del Cañón hacia la Pista */
+.landing-track-box {
+  position: absolute;
+  top: 5.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 960px;
+  z-index: 26;
+}
+
+.landing-track-track {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  overflow: visible;
+}
+
+.landing-track-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b 0%, #10b981 100%);
+  border-radius: 5px;
+  width: 0%;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+  transition: width 0.15s linear;
+}
+
+.landing-ship-icon {
+  position: absolute;
+  top: -12px;
+  transform: translateX(-50%);
+  font-size: 1.25rem;
+  transition: left 0.15s linear;
+  filter: drop-shadow(0 0 8px #00f3ff);
+}
+
+.landing-base-icon {
+  position: absolute;
+  right: 0;
+  top: -22px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #10b981;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Alarma de Terreno (GPWS PULL UP) - Colocada debajo del speed corridor para nunca sobremontarse */
+.terrain-warning-banner {
+  position: absolute;
+  top: 13.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(239, 68, 68, 0.9);
+  border: 2px solid #ef4444;
+  color: #fff;
+  padding: 0.65rem 1.75rem;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+  z-index: 35;
+}
+
+.terrain-warning-banner.active {
+  opacity: 1;
+  animation: terrainAlarmBlink 0.35s infinite alternate;
+}
+
+@keyframes terrainAlarmBlink {
+  from { transform: translateX(-50%) scale(1); filter: brightness(1); }
+  to { transform: translateX(-50%) scale(1.04); filter: brightness(1.3); }
+}
+
+/* Retícula de Descenso */
+.landing-crosshair {
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.7));
+}
+
+.landing-crosshair .crosshair-ring {
+  border-color: #f59e0b;
+}
+
+.landing-crosshair .crosshair-center {
+  background-color: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+}
+
+/* Footer de Descenso */
+.landing-footer {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 960px;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 25;
+}
+
+.landing-hint {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.landing-status-badge {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Modal de Éxito de Aterrizaje */
+.touchdown-card {
+  border-top: 3px solid #10b981;
+}
+
+/* Banner de Alerta VTOL Estacionamiento Vertical */
+.vtol-status-hud {
+  position: absolute;
+  top: 14rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid var(--color-cyan);
+  border-radius: 30px;
+  padding: 0.65rem 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  z-index: 30;
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.4), inset 0 0 15px rgba(0, 243, 255, 0.12);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
+  pointer-events: none;
+}
+
+.vtol-status-hud.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.vtol-radar-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #00f3ff;
+  box-shadow: 0 0 10px #00f3ff;
+  animation: radarPing 1s infinite;
+}
+
+.vtol-status-text {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+  color: #f8fafc;
+}
+
+/* ==========================================================================
+   CINEMÁTICA: ESCENAS EN CASO DE FALLAR // VACÍO CÓSMICO (IDÉNTICAS A LA IMAGEN)
+   ========================================================================== */
+
+.stranded-cinematic-screen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 120;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s ease;
+  overflow: hidden;
+}
+
+.stranded-cinematic-screen.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Capa de Fondo Fotorrealista de la Nebulosa Estelar y Estrella (Detrás del WebGL Canvas) */
+.stranded-backdrop-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease-in-out, background-image 0.75s ease-in-out;
+  pointer-events: none;
+}
+
+.stranded-backdrop-layer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.stranded-backdrop-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 40% 45%, transparent 70%, rgba(2, 6, 23, 0.35) 100%);
+  pointer-events: none;
+}
+
+/* Destello Anamórfico Horizontal (Alineado con precisión milimétrica a la estrella central en X:39.5% Y:43.5%) */
+.cinematic-anamorphic-flare {
+  position: absolute;
+  top: 43.5%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 243, 255, 0.02) 10%,
+    rgba(0, 243, 255, 0.45) 25%,
+    rgba(255, 255, 255, 0.95) 38%,
+    rgba(255, 255, 255, 1) 39.5%,
+    rgba(255, 255, 255, 0.95) 41%,
+    rgba(0, 243, 255, 0.45) 55%,
+    rgba(0, 243, 255, 0.02) 85%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 18px 2px rgba(0, 243, 255, 0.9),
+    0 0 50px 6px rgba(0, 243, 255, 0.5),
+    0 0 95px 14px rgba(0, 243, 255, 0.3);
+  animation: anamorphicBreathe 4.5s ease-in-out infinite alternate;
+}
+
+#flight-hud-screen.stranded-mode .hud-topbar,
+#flight-hud-screen.stranded-mode .planet-approach-hud,
+#flight-hud-screen.stranded-mode .cockpit-crosshair,
+#flight-hud-screen.stranded-mode .cockpit-wings,
+#flight-hud-screen.stranded-mode .flight-cockpit-instruments,
+#flight-hud-screen.stranded-mode .flight-live-math-panel,
+#flight-hud-screen.stranded-mode .hud-footer,
+#flight-hud-screen.stranded-mode .hud-alert-container {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.resume-action-btn {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.4) 0%, rgba(6, 182, 212, 0.45) 100%) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.45), inset 0 0 15px rgba(16, 185, 129, 0.2) !important;
+}
+
+.resume-action-btn:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.65) 0%, rgba(6, 182, 212, 0.7) 100%) !important;
+  box-shadow: 0 0 35px rgba(16, 185, 129, 0.7) !important;
+  transform: translateY(-2px);
+}
+
+@keyframes anamorphicBreathe {
+  0% { opacity: 0.85; transform: scaleY(0.9); }
+  50% { opacity: 1.0; transform: scaleY(1.3); }
+  100% { opacity: 0.9; transform: scaleY(1.0); }
+}
+
+/* Barras Panorámicas de Cine (Letterbox Widescreen) */
+.cinema-letterbox {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.cinema-letterbox.top {
+  top: 0;
+  min-height: 4.2rem;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.96) 0%, rgba(2, 6, 23, 0.75) 75%, transparent 100%);
+  border-bottom: 1px solid rgba(0, 243, 255, 0.15);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+}
+
+.cinema-letterbox.bottom {
+  bottom: 0;
+  min-height: 2.2rem;
+  background: linear-gradient(0deg, rgba(2, 6, 23, 0.96) 0%, rgba(2, 6, 23, 0.65) 75%, transparent 100%);
+  border-top: 1px solid rgba(0, 243, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cinema-footer-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+/* Barra de Herramientas Superior */
+.cinema-topbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cinema-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cinema-badge-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+  animation: beaconPulse 1.2s infinite;
+}
+
+.cinema-brand {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #e2e8f0;
+}
+
+.cinema-director-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-cyan);
+  background: rgba(0, 243, 255, 0.12);
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  border-radius: 20px;
+  padding: 0.25rem 0.65rem;
+  letter-spacing: 0.8px;
+}
+
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: beaconPulse 1.1s infinite;
+}
+
+/* Selector Central de Escenas */
+.cinema-scene-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  border-radius: 30px;
+  padding: 0.3rem 0.6rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 243, 255, 0.1);
+}
+
+.cinema-nav-btn {
+  background: rgba(0, 243, 255, 0.12);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  color: var(--color-cyan);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.cinema-nav-btn:hover {
+  background: var(--color-cyan);
+  color: #020617;
+  transform: scale(1.1);
+  box-shadow: 0 0 15px var(--color-cyan-glow);
+}
+
+.cinema-scene-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 220px;
+  text-align: center;
+}
+
+.scene-num-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-cyan);
+  letter-spacing: 1.5px;
+}
+
+.scene-sub-title {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* Botones de Acción de Cine */
+.cinema-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cinema-pill-btn {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 0.45rem 0.9rem;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition-smooth);
+}
+
+.cinema-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+
+.cinema-pill-btn.active {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+  color: #10b981;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.cinema-pill-btn.danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.cinema-pill-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+/* Píldoras Rápidas de Escenas (Tabs) */
+.failure-scenes-tabs {
+  position: absolute;
+  top: 4.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 25;
+  pointer-events: auto;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.scene-tab-chip {
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 0.35rem 0.85rem;
+  color: #94a3b8;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition-smooth);
+}
+
+.scene-tab-chip .chip-index {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+}
+
+.scene-tab-chip:hover {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: var(--color-cyan);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.scene-tab-chip.active {
+  background: rgba(0, 243, 255, 0.18);
+  border-color: var(--color-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.35);
+}
+
+.scene-tab-chip.active .chip-index {
+  background: var(--color-cyan);
+  color: #020617;
+  font-weight: 800;
+}
+
+/* Cuadro Inferior de Información Dramática y Causa del Fallo */
+.stranded-bottom-caption {
+  position: absolute;
+  bottom: 2.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92%, 860px);
+  background: rgba(8, 14, 28, 0.86);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(0, 243, 255, 0.28);
+  border-radius: 14px;
+  padding: 1.4rem 1.8rem;
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.8), inset 0 0 25px rgba(0, 243, 255, 0.1);
+  z-index: 25;
+  pointer-events: auto;
+  transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
+}
+
+.stranded-bottom-caption.hidden-ui {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(40px);
+  pointer-events: none;
+}
+
+.failure-scenes-tabs.hidden-ui {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(-20px);
+  pointer-events: none;
+}
+
+/* Botón Flotante para Restaurar Controles */
+.restore-hud-btn {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.5rem;
+  z-index: 150;
+  background: rgba(8, 14, 28, 0.88);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+  pointer-events: auto;
+  transition: var(--transition-smooth);
+}
+
+.restore-hud-btn:hover {
+  background: var(--color-cyan);
+  color: #020617;
+  transform: scale(1.05);
+}
+
+.stranded-beacon-signal {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #ef4444;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+}
+
+.beacon-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: beaconPulse 1s infinite alternate;
+}
+
+@keyframes beaconPulse {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.3); filter: drop-shadow(0 0 6px #ef4444); }
+}
+
+.failure-cause-pill {
+  display: inline-block;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.stranded-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #f8fafc;
+  margin-bottom: 0.6rem;
+  text-shadow: 0 0 15px rgba(0, 243, 255, 0.35);
+}
+
+.failure-telemetry-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.45rem 0.85rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.failure-telemetry-strip strong {
+  color: var(--color-cyan);
+}
+
+.stranded-desc {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+  margin-bottom: 1.2rem;
+}
+
+.stranded-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.retry-btn {
+  flex: 1;
+  padding: 0.85rem 1.4rem;
+}
+
+.secondary-btn {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.85rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   ANÁLISIS ESPECTROSCÓPICO & MATERIALES DEL PLANETA (NASA EXPLORATION SENSOR)
+   ========================================================================== */
+.spectroscopy-box {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(0, 243, 255, 0.28);
+  border-radius: 10px;
+  padding: 1.1rem;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(0, 243, 255, 0.05);
+  backdrop-filter: blur(12px);
+}
+
+.spectro-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spectro-icon {
+  font-size: 1.15rem;
+}
+
+.spectro-title {
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #e2e8f0;
+  flex: 1;
+}
+
+.scan-pill {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.scan-pill.unknown {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.scan-pill.verified {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.6);
+  color: #34d399;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.scan-pill.scanning {
+  background: rgba(0, 243, 255, 0.18);
+  border: 1px solid rgba(0, 243, 255, 0.6);
+  color: #00f3ff;
+  animation: pulseScan 1s infinite alternate;
+}
+
+@keyframes pulseScan {
+  from { opacity: 0.6; }
+  to { opacity: 1; box-shadow: 0 0 15px rgba(0, 243, 255, 0.6); }
+}
+
+.identification-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  background: rgba(2, 6, 23, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+}
+
+.id-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  gap: 0.5rem;
+}
+
+.id-label {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.id-val {
+  color: #f1f5f9;
+  text-align: right;
+}
+
+.resource-meter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.3rem;
+}
+
+.resource-label-wrap {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.resource-num {
+  font-weight: 800;
+}
+
+.resource-bar-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.resource-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00f3ff, #10b981);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.5);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* LISTA DINÁMICA DE MATERIALES */
+.materials-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.materials-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #cbd5e1;
+}
+
+.materials-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.materials-list-container::-webkit-scrollbar {
+  width: 4px;
+}
+.materials-list-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+.materials-list-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.3);
+  border-radius: 2px;
+}
+
+.materials-empty-hint {
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 0.85rem;
+  text-align: center;
+}
+
+.material-card {
+  background: rgba(2, 6, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid #38bdf8;
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: var(--transition-smooth);
+}
+
+.material-card:hover {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(0, 243, 255, 0.3);
+  transform: translateX(2px);
+}
+
+.material-card.volatile { border-left-color: #06b6d4; }
+.material-card.metal { border-left-color: #f59e0b; }
+.material-card.silicate { border-left-color: #94a3b8; }
+.material-card.energy { border-left-color: #a855f7; }
+.material-card.gas { border-left-color: #38bdf8; }
+.material-card.rare { border-left-color: #ec4899; }
+
+.material-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.material-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.material-formula {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.material-name {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: #f8fafc;
+}
+
+.material-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.material-type-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.badge-volatile { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+.badge-metal { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-silicate { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+.badge-energy { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+.badge-gas { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+.badge-rare { background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
+
+.material-pct-badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.material-bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.material-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.material-bar-fill.volatile { background: #06b6d4; }
+.material-bar-fill.metal { background: #f59e0b; }
+.material-bar-fill.silicate { background: #94a3b8; }
+.material-bar-fill.energy { background: #a855f7; }
+.material-bar-fill.gas { background: #38bdf8; }
+.material-bar-fill.rare { background: #ec4899; }
+
+.material-desc {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ==========================================================================
+   CORREDOR DE VELOCIDAD DE ATERRIZAJE & PEDALES DE FRENADO GRADUAL
+   ========================================================================== */
+.meter-chip.speed-chip {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.meter-chip.brake-chip .chip-val.active {
+  color: #00f3ff;
+  animation: pulseBrake 0.5s infinite alternate;
+}
+
+@keyframes pulseBrake {
+  from { opacity: 0.7; }
+  to { opacity: 1; text-shadow: 0 0 10px #00f3ff; }
+}
+
+.speed-corridor-box {
+  position: absolute;
+  top: 6.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 820px;
+  background: rgba(2, 6, 23, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  z-index: 25;
+}
+
+.speed-corridor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.speed-corridor-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #cbd5e1;
+}
+
+.radar-dot-pulse {
+  width: 8px;
+  height: 8px;
+  background: #00f3ff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00f3ff;
+  animation: radarPing 1s infinite;
+}
+
+.speed-corridor-status .status-pill {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+}
+
+.status-pill.success {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.6);
+  color: #34d399;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.status-pill.warning {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+}
+
+.status-pill.danger {
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.7);
+  color: #f87171;
+  animation: pulseDanger 0.6s infinite alternate;
+}
+
+@keyframes pulseDanger {
+  from { opacity: 0.7; }
+  to { opacity: 1; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+}
+
+.speed-corridor-bar-track {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.speed-corridor-fill {
+  height: 100%;
+  width: 70%;
+  background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+  transition: width 0.15s ease, background 0.3s ease;
+}
+
+.speed-corridor-safe-zone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25%; /* Rango 0 a 40 m/s sobre 160-200 */
+  height: 100%;
+  border-right: 2px dashed #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.safe-zone-text {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #a7f3d0;
+  letter-spacing: 0.8px;
+}
+
+.speed-corridor-subtext {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.speed-corridor-subtext strong {
+  color: var(--color-cyan);
+}
+
+/* PEDALES INTERACTIVOS DE ATERRIZAJE (CONTROLES TÁCTILES Y DE RATÓN) */
+.landing-pedals-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.pedal-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 10px;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  transition: var(--transition-smooth);
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.pedal-btn:hover {
+  transform: translateY(-2px);
+}
+
+.pedal-btn.brake-pedal {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.15);
+}
+
+.pedal-btn.brake-pedal:hover,
+.pedal-btn.brake-pedal.active-pressed {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+  transform: scale(0.97);
+}
+
+.pedal-btn.throttle-pedal {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
+}
+
+.pedal-btn.throttle-pedal:hover,
+.pedal-btn.throttle-pedal.active-pressed {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
+  transform: scale(0.97);
+}
+
+.pedal-icon {
+  font-size: 1.4rem;
+}
+
+.pedal-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.pedal-title {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.pedal-key-hint {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: #94a3b8;
+}
+
+/* MATERIALES EN EL MODAL DE TOUCHDOWN */
+.touchdown-materials-box {
+  margin: 1.2rem 0;
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.materials-box-header {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--color-cyan);
+  margin-bottom: 0.8rem;
+}
+
+.touchdown-materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* MODAL DE ESCANEO DE PLANETA EN CABINA DE VUELO */
+.flight-scan-card {
+  max-width: 680px;
+  width: 90vw;
+  background: rgba(2, 6, 23, 0.94);
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  border-radius: 14px;
+  padding: 1.75rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 243, 255, 0.2);
+  backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.scan-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.8rem;
+}
+
+.scan-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.scan-modal-title-row h3 {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #fff;
+  margin: 0;
+}
+
+.scan-planet-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 10px;
+  padding: 1rem 1.4rem;
+}
+
+.scan-hero-meta h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  margin: 0 0 0.3rem 0;
+}
+
+.scan-hero-meta p {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin: 0.35rem 0 0 0;
+}
+
+.scan-resource-score-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(2, 6, 23, 0.8);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+}
+
+.scan-resource-score-wrap .score-title {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  color: #94a3b8;
+}
+
+.scan-resource-score-wrap .score-val {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.flight-scan-materials-wrap h4 {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #e2e8f0;
+  margin: 0 0 0.6rem 0;
+}
+
+.hud-mini-btn.scan-btn {
+  background: rgba(0, 243, 255, 0.15);
+  border-color: rgba(0, 243, 255, 0.4);
+  color: #00f3ff;
+}
+
+.hud-mini-btn.scan-btn:hover {
+  background: rgba(0, 243, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+}
+
+@media (max-width: 900px) {
+  .planet-smash-overlay { padding-top: 4.5rem; overflow-y: auto; pointer-events: auto; }
+  .planet-info-panel { position: static; width: 100%; margin-top: 1rem; max-height: none; }
+  .hud-topbar { grid-template-columns: 1fr; gap: 0.5rem; }
+  .planet-approach-hud { width: 90vw; top: 10.5rem; }
+  .hud-footer { flex-direction: column; gap: 0.5rem; align-items: stretch; }
+  .landing-topbar { flex-direction: column; gap: 0.5rem; align-items: stretch; }
+  .landing-footer { flex-direction: column; gap: 0.5rem; }
+  .cinema-topbar { flex-direction: column; gap: 0.5rem; }
+  .failure-scenes-tabs { top: 7.2rem; flex-wrap: wrap; }
+  .stranded-bottom-caption { bottom: 1.5rem; padding: 1rem; }
+  .failure-telemetry-strip { flex-direction: column; gap: 0.3rem; }
+  .stranded-actions { flex-direction: column; }
+}
+
+/* ==========================================================================
+   PANTALLA 4: MODO EXPLORACIÓN CÓSMICA LIBRE (GALAXIAS, AGUJEROS NEGROS & GUÍA)
+   ========================================================================== */
+
+.explore-space-btn {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.3) 0%, rgba(6, 182, 212, 0.35) 100%);
+  border: 1px solid #00f3ff;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: var(--transition-smooth);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+  text-transform: uppercase;
+}
+
+.explore-space-btn:hover {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.5) 0%, rgba(6, 182, 212, 0.6) 100%);
+  box-shadow: 0 0 35px rgba(0, 243, 255, 0.65);
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+}
+
+#space-exploration-screen {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease;
+  z-index: 50;
+}
+
+#space-exploration-screen.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.exploration-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  cursor: grab;
+}
+
+.exploration-canvas:active {
+  cursor: grabbing;
+}
+
+.exploration-topbar {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: auto;
+  gap: 1rem;
+}
+
+.exploration-center-status {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 30px;
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.status-radar-ping {
+  width: 10px;
+  height: 10px;
+  background: #00f3ff;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #00f3ff;
+  animation: radarPing 1.5s infinite;
+}
+
+.status-texts {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-title {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #f8fafc;
+}
+
+.status-sub {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--color-cyan);
+}
+
+.voice-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  color: #fff;
+  transition: var(--transition-smooth);
+}
+
+.voice-toggle-btn:hover {
+  background: rgba(0, 243, 255, 0.15);
+  border-color: #00f3ff;
+}
+
+/* Radar Flotante Lateral de Waypoints */
+.exploration-radar-panel {
+  position: absolute;
+  top: 5.2rem;
+  right: 1.5rem;
+  width: 320px;
+  max-width: 85vw;
+  max-height: calc(100vh - 18rem);
+  overflow-y: auto;
+  z-index: 10;
+  pointer-events: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-top: 2px solid #00f3ff;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.radar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.radar-title {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #e2e8f0;
+}
+
+.waypoints-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.waypoint-card {
+  background: rgba(2, 6, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.waypoint-card:hover {
+  background: rgba(0, 243, 255, 0.08);
+  border-color: rgba(0, 243, 255, 0.35);
+  transform: translateX(-3px);
+}
+
+.waypoint-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.waypoint-icon {
+  font-size: 1.2rem;
+}
+
+.waypoint-titles {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.waypoint-name {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.waypoint-cat {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: #94a3b8;
+}
+
+.waypoint-distance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+}
+
+.waypoint-dist-tag {
+  font-size: 0.65rem;
+  color: var(--color-cyan);
+}
+
+.warp-jump-btn {
+  background: rgba(0, 243, 255, 0.15);
+  border: 1px solid var(--color-cyan);
+  color: #00f3ff;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.warp-jump-btn:hover {
+  background: #00f3ff;
+  color: #020617;
+  box-shadow: 0 0 12px #00f3ff;
+}
+
+/* Panel Guía Holográfica del Cosmos (Explicación Dinámica) */
+.exploration-guide-panel {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(40px);
+  width: min(840px, calc(100vw - 3rem));
+  max-width: 95vw;
+  max-height: calc(100vh - 14rem);
+  overflow-y: auto;
+  z-index: 25;
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 1.25rem 1.6rem;
+  border-radius: 14px;
+  border-top: 3px solid var(--color-cyan);
+  background: rgba(15, 23, 42, 0.92);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.75), inset 0 0 25px rgba(0, 243, 255, 0.08);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.exploration-guide-panel.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.6rem;
+}
+
+.guide-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.guide-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: var(--transition-smooth);
+}
+
+.guide-close-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.guide-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.guide-icon {
+  font-size: 1.8rem;
+}
+
+.guide-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.guide-class {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.guide-distance-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(2, 6, 23, 0.6);
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.guide-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.guide-narrative-box {
+  background: rgba(2, 6, 23, 0.5);
+  border: 1px solid rgba(0, 243, 255, 0.18);
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ai-speech-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sound-wave {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10b981;
+  animation: radarPing 1.2s infinite;
+}
+
+.ai-speaker-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #34d399;
+}
+
+.guide-explanation {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.guide-relativity-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+.rel-item {
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.rel-item span {
+  color: #94a3b8;
+}
+
+.rel-item strong {
+  color: #f1f5f9;
+  font-size: 0.68rem;
+}
+
+.guide-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.audio-narration-btn {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #34d399;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition-smooth);
+}
+
+.audio-narration-btn:hover {
+  background: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.guide-source-note {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: #64748b;
+}
+
+/* Instrumentos de Vuelo de Exploración: Ubicados arriba a la izquierda para nunca sobremontar la guía holográfica */
+.explorer-flight-instruments {
+  position: absolute;
+  top: 5.4rem;
+  left: 1.5rem;
+  z-index: 20;
+  pointer-events: auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 243, 255, 0.25);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(14px);
+  max-width: 280px;
+}
+
+.instrument-meter {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+}
+
+.meter-label {
+  font-size: 0.65rem;
+  color: #94a3b8;
+}
+
+.hud-warp-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
+.hud-warp-tag.active {
+  background: rgba(0, 243, 255, 0.25);
+  color: #00f3ff;
+  border: 1px solid #00f3ff;
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.5);
+  animation: pulseScan 0.8s infinite alternate;
+}
+
+.flight-controls-hint {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+/* Botón Selector de Fondos Fotorrealistas del Universo */
+.skybox-switcher-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.skybox-switcher-btn:hover {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: #c084fc;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
+  transform: translateY(-1px);
+}
+
+.skybox-icon {
+  font-size: 1.1rem;
+}
+
+.skybox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+}
+
+.skybox-cycle-tag {
+  background: rgba(168, 85, 247, 0.25);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  color: #e9d5ff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   MEDIA QUERIES DE VISIBILIDAD Y PREVENCIÓN DE SOBREMONTADO (RESPONSIVE)
+   ========================================================================== */
+
+/* Laptops y pantallas medianas (1025px - 1366px) */
+@media (max-width: 1366px) {
+  .planet-info-panel {
+    width: 380px;
+    padding: 1.1rem;
+  }
+  .planet-selector-carousel {
+    max-width: calc(100vw - 430px);
+  }
+  .exploration-guide-panel {
+    width: min(740px, calc(100vw - 3rem));
+  }
+}
+
+/* Tablets horizontales y ventanas compactas (< 1024px) */
+@media (max-width: 1024px) {
+  .planet-info-panel {
+    width: 350px;
+    top: 4.5rem;
+    right: 1rem;
+  }
+  .planet-selector-carousel {
+    max-width: calc(100vw - 380px);
+    left: 1rem;
+    bottom: 1rem;
+  }
+  .hud-topbar {
+    left: 1rem;
+    right: 1rem;
+    gap: 0.5rem;
+  }
+  .hud-meter-box {
+    padding: 0.5rem 0.75rem;
+  }
+  .landing-meters-row {
+    gap: 0.75rem;
+  }
+  .exploration-radar-panel {
+    width: 260px;
+    right: 1rem;
+  }
+  .explorer-flight-instruments {
+    left: 1rem;
+  }
+}
+
+/* Pantallas móviles y ventanas estrechas (< 768px) */
+@media (max-width: 768px) {
+  .planet-info-panel {
+    width: calc(100vw - 2rem);
+    right: 1rem;
+    left: 1rem;
+    max-height: 60vh;
+    bottom: 1rem;
+    top: auto;
+  }
+  .planet-selector-carousel {
+    max-width: calc(100vw - 2rem);
+    left: 1rem;
+    bottom: 1rem;
+  }
+  .orbit-hint {
+    display: none;
+  }
+  .hud-topbar {
+    flex-wrap: wrap;
+  }
+  .hud-meter-box {
+    flex: 1 1 45%;
+  }
+  .exploration-radar-panel {
+    display: none;
+  }
+  .exploration-guide-panel {
+    width: calc(100vw - 2rem);
+    padding: 1rem;
+    bottom: 0.5rem;
+  }
+  .guide-relativity-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .explorer-flight-instruments {
+    top: auto;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    max-width: 220px;
+  }
+}
+
+/* Alturas reducidas (Laptops con 768px o 800px de altura con barras del navegador) */
+@media (max-height: 800px) {
+  .planet-info-panel {
+    max-height: calc(100vh - 5.5rem);
+    padding: 0.9rem 1.1rem;
+    gap: 0.65rem;
+  }
+  .nasa-real-img {
+    height: 120px;
+  }
+  .speed-corridor-box {
+    top: 6.2rem;
+    padding: 0.45rem 1rem;
+  }
+  .terrain-warning-banner {
+    top: 11.8rem;
+    padding: 0.45rem 1.25rem;
+    font-size: 0.85rem;
+  }
+  .landing-pedals-row {
+    margin-bottom: 0.25rem;
+  }
+  .pedal-btn {
+    padding: 0.5rem 0.85rem;
+  }
+  .flight-live-math-panel {
+    bottom: 3.8rem;
+    padding: 0.65rem 0.85rem;
+  }
+}
+
+/* ==========================================================================
+   ORDENADOR DE CÁLCULO MATEMÁTICO ORBITAL (NASA FLIGHT DYNAMICS)
+   ========================================================================== */
+
+.calc-open-modal-btn {
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.15) 0%, rgba(14, 165, 233, 0.25) 100%);
+  border: 1px solid var(--color-cyan);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+  margin-top: 0.35rem;
+}
+
+.calc-open-modal-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.3) 0%, rgba(14, 165, 233, 0.45) 100%);
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.orbital-calc-modal {
+  z-index: 130;
+}
+
+.orbital-calc-card {
+  width: 920px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5rem 1.8rem;
+  background: radial-gradient(circle at 50% 10%, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  box-shadow: 0 0 50px rgba(0, 243, 255, 0.2), inset 0 0 30px rgba(0, 243, 255, 0.05);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  position: relative;
+}
+
+.orbital-calc-card::-webkit-scrollbar {
+  width: 6px;
+}
+.orbital-calc-card::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.5);
+}
+.orbital-calc-card::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.4);
+  border-radius: 3px;
+}
+
+.calc-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+  padding-bottom: 0.8rem;
+}
+
+.calc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.calc-radar-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 14px var(--color-cyan);
+  animation: radarPulse 1.2s infinite;
+  flex-shrink: 0;
+}
+
+.calc-sys-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 1.2px;
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  margin: 0;
+}
+
+.calc-route-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-cyan);
+  letter-spacing: 0.5px;
+  margin-top: 0.15rem;
+}
+
+.calc-progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: rgba(2, 6, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.calc-progress-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.calc-status-text {
+  color: #cbd5e1;
+}
+
+.calc-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(0, 243, 255, 0.2);
+}
+
+.calc-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7 0%, var(--color-cyan) 60%, #a5f3fc 100%);
+  box-shadow: 0 0 14px var(--color-cyan);
+  border-radius: 999px;
+  transition: width 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.calc-steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+.calc-step-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  opacity: 0.45;
+}
+
+.calc-step-card.active-calculating {
+  opacity: 1;
+  border-color: rgba(245, 158, 11, 0.8);
+  background: rgba(245, 158, 11, 0.05);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+.calc-step-card.locked-in {
+  opacity: 1;
+  border-color: rgba(0, 243, 255, 0.55);
+  background: rgba(0, 243, 255, 0.04);
+  box-shadow: 0 0 18px rgba(0, 243, 255, 0.12);
+}
+
+.step-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+}
+
+.step-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 0.18rem 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: #94a3b8;
+}
+
+.calc-step-card.locked-in .step-badge {
+  background: rgba(0, 243, 255, 0.15);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+.step-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.8px;
+  flex: 1;
+}
+
+.step-lock-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  letter-spacing: 0.8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+}
+
+.calc-step-card.active-calculating .step-lock-tag {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid #f59e0b;
+}
+
+.calc-step-card.locked-in .step-lock-tag {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid #10b981;
+}
+
+.step-formula-box {
+  background: rgba(2, 6, 23, 0.85);
+  border: 1px solid rgba(0, 243, 255, 0.25);
+  border-radius: 6px;
+  padding: 0.4rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #7dd3fc;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
+  overflow-x: auto;
+}
+
+.step-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.45rem 1rem;
+  background: rgba(2, 6, 23, 0.45);
+  border-radius: 6px;
+  padding: 0.5rem 0.65rem;
+}
+
+.step-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  font-family: var(--font-mono);
+}
+
+.stat-lbl {
+  font-size: 0.62rem;
+  color: #94a3b8;
+}
+
+.stat-val {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.calc-modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+}
+
+.calc-recalc-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.65rem 1.1rem;
+}
+
+.calc-execute-btn {
+  font-size: 0.85rem;
+  padding: 0.75rem 1.6rem;
+}
+
+.calc-execute-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none !important;
+  filter: grayscale(0.8);
+}
+
+/* ==========================================================================
+   NASA 4K ULTRA HD EXPLORER & ASSETS REPOSITORY (NASA OPEN APIS)
+   ========================================================================== */
+
+.badge-4k-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: linear-gradient(135deg, #0284c7, #00f3ff);
+  color: #020617;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.badge-api-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #34d399;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+}
+
+.badge-api-live::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: beaconPulse 1.2s infinite alternate;
+}
+
+.nasa-photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.nasa-photo-modal.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.photo-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.88);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.photo-modal-container {
+  position: relative;
+  width: min(96vw, 1360px);
+  height: min(94vh, 900px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 14, 28, 0.95);
+  border: 1px solid rgba(0, 243, 255, 0.35);
+  border-radius: 18px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 243, 255, 0.18);
+  overflow: hidden;
+  z-index: 10;
+  animation: modalPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPopIn {
+  from { opacity: 0; transform: scale(0.96) translateY(15px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.photo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 1.6rem;
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+}
+
+.photo-modal-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.photo-modal-header .nasa-insignia.small {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.photo-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  margin: 0 0 0.25rem 0;
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+}
+
+.modal-subtitle-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.modal-credit-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.close-modal-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  font-size: 1.1rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.close-modal-btn:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+/* Barra de Búsqueda y Filtros de la API de la NASA */
+.nasa-api-search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.75rem 1.6rem;
+  background: rgba(2, 6, 23, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.search-input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.2rem 0.4rem 0.2rem 0.85rem;
+  transition: var(--transition-smooth);
+}
+
+.search-input-group:focus-within {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.35);
+}
+
+.search-icon {
+  font-size: 0.9rem;
+  margin-right: 0.6rem;
+  opacity: 0.7;
+}
+
+.search-input-group input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+}
+
+.search-input-group input::placeholder {
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.search-submit-btn {
+  background: linear-gradient(135deg, #0284c7, #00f3ff);
+  border: none;
+  color: #020617;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.search-submit-btn:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.5);
+}
+
+.quick-filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+}
+
+.quick-filter-chips::-webkit-scrollbar {
+  height: 3px;
+}
+
+.quick-filter-chips::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.3);
+  border-radius: 2px;
+}
+
+.filter-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-smooth);
+}
+
+.filter-chip:hover {
+  background: rgba(0, 243, 255, 0.15);
+  border-color: var(--color-cyan);
+  color: #ffffff;
+}
+
+.filter-chip.active {
+  background: var(--color-cyan);
+  border-color: var(--color-cyan);
+  color: #020617;
+  font-weight: 800;
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+}
+
+/* Cuerpo Principal: Imagen 4K & Telemetría Lateral */
+.photo-modal-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.2rem;
+  padding: 1.2rem 1.6rem;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.photo-viewport-box {
+  position: relative;
+  background: #020617;
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.8);
+}
+
+.photo-modal-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+.photo-viewport-box:hover .photo-modal-main-img {
+  transform: scale(1.02);
+}
+
+.photo-loading-spinner {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  z-index: 5;
+  color: var(--color-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
+.spinner-circle {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(0, 243, 255, 0.2);
+  border-top-color: var(--color-cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.photo-actions-overlay {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.65rem;
+  background: rgba(8, 14, 28, 0.88);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  padding: 0.45rem 0.8rem;
+  border-radius: 30px;
+  z-index: 4;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.photo-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  padding: 0.45rem 0.85rem;
+  border-radius: 20px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+.photo-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.photo-action-btn.action-apply {
+  background: rgba(0, 243, 255, 0.2);
+  border-color: var(--color-cyan);
+  color: #00f3ff;
+}
+
+.photo-action-btn.action-apply:hover {
+  background: var(--color-cyan);
+  color: #020617;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.45);
+}
+
+.photo-action-btn.action-reset:hover {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+.photo-action-btn.action-orig:hover {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: #10b981;
+  color: #34d399;
+}
+
+/* Panel Lateral de Telemetría */
+.photo-telemetry-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  padding-right: 0.4rem;
+}
+
+.photo-telemetry-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.photo-telemetry-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.3);
+  border-radius: 2px;
+}
+
+.sidebar-block {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.9rem;
+}
+
+.block-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--color-cyan);
+  letter-spacing: 1px;
+  margin-bottom: 0.4rem;
+}
+
+.photo-item-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.8px;
+}
+
+.item-meta-strip {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.meta-pill {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  color: #94a3b8;
+}
+
+.photo-item-desc {
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.tech-specs-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tech-spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  padding-bottom: 0.25rem;
+}
+
+.ts-lbl {
+  color: #94a3b8;
+}
+
+.ts-val {
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+/* Carrusel Inferior de Miniaturas 4K */
+.photo-modal-gallery-footer {
+  background: rgba(10, 18, 36, 0.9);
+  border-top: 1px solid rgba(0, 243, 255, 0.2);
+  padding: 0.8rem 1.6rem 1rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gallery-footer-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gallery-counter {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--color-cyan);
+  letter-spacing: 1px;
+}
+
+.gallery-hint {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.gallery-thumbnails-strip {
+  display: flex;
+  gap: 0.8rem;
+  overflow-x: auto;
+  padding: 0.3rem 0.2rem;
+}
+
+.gallery-thumbnails-strip::-webkit-scrollbar {
+  height: 5px;
+}
+
+.gallery-thumbnails-strip::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.4);
+  border-radius: 3px;
+}
+
+.gallery-thumb-card {
+  position: relative;
+  flex: 0 0 140px;
+  height: 84px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  background: #020617;
+  transition: var(--transition-smooth);
+}
+
+.gallery-thumb-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-thumb-card:hover {
+  border-color: var(--color-cyan);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 243, 255, 0.35);
+}
+
+.gallery-thumb-card:hover img {
+  transform: scale(1.08);
+}
+
+.gallery-thumb-card.active {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.6);
+}
+
+.thumb-title-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(2, 6, 23, 0.95), transparent);
+  padding: 0.4rem 0.35rem 0.2rem 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Toast flotante en el visor 3D */
+.planet-viewer-toast {
+  position: fixed;
+  top: 4.8rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(8, 14, 28, 0.92);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--color-cyan);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.65rem 1.4rem;
+  border-radius: 30px;
+  box-shadow: 0 10px 30px rgba(0, 243, 255, 0.4);
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.planet-viewer-toast.active {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Adaptación responsive para pantallas más compactas */
+@media (max-width: 900px) {
+  .photo-modal-body {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .photo-viewport-box {
+    min-height: 280px;
+  }
+  .photo-telemetry-sidebar {
+    padding-right: 0;
+  }
+}
+
+/* ==========================================================================
+   NASA ODYSSEY // SUB-TARJETAS DE TELEMETRÍA CIENTÍFICA (IDENTIDAD, TAMAÑO, LUNAS)
+   ========================================================================== */
+.telemetry-subcard {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--color-cyan);
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  transition: all 0.3s ease;
+}
+
+.telemetry-subcard:hover {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(0, 243, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(0, 243, 255, 0.05);
+}
+
+.telemetry-subcard-title {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #38bdf8;
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-transform: uppercase;
+}
+
+/* Estilo para Planeta Desconocido */
+.unknown-title {
+  color: #f59e0b !important;
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.6), 0 0 24px rgba(239, 68, 68, 0.4) !important;
+  animation: radarGlitchPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes radarGlitchPulse {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5)); }
+  50% { opacity: 0.85; filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.8)); }
+}
+
+.desolation-badge.unknown-badge {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25) !important;
+}
+
+/* ==========================================================================
+   HUD FLOTANTE DE ENJAMBRE DE DRONES DE RECONOCIMIENTO (ESCANEO 3D EN TIEMPO REAL)
+   ========================================================================== */
+.drone-scan-hud {
+  position: fixed;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9800;
+  width: 92%;
+  max-width: 660px;
+  pointer-events: auto;
+  animation: droneHudFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes droneHudFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-15px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.drone-hud-box {
+  background: rgba(6, 11, 25, 0.92);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(0, 243, 255, 0.45);
+  border-radius: 12px;
+  padding: 1.15rem 1.4rem;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(0, 243, 255, 0.25), inset 0 0 25px rgba(0, 243, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.drone-hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.drone-hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.drone-hud-radar-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 12px var(--color-cyan);
+  animation: pulseDot 1s infinite alternate;
+}
+
+@keyframes pulseDot {
+  from { transform: scale(0.8); opacity: 0.7; }
+  to { transform: scale(1.3); opacity: 1; }
+}
+
+.drone-hud-title {
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  color: #f8fafc;
+}
+
+.drone-hud-percent {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--color-cyan);
+  text-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+  min-width: 4rem;
+  text-align: right;
+}
+
+.drone-progress-track {
+  width: 100%;
+  height: 10px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.drone-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00f3ff, #10b981, #00f3ff);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  transition: width 0.1s linear;
+  animation: droneBarShimmer 1.8s infinite linear;
+  box-shadow: 0 0 14px rgba(0, 243, 255, 0.8);
+}
+
+@keyframes droneBarShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.drone-hud-live-status {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  border-left: 3px solid #10b981;
+  letter-spacing: 0.5px;
+}
+
+.drone-units-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+@media (max-width: 768px) {
+  .drone-units-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.drone-unit-pill {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.3s ease;
+}
+
+.drone-unit-pill:hover {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(0, 243, 255, 0.4);
+}
+
+.drone-pill-icon {
+  font-size: 1.25rem;
+}
+
+.drone-pill-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.drone-pill-name {
+  font-family: var(--font-display);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.drone-pill-role {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drone-pill-state {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.6);
+  color: #34d399;
+}
+
+/* Botón de Sonda Mejorado */
+.scan-probe-btn {
+  margin-top: 0.9rem;
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.18), rgba(16, 185, 129, 0.25));
+  border: 1px solid rgba(0, 243, 255, 0.65);
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 20px rgba(0, 243, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-probe-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.3), rgba(16, 185, 129, 0.4));
+  border-color: #00f3ff;
+  box-shadow: 0 8px 30px rgba(0, 243, 255, 0.4), 0 0 15px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+.scan-probe-btn.scanning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.25));
+  border-color: #f59e0b;
+  cursor: wait;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
+}
+
+.scan-probe-btn.scanned {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 78, 59, 0.4));
+  border-color: rgba(16, 185, 129, 0.7);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+  cursor: default;
+}
+
+/* ==========================================================================
+   NASA ODYSSEY // NARRATIVE SYSTEM & 90s SPACE ANIME HUD
+   Star Fox Radio Box, Sofia Parker PADD Tablet & Habitability Scorecard
+   ========================================================================== */
+
+/* 1. Botón PADD en la Topbar NASA */
+.topbar-padd-wrapper {
+  display: flex;
+  align-items: center;
+  margin-right: 0.75rem;
+}
+
+.padd-glow-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  color: #00e5ff;
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+}
+
+.padd-glow-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00e5ff;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.padd-notif-pill {
+  background: #ff3d00;
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+  animation: pulseNotif 1.4s infinite;
+}
+
+@keyframes pulseNotif {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+}
+
+/* 2. Caja de Radio Star Fox en Esquina Inferior Izquierda */
+.starfox-radio-box {
+  position: fixed;
+  bottom: 5.6rem;
+  left: 2rem;
+  width: 520px;
+  max-width: calc(100vw - 48px);
+  min-height: 120px;
+  display: flex;
+  gap: 1rem;
+  padding: 0.85rem;
+  background: rgba(10, 15, 26, 0.95);
+  backdrop-filter: blur(18px);
+  border: 1.5px solid rgba(0, 229, 255, 0.45);
+  border-radius: 12px;
+  z-index: 10000;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 229, 255, 0.25);
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.starfox-radio-box.active {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+  border-color: rgba(0, 229, 255, 0.85);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 229, 255, 0.4);
+}
+
+.starfox-radio-box.standby {
+  transform: translateY(0);
+  opacity: 0.96;
+  pointer-events: auto;
+  border-color: rgba(0, 229, 255, 0.35);
+}
+
+.starfox-radio-box.minimized {
+  transform: translateY(calc(100% - 36px));
+  opacity: 0.85;
+}
+
+/* Scanlines Retro CRT */
+.radio-crt-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.65;
+}
+
+.radio-holo-border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00e5ff, #00ff88, transparent);
+  animation: holoSweep 2.5s infinite linear;
+}
+
+@keyframes holoSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Marco de Avatar Anime Retro de los 90s */
+.radio-avatar-frame {
+  position: relative;
+  width: 95px;
+  height: 95px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 2px solid #00e5ff;
+  overflow: hidden;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
+  background: #000;
+}
+
+.radio-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: contrast(1.1) brightness(1.05);
+}
+
+.radio-scan-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 255, 136, 0.85);
+  box-shadow: 0 0 8px #00ff88;
+  animation: scanDown 1.8s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes scanDown {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+
+.radio-rec-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.55rem;
+  color: #ff3d00;
+  font-weight: 700;
+}
+
+.radio-rec-dot {
+  width: 5px;
+  height: 5px;
+  background: #ff3d00;
+  border-radius: 50%;
+  animation: pulseRec 1s infinite alternate;
+}
+
+@keyframes pulseRec {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* Osciloscopio de Onda de Voz */
+.radio-oscilloscope {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  height: 14px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 2px;
+  padding: 2px;
+}
+
+.radio-oscilloscope .osc-bar {
+  width: 5px;
+  height: 4px;
+  background: #00ff88;
+  border-radius: 1px;
+}
+
+@keyframes oscWaveAnim {
+  0% { height: 3px; background: #00e5ff; }
+  50% { height: 11px; background: #00ff88; }
+  100% { height: 5px; background: #ffff00; }
+}
+
+/* Cuerpo de Transmisión de Radio */
+.radio-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  z-index: 3;
+}
+
+.radio-meta-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.35rem;
+}
+
+.radio-id-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-char-name {
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #00e5ff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+.radio-char-role {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.64rem;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.radio-signal-badge {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid #00e5ff;
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.1);
+  white-space: nowrap;
+}
+
+.radio-dialogue-viewport {
+  margin: 0.45rem 0;
+  min-height: 44px;
+}
+
+.radio-dialogue-text {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.radio-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.35rem;
+}
+
+.radio-freq-indicator {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.radio-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.radio-action-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #f8fafc;
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.radio-action-btn:hover {
+  background: rgba(0, 229, 255, 0.25);
+  border-color: #00e5ff;
+  color: #00e5ff;
+}
+
+/* 3. Modal del PADD de la Comandante Sofia Parker */
+.captain-padd-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10005;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.captain-padd-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.padd-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(4, 7, 14, 0.88);
+  backdrop-filter: blur(14px);
+}
+
+.padd-tablet-frame {
+  position: relative;
+  width: 1100px;
+  max-width: 95vw;
+  max-height: 90vh;
+  background: #090e17;
+  border: 2px solid rgba(0, 229, 255, 0.45);
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 229, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.padd-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: rgba(13, 20, 36, 0.9);
+  border-bottom: 1.5px solid rgba(0, 229, 255, 0.3);
+}
+
+.padd-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.padd-nasa-logo {
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ff3d00;
+  background: rgba(255, 61, 0, 0.12);
+  border: 1px solid rgba(255, 61, 0, 0.5);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+
+.padd-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.padd-dev-title {
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #00e5ff;
+  letter-spacing: 1px;
+}
+
+.padd-dev-sub {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+.padd-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.padd-telemetry-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.68rem;
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+}
+
+.pulse-green {
+  width: 6px;
+  height: 6px;
+  background: #00ff88;
+  border-radius: 50%;
+  animation: pulseGreen 1.2s infinite alternate;
+}
+
+@keyframes pulseGreen {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+.padd-close-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  font-size: 1.4rem;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.padd-close-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+/* Grid Principal de 3 Columnas */
+.padd-main-grid {
+  display: grid;
+  grid-template-columns: 290px 1fr 310px;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.padd-card {
+  background: rgba(13, 20, 36, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.padd-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+/* Columna Izquierda: Biometría y Lista */
+.padd-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.padd-bio-avatar-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.padd-bio-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 8px;
+  border: 1.5px solid #00e5ff;
+  object-fit: cover;
+}
+
+.padd-bio-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.68rem;
+}
+
+.padd-bio-name {
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.padd-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.72rem;
+}
+
+.padd-stat-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  padding-bottom: 0.2rem;
+}
+
+.padd-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.padd-log-item {
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.padd-log-item:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+.padd-log-item.selected {
+  background: rgba(0, 229, 255, 0.18);
+  border-color: #00e5ff;
+}
+
+.padd-log-item.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.log-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.log-item-meta {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+}
+
+/* Columna Central: Lector de Registro */
+.padd-log-reader-card {
+  height: 100%;
+}
+
+.padd-reader-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.72rem;
+  color: #00e5ff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+.padd-audio-btn {
+  background: rgba(0, 255, 136, 0.12);
+  border: 1px solid rgba(0, 255, 136, 0.5);
+  color: #00ff88;
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.padd-audio-btn:hover {
+  background: rgba(0, 255, 136, 0.25);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+}
+
+.padd-reader-title {
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+  margin: 0.2rem 0;
+}
+
+.padd-reader-author {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.68rem;
+  color: #ffb300;
+  margin-bottom: 0.85rem;
+}
+
+.padd-reader-body {
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: #cbd5e1;
+  overflow-y: auto;
+  max-height: 380px;
+  padding-right: 0.5rem;
+}
+
+.padd-reader-body p {
+  margin-bottom: 0.75rem;
+}
+
+/* Columna Derecha: Tarjeta de Habitabilidad */
+.padd-col-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.padd-hab-score-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  margin-bottom: 0.85rem;
+}
+
+.padd-hab-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid #00ff88;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #00ff88;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.25);
+}
+
+.padd-hab-number {
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.padd-hab-unit {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.55rem;
+  letter-spacing: 0.5px;
+}
+
+.padd-hab-class-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.padd-hab-planet-name {
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.padd-hab-classification {
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.65rem;
+  color: #94a3b8;
+}
+
+.padd-hab-metrics-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+.hab-metric-item {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+}
+
+.metric-label {
+  font-size: 0.62rem;
+  color: #64748b;
+}
+
+.metric-val {
+  font-size: 0.72rem;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.padd-verdict-box {
+  background: rgba(0, 229, 255, 0.05);
+  border-left: 3px solid #00e5ff;
+  padding: 0.6rem;
+  border-radius: 4px;
+}
+
+.padd-verdict-tag {
+  font-family: var(--font-orbitron, 'Orbitron', sans-serif);
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #00e5ff;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.padd-verdict-text {
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+/* Pie del PADD */
+.padd-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.25rem;
+  background: rgba(9, 14, 23, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.64rem;
+  color: #64748b;
+}
+
+/* Subtarjeta de Habitabilidad Génesis en Panel de Telemetría */
+.habitability-genesis-subcard {
+  border-left: 3px solid #00ff88;
+  background: rgba(0, 255, 136, 0.04);
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 900px) {
+  .starfox-radio-box {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+  }
+  .padd-main-grid {
+    grid-template-columns: 1fr;
+    max-height: 75vh;
+  }
+}
+
+
+
+
+
+/* Feedback comprobación visual de respuestas (Correcto / Incorrecto) */
+.challenge-feedback-correct {
+  color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.15) !important;
+  border: 1px solid rgba(34, 197, 94, 0.6) !important;
+  padding: 8px 14px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 12px rgba(34, 197, 94, 0.6) !important;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.25) !important;
+  animation: feedbackPulse 0.4s ease-out;
+}
+
+.challenge-feedback-incorrect {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.6) !important;
+  padding: 8px 14px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 12px rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.25) !important;
+  animation: feedbackShake 0.4s ease-in-out;
+}
+
+.input-valid {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.5) !important;
+}
+
+.input-invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.5) !important;
+  animation: feedbackShake 0.35s ease-in-out;
+}
+
+@keyframes feedbackPulse {
+  0% { transform: scale(0.96); opacity: 0.7; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes feedbackShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* Presentación de Personajes y Motivo de Misión */
+.mission-dialog.mission-intro {
+  max-width: 820px !important;
+  width: 90vw !important;
+  background: radial-gradient(circle at 50% 10%, #0d1629, #040813 90%) !important;
+  border: 1px solid rgba(0, 243, 255, 0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 0 50px rgba(0, 243, 255, 0.25), inset 0 0 20px rgba(0, 0, 0, 0.8) !important;
+  color: #f1f5f9 !important;
+  padding: 24px 32px !important;
+  overflow-y: auto !important;
+  max-height: 88vh !important;
+}
+
+.mission-intro h1 {
+  font-family: var(--font-display, 'Orbitron', sans-serif);
+  font-size: 24px;
+  color: #00f3ff;
+  letter-spacing: 2px;
+  text-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+  margin-bottom: 16px;
+}
+
+.mission-motive-box {
+  background: rgba(15, 23, 42, 0.75);
+  border-left: 4px solid #00f3ff;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.mission-motive-box h3 {
+  font-size: 15px;
+  color: #f59e0b;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mission-crew-section h3 {
+  font-size: 15px;
+  color: #00f3ff;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.crew-roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.crew-card-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.crew-card-intro:hover {
+  transform: translateY(-2px);
+  border-color: #00f3ff;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+}
+
+.crew-badge {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.crew-info strong {
+  display: block;
+  font-size: 13px;
+  color: #e2e8f0;
+}
+
+.crew-role {
+  display: block;
+  font-size: 11px;
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+
+.crew-quote {
+  font-size: 11px;
+  font-style: italic;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.mission-intro-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.mission-start-btn {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #ffffff;
+  border: 1px solid #38bdf8;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-family: var(--font-display, 'Orbitron', sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  transition: all 0.2s;
+}
+
+.mission-start-btn:hover {
+  background: linear-gradient(135deg, #0369a1, #0284c7);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.8);
+  transform: scale(1.04);
+}
+
+/* ==========================================================================
+   CONSOLA DE DATOS CIENTÍFICOS EN VIVO NASA // MODAL HUD
+   ========================================================================== */
+.nasa-live-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nasa-live-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.nasa-live-container {
+  position: relative;
+  z-index: 2;
+  width: 92vw;
+  max-width: 1080px;
+  max-height: 88vh;
+  background: radial-gradient(circle at 50% 0%, #0d1e38, #030712 90%);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 0 60px rgba(0, 243, 255, 0.25), inset 0 0 20px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.nasa-live-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.nasa-live-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nasa-meatball-logo {
+  background: #e11d48;
+  color: #ffffff;
+  font-family: var(--font-display, sans-serif);
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(225, 29, 72, 0.6);
+}
+
+.nasa-live-header h2 {
+  font-family: var(--font-display, sans-serif);
+  font-size: 16px;
+  color: #00f3ff;
+  letter-spacing: 1.5px;
+  margin: 0;
+}
+
+.nasa-live-header p {
+  font-size: 11px;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  margin: 2px 0 0;
+}
+
+.nasa-live-close {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #f1f5f9;
+  font-size: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nasa-live-close:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.nasa-live-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(10, 15, 30, 0.9);
+  padding: 6px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  overflow-x: auto;
+}
+
+.nasa-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  font-family: var(--font-sans, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.nasa-tab:hover {
+  color: #00f3ff;
+  background: rgba(0, 243, 255, 0.08);
+}
+
+.nasa-tab.active {
+  color: #ffffff;
+  background: rgba(0, 243, 255, 0.18);
+  border-color: rgba(0, 243, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+}
+
+.nasa-live-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.nasa-tab-panel {
+  display: none;
+}
+
+.nasa-tab-panel.active {
+  display: block;
+}
+
+/* APOD Layout */
+.apod-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.apod-media-box {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+}
+
+.apod-img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  display: block;
+}
+
+.apod-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #38bdf8;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.apod-info-box h3 {
+  font-family: var(--font-display, sans-serif);
+  font-size: 20px;
+  color: #00f3ff;
+  margin-bottom: 8px;
+}
+
+.apod-meta {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+
+.apod-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  padding-right: 8px;
+}
+
+.apod-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.nasa-btn {
+  background: #0284c7;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+  transition: all 0.2s;
+}
+
+.nasa-btn:hover {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.nasa-btn-secondary {
+  background: rgba(30, 41, 59, 0.8);
+  color: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  font-size: 12px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* NeoWs Grid */
+.neows-header, .donki-header, .tech-header {
+  margin-bottom: 16px;
+}
+
+.neows-header h3, .donki-header h3, .tech-header h3 {
+  color: #00f3ff;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.neows-header p, .donki-header p, .tech-header p {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.neows-grid, .donki-grid, .tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.neows-card, .donki-card, .tech-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 14px;
+  transition: border-color 0.2s;
+}
+
+.neows-card.hazardous {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(35, 10, 15, 0.6);
+}
+
+.neows-top, .donki-top, .tech-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.neows-name, .donki-title, .tech-title {
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.neows-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.badge-danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.badge-safe {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.neows-meta div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.neows-meta strong {
+  color: #e2e8f0;
+}
+
+/* DONKI Card */
+.donki-type {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #ea580c;
+  color: #ffffff;
+}
+
+.donki-type.type-flr { background: #e11d48; }
+.donki-type.type-gst { background: #7c3aed; }
+.donki-type.type-ips { background: #0284c7; }
+
+.donki-date, .tech-id {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.donki-body, .tech-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin-top: 6px;
+}
+
+/* NASA TechTransfer Patent System */
+.tech-wallet-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #e0f2fe;
+}
+.tech-wallet-badge strong {
+  color: #38bdf8;
+  font-weight: 700;
+}
+.tech-card.installed {
+  border-color: rgba(52, 211, 153, 0.6) !important;
+  background: rgba(6, 78, 59, 0.3) !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.15);
+}
+.tech-effect-box {
+  margin: 10px 0 6px;
+  padding: 8px 10px;
+  background: rgba(0, 243, 255, 0.08);
+  border-left: 3px solid #00f3ff;
+  border-radius: 0 6px 6px 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #a5f3fc;
+}
+.tech-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #34d399;
+  padding: 4px 10px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+.tech-btn-install {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #ffffff;
+  border: 1px solid #38bdf8;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tech-btn-install:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0369a1, #0284c7);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+.tech-btn-install:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #334155;
+  border-color: #64748b;
+  color: #94a3b8;
+}
+.tech-btn-uninstall {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tech-btn-uninstall:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Mars Weather Card */
+.mars-weather-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.mars-station-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.mars-station-title h3 {
+  color: #f97316;
+  font-size: 16px;
+  margin: 0;
+}
+
+.mars-station-title p {
+  color: #94a3b8;
+  font-size: 12px;
+  margin: 2px 0 0;
+}
+
+.mars-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.mars-metric {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #94a3b8;
+}
+
+.metric-val {
+  font-size: 24px;
+  color: #f97316;
+  margin: 6px 0;
+}
+
+.metric-sub {
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.apod-loading {
+  text-align: center;
+  padding: 40px;
+  color: #38bdf8;
+  font-size: 14px;
+}
+
+/* ==========================================================================
+   PRÓLOGO Y CINEMÁTICAS POR IMÁGENES
+   ========================================================================== */
+.cinematic-story-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cine-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.95);
+  backdrop-filter: blur(12px);
+}
+
+.cine-viewport {
+  position: relative;
+  z-index: 2;
+  width: 90vw;
+  max-width: 960px;
+  height: 85vh;
+  max-height: 720px;
+  background: #030712;
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 0 70px rgba(0, 243, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cine-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.cine-image-container {
+  flex: 1;
+  position: relative;
+  background: radial-gradient(circle at 50% 30%, #1e293b, #020617 90%);
+  display: flex;
+  align-items: flex-start;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.cine-slide-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  z-index: 0;
+  transition: opacity 0.6s ease, transform 11s ease-out;
+  transform: scale(1.0);
+  opacity: 0.95;
+}
+
+.cine-slide-img.ken-burns {
+  transform: scale(1.12);
+}
+
+.cine-art-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(3,7,18,0.85) 100%);
+  pointer-events: none;
+}
+
+.cine-character-badge {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(0, 243, 255, 0.5);
+  border-radius: 10px;
+  padding: 12px 18px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+}
+
+.cine-char-avatar {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  aspect-ratio: 1 / 1;
+  border: 2px solid #00f3ff;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+  background: #0f172a;
+  flex-shrink: 0;
+}
+
+.cine-badge-icon {
+  font-size: 32px;
+}
+
+.cine-character-badge h4 {
+  color: #00f3ff;
+  font-size: 15px;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.cine-character-badge span {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.cine-subtitle-bar {
+  position: relative;
+  z-index: 2;
+  background: rgba(8, 14, 28, 0.95);
+  border-top: 1px solid rgba(0, 243, 255, 0.3);
+  padding: 20px 28px;
+  min-height: 140px;
+}
+
+.cine-meta-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cine-tag {
+  color: #f59e0b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.cine-counter {
+  color: #94a3b8;
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+}
+
+.cine-dialogue {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.cine-reading-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.fade-in-text {
+  animation: cineFadeIn 0.4s ease-out;
+}
+
+@keyframes cineFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cine-progress-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.cine-progress-fill {
+  height: 100%;
+  background: #00f3ff;
+  box-shadow: 0 0 10px #00f3ff;
+  width: 0%;
+}
+
+.cine-controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: #040813;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cine-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #f1f5f9;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cine-btn:hover:not(:disabled) {
+  border-color: #00f3ff;
+  color: #00f3ff;
+}
+
+.cine-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.cine-btn-primary {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+.cine-btn-primary:hover {
+  background: #0369a1;
+}
+
+.cine-btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   INTERFERENCIA DE TV ANTIGUA EN LA INTRO
+   Scanlines, ruido, glitch RGB, desplazamiento vertical y cortes de señal
+   ========================================================================== */
+.cine-tvfx {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Scanlines tipo tubo catódico */
+.cine-scanlines {
+  position: absolute;
+  inset: -8%;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.22) 0px,
+    rgba(0, 0, 0, 0.22) 2px,
+    rgba(255, 255, 255, 0.02) 3px,
+    rgba(255, 255, 255, 0.02) 4px
+  );
+  mix-blend-mode: multiply;
+  animation: cineScanDrift 9s linear infinite;
+}
+
+@keyframes cineScanDrift {
+  from { transform: translateY(0); }
+  to { transform: translateY(28px); }
+}
+
+/* Ruido de señal estática */
+.cine-noise {
+  position: absolute;
+  inset: -12%;
+  background-image:
+    repeating-conic-gradient(rgba(255, 255, 255, 0.05) 0% 25%, rgba(0, 0, 0, 0.06) 25% 50%);
+  background-size: 3px 3px;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+/* Ráfaga de ruido: micro-glitch aleatorio */
+.cine-stage.signal-glitch .cine-noise {
+  animation: cineNoiseBurst 0.28s steps(6) both;
+}
+
+@keyframes cineNoiseBurst {
+  0% { opacity: 0; }
+  15% { opacity: 0.55; }
+  30% { opacity: 0.1; }
+  45% { opacity: 0.75; }
+  60% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+/* Desplazamiento vertical (vertical hold) durante el glitch */
+.cine-stage.signal-glitch .cine-slide-img {
+  animation: cineVerticalHold 0.34s steps(5) both;
+}
+
+@keyframes cineVerticalHold {
+  0% { transform: translateY(0) scale(1.12); filter: none; }
+  20% { transform: translateY(-26px) scale(1.12); filter: saturate(1.6) contrast(1.2); }
+  40% { transform: translateY(14px) scale(1.12); filter: hue-rotate(24deg) contrast(1.25); }
+  60% { transform: translateY(-8px) scale(1.12); filter: saturate(1.4); }
+  100% { transform: translateY(0) scale(1.12); filter: none; }
+}
+
+/* Desfase de canales RGB sobre el retrato */
+.cine-stage.signal-glitch .cine-art-overlay {
+  animation: cineRGBSplit 0.3s steps(4) both;
+}
+
+@keyframes cineRGBSplit {
+  0% { box-shadow: none; }
+  30% { box-shadow: inset 5px 0 0 rgba(255, 0, 60, 0.22), inset -5px 0 0 rgba(0, 255, 240, 0.22); }
+  60% { box-shadow: inset -7px 0 0 rgba(255, 0, 60, 0.25), inset 7px 0 0 rgba(0, 255, 240, 0.25); }
+  100% { box-shadow: none; }
+}
+
+/* Corte de señal: distorsión auténtica de televisor de tubo antiguo (CRT tracking jitter, RGB split, ruido de antena) */
+.cine-stage.signal-cut .cine-slide-img {
+  opacity: 0.78;
+  animation: cineCrtJitter 0.32s steps(8) infinite alternate;
+  filter: contrast(1.45) saturate(1.65) brightness(1.15) hue-rotate(-15deg);
+}
+
+@keyframes cineCrtJitter {
+  0% { transform: scale(1.06) translate(0, 0) skewX(0deg); }
+  15% { transform: scale(1.07) translate(-8px, 3px) skewX(-2.5deg); }
+  30% { transform: scale(1.05) translate(10px, -5px) skewX(3.5deg); filter: contrast(1.7) saturate(2) hue-rotate(25deg); }
+  50% { transform: scale(1.08) translate(-14px, 8px) skewX(-4deg); }
+  70% { transform: scale(1.05) translate(8px, -2px) skewX(2deg); filter: contrast(1.5) saturate(1.4); }
+  85% { transform: scale(1.07) translate(-4px, 6px) skewX(-1.5deg); }
+  100% { transform: scale(1.06) translate(0, 0) skewX(0deg); }
+}
+
+.cine-stage.signal-cut .cine-noise {
+  animation: cineNoiseFuzz 0.12s steps(4) infinite;
+  opacity: 0.65;
+  background-image:
+    repeating-conic-gradient(rgba(255, 255, 255, 0.22) 0% 30%, rgba(10, 10, 10, 0.28) 30% 70%, rgba(255, 255, 255, 0.18) 70% 100%);
+  background-size: 5px 5px;
+  mix-blend-mode: screen;
+}
+
+@keyframes cineNoiseFuzz {
+  0% { background-position: 0 0; }
+  25% { background-position: -24px 32px; }
+  50% { background-position: 36px -18px; }
+  75% { background-position: -40px -28px; }
+  100% { background-position: 20px 48px; }
+}
+
+.cine-stage.signal-cut .cine-character-badge {
+  opacity: 0.6;
+}
+
+.cine-stage.signal-cut .cine-art-overlay {
+  opacity: 0.9;
+  animation: cineRGBSplit 0.22s steps(4) infinite alternate;
+}
+
+@keyframes cineRGBSplit {
+  0% { box-shadow: inset 8px 0 0 rgba(255, 0, 60, 0.45), inset -8px 0 0 rgba(0, 255, 240, 0.45); }
+  35% { box-shadow: inset -12px 0 0 rgba(255, 0, 60, 0.6), inset 12px 0 0 rgba(0, 255, 240, 0.6); }
+  70% { box-shadow: inset 14px 0 0 rgba(255, 0, 60, 0.55), inset -14px 0 0 rgba(0, 255, 240, 0.55); }
+  100% { box-shadow: inset -9px 0 0 rgba(255, 0, 60, 0.45), inset 9px 0 0 rgba(0, 255, 240, 0.45); }
+}
+
+/* Ocultar aviso textual SIN SEÑAL a petición del usuario, sustituido por distorsión CRT viva */
+.cine-signal-banner {
+  display: none !important;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  padding: 10px 26px;
+  font-family: var(--font-mono, monospace);
+  font-size: clamp(14px, 2.4vw, 22px);
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: #e2f7ff;
+  background: rgba(2, 8, 20, 0.78);
+  border: 1px solid rgba(0, 243, 255, 0.55);
+  border-radius: 6px;
+  text-shadow: 0 0 12px rgba(0, 243, 255, 0.8);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.cine-stage.signal-cut .cine-signal-banner {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Banda de desplazamiento de sincronismo vertical (hum-bar / vertical hold) */
+.cine-roll {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(0, 0, 0, 0.22) 50%,
+    rgba(255, 255, 255, 0.04) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: cineRoll 6.5s linear infinite;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.65;
+}
+
+@keyframes cineRoll {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Viñeta de tubo catódico curvado */
+.cine-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 48%, rgba(2, 8, 16, 0.35) 75%, rgba(0, 0, 0, 0.82) 100%);
+  box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.95);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Parpadeo suave constante del tubo */
+.cine-tvfx::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(210, 240, 255, 0.03);
+  animation: cineTubeFlicker 4.2s steps(12) infinite;
+}
+
+@keyframes cineTubeFlicker {
+  0%, 100% { opacity: 0; }
+  8% { opacity: 0.5; }
+  9% { opacity: 0; }
+  54% { opacity: 0.4; }
+  56% { opacity: 0; }
+  78% { opacity: 0.35; }
+  80% { opacity: 0; }
+}
+
+/* Retrato de personaje protagonista en la intro */
+.cine-char-avatar {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  max-width: 64px;
+}
+
+.cine-character-badge .cine-char-avatar {
+  box-shadow: 0 0 18px rgba(0, 243, 255, 0.55), 0 0 4px rgba(0, 243, 255, 0.9);
+}
+
+/* Accesibilidad: sin interferencia animada si se prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .cine-scanlines,
+  .cine-tvfx::after,
+  .cine-stage.signal-glitch .cine-noise,
+  .cine-stage.signal-glitch .cine-slide-img,
+  .cine-stage.signal-glitch .cine-art-overlay {
+    animation: none;
+  }
+  .cine-stage.signal-cut .cine-slide-img {
+    opacity: 0.35;
+  }
+}
+
+/* ==========================================================================
+   ENCENDIDO DE TELEVISOR: la intro arranca como una tele de tubo al pulsar
+   ========================================================================== */
+.cine-viewport.tv-boot .cine-stage {
+  animation: cineTvBoot 1.15s cubic-bezier(.2, .7, .3, 1) both;
+  transform-origin: center 55%;
+}
+
+@keyframes cineTvBoot {
+  0%   { filter: brightness(0); transform: scaleY(.004) scaleX(.55); }
+  22%  { filter: brightness(7) saturate(.1); transform: scaleY(.01) scaleX(.8); }
+  38%  { filter: brightness(3) saturate(.4); transform: scaleY(.35) scaleX(.96); }
+  52%  { filter: brightness(2) contrast(1.5); transform: scaleY(1.03) scaleX(1); }
+  68%  { transform: scaleY(.98) scaleX(.99); filter: brightness(1.15) contrast(1.2); }
+  84%  { transform: scaleY(1.01) scaleX(1); filter: brightness(.95); }
+  100% { filter: none; transform: none; }
+}
+
+.cine-viewport.tv-boot .cine-tvfx .cine-scanlines {
+  animation: cineScanDrift 9s linear infinite, cineBootScans 1.15s ease-out both;
+}
+
+@keyframes cineBootScans {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+}
+
+/* Encuadre protagonista para los retratos de los personajes */
+.cine-slide-img.portrait {
+  object-position: center 24%;
+  opacity: 1;
+}
+
+.cine-slide-img.portrait.ken-burns {
+  transform: scale(1.07);
+}

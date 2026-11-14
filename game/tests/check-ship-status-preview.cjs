@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const THREE={...require('../assets/vendor/three-r128.min.js')};let frame,ready,hull=100,scene;
+const canvas={clientWidth:200,clientHeight:110,setAttribute(k,v){this[k]=v;}};
+THREE.WebGLRenderer=class{constructor(){this.domElement=canvas;}setPixelRatio(v){this.ratio=v;}getPixelRatio(){return this.ratio;}setSize(w,h){canvas.width=w;canvas.height=h;}render(s){scene=s;}};
+const host={hidden:false,dataset:{},firstElementChild:{after(){}},querySelector(){return {value:hull};}};
+const document={hidden:false,addEventListener(k,f){ready=f;},getElementById(){return host;},createElement(){return {};}};
+const window={THREE,devicePixelRatio:1,matchMedia(){return {matches:false};}};
+const context={THREE,document,window,console,requestAnimationFrame(f){frame=f;}};
+vm.createContext(context);vm.runInContext(fs.readFileSync('js/flight/ship-controller.js','utf8'),context);vm.runInContext(fs.readFileSync('js/ui/ship-status-preview.js','utf8'),context);ready();frame(16);
+assert.equal(host.dataset.damage,'intact');const pivot=scene.children.find(o=>o.isGroup);const angle=pivot.rotation.y;frame(32);assert(pivot.rotation.y>angle);
+let mesh; pivot.traverse(o=>{if(o.isMesh&&!mesh)mesh=o;});const original=mesh.material.color.clone();hull=20;frame(48);assert.equal(host.dataset.damage,'critical');assert(!mesh.material.color.equals(original));assert.match(canvas['aria-label'],/20%/);
+hull=100;frame(1048);assert.equal(host.dataset.damage,'intact');assert(mesh.material.color.equals(original));
+console.log('PASS: actual ship miniature rotates, darkens on damage, signals critical hull and restores its material after repair.');

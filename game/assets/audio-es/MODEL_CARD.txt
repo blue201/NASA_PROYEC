@@ -1,0 +1,21 @@
+# V8 · voces activas
+Los 99 clips del manifiesto spanish-audio-data.js se generaron con voces neurales españolas de Microsoft: Sofía y narradora es-MX-DaliaNeural; Leo/Marcus/JARVIS es-MX-JorgeNeural con prosodia diferenciada; Houston es-ES-AlvaroNeural. Los archivos quedan incluidos localmente en WAV. Herramienta de generación: edge-tts 7.3.1. No se imita a ninguna actriz ni actor de las referencias.
+Listado de voces: https://learn.microsoft.com/azure/cognitive-services/speech-service/language-support?tabs=tts
+
+La atribución siguiente corresponde a las voces Piper anteriores y se conserva por los clips históricos que permanecen en los archivos del proyecto.
+# Model card for sharvard (medium)
+
+* Language: es_ES (Spanish, Spain)
+* Speakers: 2
+* Quality: medium
+* Samplerate: 22,050Hz
+
+## Dataset
+
+* URL: https://datashare.ed.ac.uk/handle/10283/574
+* License: http://creativecommons.org/licenses/by/3.0/
+* Paper: https://www.tandfonline.com/doi/abs/10.3109/14992027.2014.907507
+
+## Training
+
+Finetuned from U.S. English lessac voice (medium quality).

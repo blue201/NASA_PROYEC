@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const THREE=require('../assets/vendor/three-r128.min.js');
+THREE.TextureLoader.prototype.load=function(url){const texture=new THREE.Texture();texture.name=url;return texture;};
+const window={nasaApi:{createCloudTexture(){return new THREE.Texture();},createEarthSpecularRoughnessMap(){return new THREE.Texture();}}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/world/planet-environments.js'),'utf8'),{window,THREE});
+const world=key=>{const sphere=new THREE.Mesh(new THREE.SphereGeometry(10,12,8),new THREE.MeshBasicMaterial());window.PlanetEnvironments.decorate(sphere,key,10);return sphere;};
+const earth=world('earth');assert.match(earth.material.map.name,/earth_daymap/);assert.ok(earth.material.emissiveMap);assert.ok(earth.userData.clouds.material.map);
+const moon=earth.children.find(x=>x.userData.planetName==='Luna');assert.equal(moon.userData.planetKey,'moon');const before=moon.position.clone();window.PlanetEnvironments.animate(earth,1);assert.ok(moon.position.distanceTo(before)>0);assert.ok(earth.userData.clouds.rotation.y>0);
+assert.equal(world('mercury').children.length,0);assert.equal(world('moon').children.length,0);
+const mars=world('mars');assert.deepEqual(mars.children.filter(x=>x.userData.satellite).map(x=>x.userData.planetName),['Fobos','Deimos']);
+assert.equal(world('jupiter').children.filter(x=>x.userData.satellite).length,4);
+console.log('PASS: Earth geography/night/cloud maps, moving Moon/clouds, Mars moons, major Jupiter moons and airless Mercury/Moon.');

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NASA Odyssey // Consola de Datos en Vivo (NASA Open APIs)</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --nasa-blue: #0b3d91;
+      --nasa-red: #fc3d21;
+      --cyan-glow: #38bdf8;
+      --panel-bg: rgba(10, 16, 29, 0.92);
+      --border-glow: rgba(56, 189, 248, 0.35);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 50% 20%, #0d1b38 0%, #030712 100%);
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .nasa-page-header {
+      padding: 1.5rem 2rem;
+      background: rgba(3, 7, 18, 0.85);
+      border-bottom: 1px solid var(--border-glow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .nasa-brand-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .nasa-badge {
+      background: var(--nasa-blue);
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: 2px;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      font-size: 1.2rem;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .nasa-title h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: 1px;
+      color: #f8fafc;
+    }
+    .nasa-title p {
+      margin: 0.2rem 0 0 0;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+    .nasa-nav-links {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .btn-return-game {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      text-decoration: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-return-game:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(2, 132, 199, 0.7);
+    }
+    .nasa-main-container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      box-sizing: border-box;
+      flex: 1;
+    }
+    .tabs-bar {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      padding: 0.65rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+    }
+    .tab-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--cyan-glow);
+      color: #38bdf8;
+    }
+    .tab-panel {
+      display: none;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 1.8rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .tab-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* APOD */
+    .apod-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 800px) {
+      .apod-layout { grid-template-columns: 1fr; }
+    }
+    .apod-image-wrap {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 320px;
+    }
+    .apod-image-wrap img {
+      width: 100%;
+      height: auto;
+      max-height: 480px;
+      object-fit: cover;
+      display: block;
+    }
+    .apod-details h2 {
+      margin-top: 0;
+      color: #f1f5f9;
+      font-size: 1.5rem;
+    }
+    .apod-meta-tag {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .apod-text {
+      line-height: 1.65;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+    }
+    /* Data cards grid */
+    .data-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.2rem;
+    }
+    .api-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .api-card:hover {
+      border-color: var(--cyan-glow);
+    }
+    .card-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    .badge-hazard { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid #ef4444; }
+    .badge-safe { background: rgba(34, 197, 94, 0.25); color: #4ade80; border: 1px solid #22c55e; }
+    .badge-storm { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b; }
+    .badge-tech { background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid #a855f7; }
+    .footer-bar {
+      text-align: center;
+      padding: 1.5rem;
+      color: #64748b;
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+  </style>
+</head>
+<body>
+  <header class="nasa-page-header">
+    <div class="nasa-brand-box">
+      <span class="nasa-badge">NASA</span>
+      <div class="nasa-title">
+        <h1>CONSOLA CIENTÍFICA EN VIVO // NASA OPEN APIS</h1>
+        <p>Telemetría directa desde api.nasa.gov · Integración activa en Odyssey 2084</p>
+      </div>
+    </div>
+    <div class="nasa-nav-links">
+      <a href="index.html" class="btn-return-game">🚀 Entrar al Simulador 3D</a>
+    </div>
+  </header>
+
+  <main class="nasa-main-container">
+    <nav class="tabs-bar" role="tablist">
+      <button class="tab-btn active" data-tab="apod">🔭 APOD · Astronomía del Día</button>
+      <button class="tab-btn" data-tab="neows">☄️ Asteroides Cercanos (NeoWs)</button>
+      <button class="tab-btn" data-tab="donki">☀️ Clima Espacial (DONKI)</button>
+      <button class="tab-btn" data-tab="mars">🪐 Clima en Marte (InSight)</button>
+      <button class="tab-btn" data-tab="tech">🚀 Patentes y Tecnología (TechTransfer)</button>
+    </nav>
+
+    <!-- Pestaña APOD -->
+    <section id="panel-apod" class="tab-panel active">
+      <div class="apod-layout">
+        <div class="apod-image-wrap">
+          <img id="apod-img" src="assets/milky-way-eso.jpg" alt="NASA APOD">
+        </div>
+        <div class="apod-details">
+          <span class="apod-meta-tag" id="apod-date">Sincronizando con NASA...</span>
+          <h2 id="apod-title">Cargando Imagen Astronómica del Día...</h2>
+          <p id="apod-desc" class="apod-text">Obteniendo metadatos astronómicos desde el servicio oficial de la NASA...</p>
+          <div style="margin-top: 1.5rem;">
+            <a id="apod-hd" href="#" target="_blank" rel="noopener" class="btn-return-game" style="font-size: 0.85rem;">Ver Imagen en HD ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pestaña NeoWs -->
+    <section id="panel-neows" class="tab-panel">
+      <h2>☄️ Radar de Asteroides Cercanos a la Tierra (NeoWs)</h2>
+      <p style="color: #94a3b8; margin-bottom: 1.5rem;">Vigilancia en tiempo real de objetos próximos a la Tierra provista por el equipo Jet Propulsion Laboratory (JPL / NASA).</p>
+      <div id="neows-container" class="data-cards-grid">
+        <div class="api-card">Cargando telemetría orbital de asteroides...</div>
+      </div>
+    </section>
+
+    <!-- Pestaña DONKI -->
+    <section id="panel-donki" class="tab-panel">
+      <h2>☀️ Notificaciones y Alertas de Clima Espacial (DONKI)</h2>
+      <p style="color: #94a3b8; margin-bottom: 1.5rem;">Monitoreo de eyecciones de masa coronal (CME), llamaradas solares y tormentas geomagnéticas detectadas por satélites SOHO, STEREO y DSCOVR.</p>
+      <div id="donki-container" class="data-cards-grid">
+        <div class="api-card">Sincronizando con base de datos SWRC...</div>
+      </div>
+    </section>
+
+    <!-- Pestaña Mars InSight -->
+    <section id="panel-mars" class="tab-panel">
+      <h2>🪐 Estación Meteorológica Sonda InSight en Marte</h2>
+      <p style="color: #94a3b8; margin-bottom: 1.5rem;">Condiciones atmosféricas en Elysium Planitia, Marte (sensores TWINS y barómetro de superficie).</p>
+      <div id="mars-container" class="data-cards-grid">
+        <div class="api-card">Sintonizando telemetría marciana...</div>
+      </div>
+    </section>
+
+    <!-- Pestaña TechTransfer -->
+    <section id="panel-tech" class="tab-panel">
+      <h2>🚀 Patentes y Transferencia Tecnológica de la NASA</h2>
+      <p style="color: #94a3b8; margin-bottom: 1.5rem;">Innovaciones científicas y spin-offs espaciales aplicados en los sistemas de navegación, propulsión y soporte vital.</p>
+      <div id="tech-container" class="data-cards-grid">
+        <div class="api-card">Consultando archivo de patentes NASA...</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer-bar">
+    NASA Odyssey Expedición 2084 // Datos científicos cortesía de NASA Open APIs (api.nasa.gov) y NASA JPL Small-Body Database.
+  </footer>
+
+  <script>
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Fetch APOD
+    fetch('/api/apod')
+      .then(res => res.json())
+      .then(data => {
+        if (data.url) document.getElementById('apod-img').src = data.url;
+        if (data.title) document.getElementById('apod-title').textContent = data.title;
+        if (data.date) document.getElementById('apod-date').textContent = 'FECHA NASA: ' + data.date;
+        if (data.explanation) document.getElementById('apod-desc').textContent = data.explanation;
+        if (data.hdurl) document.getElementById('apod-hd').href = data.hdurl;
+      })
+      .catch(err => {
+        document.getElementById('apod-title').textContent = 'Datos APOD Almacenados en Memoria de Vuelo';
+      });
+
+    // Fetch NeoWs
+    fetch('/api/neows')
+      .then(res => res.json())
+      .then(data => {
+        const list = data.asteroids || [];
+        const box = document.getElementById('neows-container');
+        if (!list.length) return;
+        box.innerHTML = list.map(ast => `
+          <div class="api-card">
+            <span class="card-badge ${ast.is_potentially_hazardous_asteroid ? 'badge-hazard' : 'badge-safe'}">
+              ${ast.is_potentially_hazardous_asteroid ? '⚠️ POTENCIALMENTE PELIGROSO' : '✅ TRAYECTORIA SEGURA'}
+            </span>
+            <strong style="color: #f8fafc; font-size: 1.1rem;">${ast.name || 'Asteroide'}</strong>
+            <div style="font-size: 0.88rem; color: #94a3b8; display: grid; gap: 0.3rem;">
+              <span>Diámetro estimado: <strong>${Math.round(ast.estimated_diameter_meters_max || 120)} m</strong></span>
+              <span>Velocidad relativa: <strong>${Math.round(ast.close_approach_velocity_kmh || 54000).toLocaleString()} km/h</strong></span>
+              <span>Distancia mínima: <strong>${(ast.miss_distance_lunar || 4.2).toFixed(1)} distancias lunares</strong></span>
+            </div>
+          </div>
+        `).join('');
+      })
+      .catch(()=>{});
+
+    // Fetch DONKI
+    fetch('/api/donki')
+      .then(res => res.json())
+      .then(data => {
+        const list = data.alerts || [];
+        const box = document.getElementById('donki-container');
+        if (!list.length) return;
+        box.innerHTML = list.map(al => `
+          <div class="api-card">
+            <span class="card-badge badge-storm">☀️ ALERTA SWRC // ${al.messageType || 'NOTIFICACIÓN'}</span>
+            <strong style="color: #f8fafc;">${al.messageIssueTime || 'Evento Solar'}</strong>
+            <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5; margin: 0;">${al.messageBody || 'Sin descripción disponible'}</p>
+          </div>
+        `).join('');
+      })
+      .catch(()=>{});
+
+    // Fetch Mars Weather
+    fetch('/api/mars-weather')
+      .then(res => res.json())
+      .then(data => {
+        const box = document.getElementById('mars-container');
+        const sol = data.sol_keys?.[data.sol_keys.length - 1] || '675';
+        const d = data[sol] || data.fallback || {};
+        box.innerHTML = `
+          <div class="api-card">
+            <strong style="font-size: 1.1rem; color: #38bdf8;">SOL ${sol} // MARTE</strong>
+            <span>Estación: <strong>Elysium Planitia</strong></span>
+            <span>Temp. Media: <strong>${d.AT?.av ? d.AT.av.toFixed(1) + ' °C' : '-62.4 °C'}</strong></span>
+            <span>Rango Térmico: <strong>${d.AT?.mn ? d.AT.mn.toFixed(1) : '-96.2'} °C a ${d.AT?.mx ? d.AT.mx.toFixed(1) : '-18.1'} °C</strong></span>
+            <span>Presión Atmosférica: <strong>${d.PRE?.av ? d.PRE.av.toFixed(1) + ' Pa' : '724.8 Pa'}</strong></span>
+            <span>Viento Horizontal: <strong>${d.HWS?.av ? d.HWS.av.toFixed(1) + ' m/s' : '5.2 m/s'}</strong></span>
+          </div>
+        `;
+      })
+      .catch(()=>{});
+
+    // Fetch TechTransfer
+    fetch('/api/techtransfer?q=propulsion')
+      .then(res => res.json())
+      .then(data => {
+        const list = data.results || [];
+        const box = document.getElementById('tech-container');
+        if (!list.length) return;
+        box.innerHTML = list.slice(0, 8).map(item => `
+          <div class="api-card">
+            <span class="card-badge badge-tech">🚀 PATENTE NASA · ${item.patent_id || 'PAT'}</span>
+            <strong style="color: #f8fafc;">${item.title || item[2] || item[1] || 'Tecnología Aeroespacial'}</strong>
+            <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin: 0;">${item.desc || item[3] || 'Desarrollo de propulsión avanzada y materiales compuestos.'}</p>
+            ${item.effect ? `<p style="font-size:0.8rem;color:#38bdf8;margin:6px 0 0 0;">⚡ ${item.effect}</p>` : ''}
+          </div>
+        `).join('');
+      })
+      .catch(()=>{});
+  </script>
+</body>
+</html>
+

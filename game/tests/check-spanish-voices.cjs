@@ -1,0 +1,10 @@
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),assert=require('node:assert/strict');
+let voices=[{name:'English',lang:'en-US',voiceURI:'en'},{name:'Castellano',lang:'es-ES',voiceURI:'es'},{name:'Latino',lang:'es-MX',voiceURI:'mx'}];
+const window={speechSynthesis:{getVoices:()=>voices}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/core/spanish-voices.js'),'utf8'),{window,document:{addEventListener(){}},SpeechSynthesisUtterance:class{constructor(text){this.text=text;}}});
+assert.equal(window.SpanishVoices.available().length,2);
+assert.equal(window.SpanishVoices.utterance('Hola','sofia').voice.voiceURI,'mx');
+assert.equal(window.SpanishVoices.utterance('Hola','houston').voice.voiceURI,'es');
+assert.notEqual(window.SpanishVoices.utterance('Hola','sofia').pitch,window.SpanishVoices.utterance('Hola','jarvis').pitch);
+voices=[voices[0]];assert.equal(window.SpanishVoices.utterance('Hola'),null);
+console.log('PASS: Spanish-only selection, Latin American preference, role profiles and explicit absence without English fallback.');

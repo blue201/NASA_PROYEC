@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const els=new Map(),events={};let time=0;
+const make=()=>({hidden:false,children:[],addEventListener(){},focus(){},showModal(){this.open=true;},close(){this.open=false;},replaceChildren(){this.children=[];},append(b){this.children.push(b);}});
+const document={getElementById(id){if(!els.has(id))els.set(id,make());return els.get(id);},createElement:make};
+const window={addEventListener(type,fn){events[type]=fn;}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/flight/mission-challenges.js'),'utf8'),{window,document,performance:{now:()=>time},localStorage:{getItem(){},setItem(){}},console,setInterval(){return 1;},clearInterval(){}});
+(async()=>{const c=new window.MissionChallenges();let p=c.request('travel','earth','qte');assert.equal(c.sequence.length,4);assert(c.form.hidden);
+events.keydown({code:c.sequence[0],repeat:true,stopImmediatePropagation(){},preventDefault(){}});assert.equal(c.sequenceIndex,0);
+c.pressSequence('invalid');assert(c.awaitingRetry);assert.equal(c.record.errors,1);c.beginAttempt();for(const code of c.sequence)c.pressSequence(code);assert.equal(await p,true);
+p=c.request('travel','mars','qte');assert.equal(c.sequence.length,6);time=c.deadline;c.pressSequence(c.sequence[0]);assert(c.awaitingRetry);c.finish(false);assert.equal(await p,false);
+const physics={};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/flight/navigation-physics.js'),'utf8'),{window:physics});const step=physics.NavigationPhysics.forceStep;
+let v={x:0,y:0,z:0};for(let i=0;i<60;i++)v=step(v,{x:0,y:0,z:-115},1/60,{drag:.55});assert(v.z<0);const old=v.z;v=step(v,{x:0,y:0,z:115},1/60,{drag:.55});assert(v.z<0&&v.z>old);for(let i=0;i<180;i++)v=step(v,{x:0,y:0,z:115},1/60,{drag:.55});assert(v.z>0);const coasting=step(v,{x:0,y:0,z:0},1/60,{drag:.55});assert(coasting.z>0&&coasting.z<v.z);const braking=step(v,{x:0,y:0,z:0},1/60,{drag:.55,brake:true});assert(braking.z<coasting.z);
+console.log('PASS: QTE consent, order, held-key suppression, retries, timeout and forward/reverse inertia with stronger braking.');})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const window={},label={textContent:''};
+vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../js/world/space-explorer.js'),'utf8'),{window,document:{getElementById(){return label;}}});
+const engine=Object.create(window.SpaceExplorationEngine.prototype);
+engine.cameraModes=['chase','top','bottom','cockpit','far'];engine.currentCameraMode='cockpit';
+engine.cycleCameraMode();assert.equal(engine.currentCameraMode,'chase');assert.equal(engine.cameraTransitionRemaining,.65);assert.equal(label.textContent,'PERSECUCIÓN');
+engine.cycleCameraMode();assert.equal(engine.currentCameraMode,'cockpit');
+engine.cycleCameraMode('far');assert.equal(engine.currentCameraMode,'far');
+engine.cycleCameraMode();assert.equal(engine.currentCameraMode,'cockpit');
+console.log('PASS: direct cockpit/chase toggle, transition duration, explicit cinematic view and visible camera label.');

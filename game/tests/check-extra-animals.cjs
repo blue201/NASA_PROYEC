@@ -1,0 +1,15 @@
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict'), THREE = require('../assets/vendor/three-r128.min.js');
+const window = {}, context = { window, THREE, document: {} };
+for (const f of ['world/earth-regions', 'world/surface-explorer', 'fauna/cretaceous-fauna', 'fauna/earth-fauna-catalog', 'fauna/living-earth']) vm.runInNewContext(fs.readFileSync('js/' + f + '.js', 'utf8'), context);
+const e = { scene: new THREE.Scene(), shipGroup: new THREE.Group(), rockBodies: [] };
+const w = new window.LivingEarth(e, window.SurfaceNavigation.heightAt);
+assert(w.animals.length >= 200, 'large living world: ' + w.animals.length);
+assert(new Set(w.animals.map(a => a.species)).size >= 36, 'species variety');
+assert(w.animals.some(a => a.bird), 'birds');
+assert(w.animals.some(a => a.aquatic), 'marine life');
+assert(w.animals.some(a => !a.bird && !a.aquatic), 'terrestrial life');
+assert(w.animals.every(a => a.type !== 'dinosaur'), 'no dinosaurs on modern Earth');
+const herdSpecies = [...new Set(w.animals.map(a => a.species))].filter(name => w.animals.filter(a => a.species === name).length > 3);
+assert(herdSpecies.length >= 12, 'herds, flocks and schools: ' + herdSpecies.length);
+w.dispose();
+console.log(`PASS: ${w.animals.length} Earth animals across ${new Set(w.animals.map(a => a.species)).size} species, ${herdSpecies.length} gregarious groups, aerial, terrestrial and aquatic habitats, no dinosaurs.`);

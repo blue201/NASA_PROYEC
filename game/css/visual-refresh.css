@@ -1,0 +1,49 @@
+/* Quiet panels and readable controls over photographic backgrounds. */
+:root { --odyssey-paper: #e9eef3; --odyssey-muted: #b1bfce; }
+body { color: var(--odyssey-paper); }
+button, select, input { font: inherit; }
+button:focus-visible, a:focus-visible, summary:focus-visible, select:focus-visible {
+  outline: 2px solid #a9d8ff; outline-offset: 4px;
+}
+.nasa-topbar { background: rgba(6,12,21,.94); border-bottom: 1px solid #304252; box-shadow: none; }
+.glass-panel, .planet-info-panel, .planet-selector-carousel {
+  background: rgba(7,14,23,.94); border-color: #334453; box-shadow: 0 12px 36px #0006;
+}
+.planet-info-panel p, .photo-caption, .mission-dialog p { line-height: 1.65; }
+.photo-caption { color: var(--odyssey-muted); font-size: 13px; }
+.cam-switch-pill { text-shadow: none; letter-spacing: .035em; }
+.mission-dialog { background: #0c1623; border: 1px solid #536c80; color: var(--odyssey-paper); }
+.mission-dialog::backdrop { background: rgba(0,4,10,.66); }
+.visual-credit { position: fixed; bottom: 7px; left: 12px; z-index: 70; padding: 5px 9px; max-width: calc(100vw - 24px); background: #07101ee8; border-radius: 4px; font: 11px/1.4 Inter,sans-serif; color: #c6d1dc; }
+.visual-credit a { color: #c6d1dc; text-decoration: underline; text-underline-offset: 2px; }
+@media (max-width: 900px) { .nasa-topbar { flex-wrap: wrap; gap: 8px; } .topbar-center-controls { flex-wrap: wrap; } }
+@media (prefers-reduced-motion: reduce) { .pulse-indicator { animation: none; } }
+
+/* Planet labels remain legible above a photographic sky at every viewport size. */
+.planet-info-panel { background: rgba(7,14,23,.97); }
+.planet-info-panel h1, .planet-info-panel h2 { font-family: Inter, sans-serif; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
+.cond-val, .id-val { overflow-wrap: anywhere; line-height: 1.5; }
+.planet-info-panel .cond-val { font-size: 13px; }
+.planet-selector-carousel { scrollbar-width: thin; padding-bottom: 12px; }
+.planet-selector-carousel.wide-mode { left: 2rem; transform: none; max-width: calc(100vw - 4rem); }
+.tab-name, .tab-sub { font-family: Inter, sans-serif; letter-spacing: 0; }
+.panel-expand-pill-btn { top: auto; bottom: 116px; right: 24px; left: auto; transform: none; }
+.stranded-backdrop-layer { background-image: url('../assets/milky-way-eso.jpg'); }
+@media (max-width: 700px) { .visual-credit { font-size: 9px; max-width: 75vw; } }
+
+/* V25: one readable flight summary, with clear space for the destination. */
+#flight-hud-screen .planet-approach-hud{top:18px;left:50%;transform:translateX(-50%);width:min(620px,85vw);padding:12px 16px;font-family:Inter,system-ui,sans-serif;}
+#flight-hud-screen .approach-left{display:none}
+#flight-hud-screen .approach-actions-cluster{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+#flight-hud-screen .approach-btn{font-family:Inter,system-ui,sans-serif;letter-spacing:0;line-height:1.35}
+#surface-landing-guide{font:500 14px/1.5 Inter,system-ui,sans-serif;max-width:640px;color:#fff;background:#12212cdd;padding:10px 16px;border-radius:8px;}
+#surface-telemetry{font:500 14px/1.5 Inter,system-ui,sans-serif;max-width:70vw;text-shadow:0 2px 5px #000;}
+@media(max-width:650px){#flight-hud-screen .planet-approach-hud{top:65px;width:90vw}#flight-hud-screen .approach-btn{font-size:11px;padding:8px}#surface-landing-guide{font-size:12px}}
+#flight-hud-screen .planet-approach-hud{top:100px}
+#flight-hud-screen .hud-topbar{left:20px;right:150px;width:auto;gap:10px;justify-content:flex-start;}
+#flight-hud-screen .hud-cinema-trigger-wrap,#flight-hud-screen .damage-status-badge,#flight-hud-screen .cosmic-scale-badge{display:none!important}
+#flight-hud-screen .hud-meter-box{width:170px;min-width:0;padding:10px}
+#flight-hud-screen #flight-free-explore{padding:8px 12px;font:13px Inter,system-ui}
+@media(max-width:650px){#flight-hud-screen .hud-topbar{left:8px;right:8px;gap:5px;top:10px}#flight-hud-screen .hud-meter-box{width:23%;padding:6px;font-size:10px}#flight-hud-screen #flight-free-explore{max-width:24%;font-size:11px}#flight-hud-screen .planet-approach-hud{top:110px}}
+.hud-alert{top:200px!important;left:50%!important;transform:translateX(-50%)!important;max-width:min(520px,80vw);font:500 14px/1.5 Inter,system-ui,sans-serif!important;letter-spacing:0!important;padding:10px 16px!important;}
+#flight-hud-screen:not(.active) .flight-approach-bar{display:none!important}
