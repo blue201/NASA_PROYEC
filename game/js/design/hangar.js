@@ -70,8 +70,34 @@
       '<button type="button" class="hg-launch" data-hg="launch"' + (t.ok ? '' : ' disabled') + '>' +
       (state.opts && state.opts.onLaunch ? 'Despegar' : 'Guardar diseño') + '</button>' +
       '<p class="hg-source">Masas y tamaños: CubeSat 101 (NASA CSLI). Costos y potencias: balance de juego.</p>' +
+      moonCard() +
       '</aside></div></div>';
   }
+
+  // Ficha del destino con datos reales (window.MoonData, paso d). Cada dato enlaza a su fuente.
+  function moonCard() {
+    const m = window.MoonData;
+    if (!m || !m.planet) return '<section class="hg-moon"><h3>Destino: Luna</h3><p class="hg-hint">Cargando datos…</p></section>';
+    const p = m.planet, ph = p.physical || {};
+    const link = (v, text) => (v && v.source_url ? '<a href="' + esc(v.source_url) + '" target="_blank" rel="noopener">' + text + '</a>' : text);
+    const val = (v) => (v && v.value != null ? esc(v.value) + ' ' + esc(v.unit) : '—');
+    const ice = (p.resources || []).find((r) => r.id === 'water-ice');
+    const img = (m.images || []).find((i) => /south pol/i.test(i.title || '')) || (m.images || [])[0];
+    return '<section class="hg-moon"><h3>Destino: Luna · polo sur</h3>' +
+      (img && img.thumb ? '<a class="hg-moon-img" href="' + esc(img.source_url) + '" target="_blank" rel="noopener"><img src="' + esc(img.thumb) + '" alt="' + esc(img.title) + '" loading="lazy"><small>' + esc(img.title) + ' · ' + esc(img.nasa_id) + '</small></a>' : '') +
+      '<dl>' +
+      '<div><dt>Gravedad</dt><dd>' + link(ph.gravity, val(ph.gravity)) + '</dd></div>' +
+      '<div><dt>Cráteres en sombra</dt><dd>' + link(ph.temperature_polar_crater, val(ph.temperature_polar_crater)) + '</dd></div>' +
+      (ice ? '<div><dt>Hielo de agua</dt><dd>' + link(ice.abundance, val(ice.abundance)) + '</dd></div>' : '') +
+      (m.distance ? '<div><dt>Distancia hoy</dt><dd><a href="' + esc(m.distance.source_url) + '" target="_blank" rel="noopener">' + Math.round(m.distance.km).toLocaleString('es') + ' km</a></dd></div>' : '') +
+      '</dl>' +
+      '<p class="hg-hint">Peligros: ' + (p.hazards || []).map((h) => esc(h.name)).join(', ') + '.</p>' +
+      '<p class="hg-source">' + (m.source === 'api' ? 'Datos en vivo de la API del equipo' : 'Datos guardados (API sin conexión)') +
+      ' · NASA NSSDC, NASA Science, LCROSS, JPL Horizons, NASA Image and Video Library.</p></section>';
+  }
+
+  // Si los datos llegan con el hangar abierto, se redibuja la ficha.
+  document.addEventListener('moondata:ready', () => { if (state.root) render(); });
 
   function onChange(e) {
     if (e.target.type !== 'radio') return;

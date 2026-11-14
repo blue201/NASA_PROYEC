@@ -76,7 +76,17 @@
       row('Combustible', Math.round(fuel) + '%', fuel, fuel < 25 ? 'bad' : fuel < 50 ? 'warn' : '') +
       row('Δv', t.deltaVms + ' / ' + t.requiredDeltaVms + ' m/s', null) +
       row('Masa', s.massKg + ' kg', null) +
-      row('Presupuesto restante', usd(s.budgetLeftUsd), (s.budgetLeftUsd / t.budgetUsd) * 100);
+      row('Presupuesto restante', usd(s.budgetLeftUsd), (s.budgetLeftUsd / t.budgetUsd) * 100) +
+      linkRows();
+  }
+
+  // Distancia Tierra–Luna y retardo de la señal (JPL Horizons vía la API, paso d).
+  function linkRows() {
+    const m = window.MoonData;
+    if (!m) return '';
+    if (!m.distance) return row('Enlace con la Tierra', 'sin datos (API)', null, 'warn');
+    return row('Distancia Tierra', Math.round(m.distance.km).toLocaleString('es') + ' km', null) +
+      row('Retardo de señal', m.distance.lightTimeS.toFixed(2) + ' s', null);
   }
   requestAnimationFrame(tick);
 })();

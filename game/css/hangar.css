@@ -48,3 +48,15 @@
 .hg-mfd-row.warn b { color: #ffc857; } .hg-mfd-row.warn i { background: linear-gradient(90deg, #ffc857 var(--p), #ffffff14 var(--p)); }
 .hg-mfd-row.bad b { color: #ff7b7b; } .hg-mfd-row.bad i { background: linear-gradient(90deg, #ff6b6b var(--p), #ffffff14 var(--p)); }
 @media (max-width: 700px) { .hg-mfd { width: 200px; bottom: 120px; font-size: 11px; } }
+
+/* Ficha del destino (datos reales, paso d) */
+.hg-moon { margin-top: 18px; padding-top: 14px; border-top: 1px solid #ffffff14; }
+.hg-moon h3 { margin: 0 0 8px; font-size: 14px; color: #8edfff; }
+.hg-moon dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+.hg-moon dl div { padding: 8px; background: #ffffff08; border-radius: 8px; }
+.hg-moon dt { font-size: 11px; color: #b6cbd9; }
+.hg-moon dd { margin: 4px 0 0; font-size: 14px; }
+.hg-moon a { color: #bfefff; }
+.hg-moon-img { display: block; text-decoration: none; }
+.hg-moon-img img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; display: block; }
+.hg-moon-img small { display: block; margin-top: 4px; color: #b6cbd9; font-size: 11px; }
