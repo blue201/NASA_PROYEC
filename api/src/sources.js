@@ -9,15 +9,40 @@ async function getJson(url) {
   return res.json();
 }
 
-export const DEFAULT_IMAGE_QUERIES = ['lunar south pole', 'cubesat', 'moon orbit spacecraft'];
+export const DEFAULT_IMAGE_QUERIES = [
+  'moon south pole',
+  'lunar south pole',
+  'LRO moon',
+  'lunar cubesat',
+  'CAPSTONE cubesat',
+  'Lunar Flashlight',
+];
 
-export async function fetchImages(queries = DEFAULT_IMAGE_QUERIES, perQuery = 6) {
+// La búsqueda de NASA devuelve muchas fotos de prensa (ruedas de prensa, eventos en
+// KSC) y de otros cuerpos (Titán, Encélado). Nos quedamos solo con imágenes cuyo
+// título o keywords hablen de la Luna o de CubeSats, y descartamos fotos de eventos.
+const RELEVANT = /\b(moon|lunar|cubesat|capstone|lro)\b/i;
+const EVENT_TITLE = /briefing|conference|symposium|workshop|integration|ceremony|visit|event|studio/i;
+const PRESS_ID = /^(KSC-|NHQ|\d{4}-\d{4}$)|-PH-/;
+const OTHER_BODY = /saturn|cassini|titan|enceladus|jupiter|mars|phobos|deimos|europa/i;
+
+function isRelevant(d) {
+  const text = `${d.title ?? ''} ${(d.keywords ?? []).join(' ')}`;
+  return RELEVANT.test(text) && !OTHER_BODY.test(text) && !EVENT_TITLE.test(d.title ?? '') && !PRESS_ID.test(d.nasa_id ?? '');
+}
+
+export async function fetchImages(queries = DEFAULT_IMAGE_QUERIES, perQuery = 4, max = 18) {
   const items = [];
+  const seen = new Set();
   for (const q of queries) {
-    const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(q)}&media_type=image&page_size=${perQuery}`;
+    const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(q)}&media_type=image&page_size=50`;
     const json = await getJson(url);
-    for (const it of json.collection.items.slice(0, perQuery)) {
-      const d = it.data?.[0] ?? {};
+    const picked = json.collection.items
+      .filter((it) => isRelevant(it.data?.[0] ?? {}) && !seen.has(it.data[0].nasa_id))
+      .slice(0, perQuery);
+    for (const it of picked) {
+      const d = it.data[0];
+      seen.add(d.nasa_id);
       items.push({
         nasa_id: d.nasa_id,
         title: d.title,
@@ -33,8 +58,9 @@ export async function fetchImages(queries = DEFAULT_IMAGE_QUERIES, perQuery = 6)
   return {
     source: 'NASA Image and Video Library',
     api: 'https://images-api.nasa.gov/search',
+    queries,
     retrieved_at: new Date().toISOString(),
-    items,
+    items: items.slice(0, max),
   };
 }
 
