@@ -6,86 +6,88 @@
 (()=>{
   const PROLOGUE_SLIDES = [
     {
-      title: 'AÑO 2084 · ÓRBITA TERRESTRE',
-      speaker: 'COALICIÓN ESPACIAL NASA',
-      role: 'Iniciativa Génesis // Base Orbital LEO',
-      quote: 'En los albores de 2084, los recursos de la Tierra se desvanecen. Tras la detección de una misteriosa baliza estelar en los confines del Sistema Solar, la NASA activa la expedición más ambiciosa de la historia humana: el Proyecto Génesis.',
-      theme: 'cosmic',
-      icon: '🌍',
-      imageSrc: 'assets/nasa-photos/earth.jpg',
+      title: "2084 · UNA TIERRA AL LÍMITE",
+      speaker: "TEAM ROCKET HN",
+      role: "Proyecto Génesis",
+      quote: "En este futuro ficticio, la demanda tecnológica y de IA agotó reservas accesibles. La medicina y la industria necesitan una nueva estrategia.",
+      theme: "cosmic",
+      icon: "🌍",
+      imageSrc: "assets/nasa-photos/earth.jpg",
       avatarSrc: null,
-      imageDesc: 'Vista orbital del planeta Tierra resplandeciendo en el espacio antes del salto interestelar.'
+      imageDesc: "2084 · UNA TIERRA AL LÍMITE",
+      durationMs: 8000
     },
     {
-      title: 'COMANDANTE DE LA EXPEDICIÓN',
-      speaker: 'CAPITANA SOFÍA PARKER',
-      role: 'Comandante de Misión & Astrobióloga',
-      quote: '«Aquí la Capitana Sofía Parker, comandante de la misión Génesis. Todo el planeta cuenta con nosotros. En cada mundo inexplorado buscaremos respuestas para salvar a la humanidad. Mantengan el rumbo.»',
-      theme: 'sofia',
-      icon: '👩‍🚀',
-      imageSrc: 'assets/sofia_parker.jpg',
-      avatarSrc: 'assets/sofia_parker.jpg',
-      audioSrc: 'assets/cinematics/intro-natural-01.wav',
-      imageDesc: 'Retrato de la Capitana Sofía Parker con traje presurizado de vuelo frente a los paneles de comando.'
+      title: "UNA MISIÓN, NO UNA COLONIA",
+      speaker: "CAPITANA SOFÍA PARKER",
+      role: "Comandante",
+      quote: "Génesis comienza en la Luna: investigar su hielo, cuidar a la tripulación y traer conocimiento útil para proteger la Tierra.",
+      theme: "sofia",
+      icon: "👩‍🚀",
+      imageSrc: "assets/sofia_parker.jpg",
+      avatarSrc: "assets/sofia_parker.jpg",
+      imageDesc: "UNA MISIÓN, NO UNA COLONIA",
+      durationMs: 8000
     },
     {
-      title: 'INGENIERÍA Y NÚCLEO WARP',
-      speaker: 'INGENIERO JEFE LEO CHEN',
-      role: 'Propulsión Gravitatoria & Generador G-Diffuser',
-      quote: '«Ingeniero Leo Chen al habla. El reactor iónico, bobinas warp y propulsores de maniobra responden con máxima precisión. Confíen en la nave; responderá a su instinto.»',
-      theme: 'leo',
-      icon: '👨‍🔧',
-      imageSrc: 'assets/leo_chen.jpg',
-      avatarSrc: 'assets/leo_chen.jpg',
-      audioSrc: 'assets/cinematics/intro-natural-02.wav',
-      imageDesc: 'El ingeniero Leo Chen calibrando el núcleo de energía cuántica rodeado de destellos azules de plasma.'
+      title: "DISEÑA ANTES DE DESPEGAR",
+      speaker: "INGENIERO LEO CHEN",
+      role: "Ingeniería",
+      quote: "Cada instrumento añade masa y consume energía. Reparte el presupuesto entre propulsión, batería, protección y carga científica.",
+      theme: "leo",
+      icon: "👨‍🔧",
+      imageSrc: "assets/leo_chen.jpg",
+      avatarSrc: "assets/leo_chen.jpg",
+      imageDesc: "DISEÑA ANTES DE DESPEGAR",
+      durationMs: 8000
     },
     {
-      title: 'OFICIAL CIENTÍFICO Y CARTÓGRAFO',
-      speaker: 'OFICIAL MARCUS VANCE',
-      role: 'Navegación Táctica, Cartografía & Muestras',
-      quote: '«Oficial Marcus Vance. Vectores orbitales calculados y cartas de navegación sincronizadas. Mares fósiles en Marte, titanes cretácicos y calderas volcánicas nos esperan. Estoy listo para el análisis.»',
-      theme: 'marcus',
-      icon: '👨‍🔬',
-      imageSrc: 'assets/marcus_vance.jpg',
-      avatarSrc: 'assets/marcus_vance.jpg',
-      audioSrc: 'assets/cinematics/intro-natural-03.wav',
-      imageDesc: 'El oficial Marcus Vance examinando cartas estelares holográficas y espectros de navegación en cabina.'
+      title: "MEDIR ANTES DE PROMETER",
+      speaker: "MARCUS VANCE",
+      role: "Navegación y muestras",
+      quote: "Detectar hielo no garantiza poder extraerlo. Estudia el terreno, la energía disponible y cuánto material puedes transportar.",
+      theme: "marcus",
+      icon: "👨‍🔬",
+      imageSrc: "assets/marcus_vance.jpg",
+      avatarSrc: "assets/marcus_vance.jpg",
+      imageDesc: "MEDIR ANTES DE PROMETER",
+      durationMs: 8000
     },
     {
-      title: 'CONTROL DE MISIÓN EN TIERRA',
-      speaker: 'DR. ARTHUR VANCE',
-      role: 'Director de Vuelo · Centro de Control Houston // NASA',
-      quote: '«Aquí el Doctor Arthur Vance, director de vuelo en Houston. Enlace cuántico y telemetría de espacio profundo confirmados. Aunque estén a millones de kilómetros, todo el planeta estará con ustedes. Buen viaje.»',
-      theme: 'houston',
-      icon: '📡',
-      imageSrc: 'assets/houston_director.jpg',
-      avatarSrc: 'assets/houston_director.jpg',
-      audioSrc: 'assets/cinematics/intro-natural-04.wav',
-      imageDesc: 'La sala de control de vuelo de la NASA en Houston con el Director Arthur Vance supervisando consolas.'
+      title: "EL FRÍO TAMBIÉN CUESTA",
+      speaker: "CONTROL DE MISIÓN",
+      role: "Comunicaciones",
+      quote: "En la sombra lunar los calentadores gastan batería. Reserva energía para explorar con rover y dron y enviar los datos.",
+      theme: "houston",
+      icon: "📡",
+      imageSrc: "assets/houston_director.jpg",
+      avatarSrc: "assets/houston_director.jpg",
+      imageDesc: "EL FRÍO TAMBIÉN CUESTA",
+      durationMs: 8000
     },
     {
-      title: 'INTELIGENCIA ARTIFICIAL TÁCTICA',
-      speaker: 'J.A.R.V.I.S.',
-      role: 'IA Sintética de Navegación & Telemetría',
-      quote: '«J.A.R.V.I.S. en línea. Sistemas de navegación y escudos activos al 100%. Telemetría de asteroides NeoWs y clima espacial DONKI conectados. Salto interestelar autorizado.»',
-      theme: 'jarvis',
-      icon: '🤖',
-      imageSrc: 'assets/jarvis_ai.jpg',
-      avatarSrc: 'assets/jarvis_ai.jpg',
-      audioSrc: 'assets/cinematics/intro-natural-05.wav',
-      imageDesc: 'La interfaz central de J.A.R.V.I.S. con ondas de audio y hologramas tridimensionales de sistemas.'
+      title: "DECISIONES CON CONSECUENCIAS",
+      speaker: "ASISTENTE DE A BORDO",
+      role: "Planificación",
+      quote: "Sin energía, la extracción se detiene. Sin comunicaciones, no llega la evidencia. Sin margen de masa, la nave no despega.",
+      theme: "jarvis",
+      icon: "🤖",
+      imageSrc: "assets/jarvis_ai.jpg",
+      avatarSrc: "assets/jarvis_ai.jpg",
+      imageDesc: "DECISIONES CON CONSECUENCIAS",
+      durationMs: 8000
     },
     {
-      title: 'INICIO DE LA EXPEDICIÓN',
-      speaker: 'NAVE ODYSSEY 2084',
-      role: 'Ignición de Motores Principales & Salto Warp',
-      quote: 'Propulsores principales encendidos. Los escudos deflectores están activos y los sensores de vuelo responden a los mandos. El cosmos entero te espera, piloto. Toma los controles y que comience el viaje.',
-      theme: 'cosmic',
-      icon: '🚀',
-      imageSrc: 'assets/stranded_deep_space.png',
+      title: "PRIMER DESTINO: LA LUNA",
+      speaker: "PROYECTO GÉNESIS",
+      role: "Diseño → vuelo → exploración → reporte",
+      quote: "Diseña la misión, aterriza, investiga el hielo y transmite los resultados. El informe explicará qué funcionó y qué debes mejorar.",
+      theme: "cosmic",
+      icon: "🚀",
+      imageSrc: "assets/2k_moon.jpg",
       avatarSrc: null,
-      imageDesc: 'La nave espacial Odyssey acelerando hacia el espacio profundo con sus motores luminosos entre las estrellas.'
+      imageDesc: "PRIMER DESTINO: LA LUNA",
+      durationMs: 8000
     }
   ];
 
@@ -137,7 +139,7 @@
     {
       title: 'LA TIERRA RECIBE A SUS EXPLORADORES',
       speaker: 'DR. ARTHUR VANCE',
-      role: 'Director de Vuelo Houston // NASA',
+      role: 'Control de misión · Proyecto Génesis',
       quote: '«Aquí Houston. Telemetría de retorno confirmada y datos transferidos a los laboratorios centrales. La Tierra entera celebra su valentía y determinación. Bienvenidos a casa, héroes de la Odyssey.»',
       theme: 'houston',
       icon: '📡',
@@ -548,7 +550,7 @@
       // Cálculo de duración de lectura generosa: nunca cortar la lectura prematuramente
       const quoteLength = (slide.quote || '').length;
       // En español una persona lee ~14 caracteres por segundo; garantizamos tiempo sobrado
-      const baseReadingDurationMs = Math.max(16000, quoteLength * 85 + 5000);
+      const baseReadingDurationMs = slide.durationMs || Math.max(16000, quoteLength * 85 + 5000);
       const postSpeechBufferMs = 4500;
 
       if (slide.audioSrc) {

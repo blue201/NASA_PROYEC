@@ -12,7 +12,7 @@
     sofia: {
       id: 'sofia',
       name: 'Cmdte. Sofia Parker',
-      role: 'Astrobióloga & Piloto de Pruebas NASA',
+      role: 'Astrobióloga & Piloto de Pruebas Génesis',
       callsign: 'GÉNESIS LEADER',
       avatar: 'assets/sofia_parker.jpg',
       color: '#00e5ff',
@@ -32,7 +32,7 @@
     houston: {
       id: 'houston',
       name: 'Dr. Arthur Vance',
-      role: 'Director de Vuelo NASA (Houston)',
+      role: 'Director de Vuelo (Control terrestre)',
       callsign: 'CAPCOM HOUSTON',
       avatar: 'assets/houston_director.jpg',
       color: '#ff9100',
@@ -70,7 +70,7 @@
       atmosphere: '1.0 atm (N2 78%, O2 21%, Ar 0.9%)',
       water: 'Superficie líquida 71% // Biósfera activa',
       radiation: 'Blindaje magnetosférico total',
-      verdict: 'El punto azul pálido original. La misión Génesis busca preservar su legado asegurando un nuevo hogar en las estrellas.'
+      verdict: 'El punto azul pálido original. La misión Génesis busca preservar su legado investigando recursos y tecnologías que ayuden a conservar la Tierra.'
     },
     mars: {
       score: 68,
@@ -79,7 +79,7 @@
       atmosphere: '0.006 atm (CO2 95%, N2 2.6%, Ar 1.9%)',
       water: 'Hielo en casquetes polares y permafrost abundante',
       radiation: 'Moderada-Alta // Requiere cúpulas con blindaje de regolito',
-      verdict: 'Candidato principal para la primera colonia permanente del Éxodo Humano. Viable mediante bio-cúpulas y extracción de agua subterránea.'
+      verdict: 'Destino científico posterior a la misión lunar. La presencia de minerales no confirma depósitos explotables.'
     },
     moon: {
       score: 42,
@@ -124,7 +124,7 @@
       atmosphere: 'H2 96%, He 3%, Metano',
       water: 'Vapor congelado en anillos y nubes',
       radiation: 'Media en espacio interanular',
-      verdict: 'Planeta gaseoso no apto para pisar suelo. No obstante, sus lunas Titán (74% habitabilidad con trajes térmicos) y Encélado (65% agua pura) son objetivos dorados de la NASA.'
+      verdict: 'Planeta gaseoso no apto para pisar suelo. No obstante, sus lunas Titán (74% habitabilidad con trajes térmicos) y Encélado (65% agua pura) son objetivos dorados del Proyecto Génesis.'
     },
     neptune: {
       score: 0,
@@ -154,10 +154,10 @@
       stardate: '2084.286 // Órbita Baja Terrestre',
       title: 'Mando de la Génesis-1 y la Iniciativa del Éxodo',
       author: 'Cmdte. Sofia Parker',
-      summary: 'Transferencia formal de mando de la NASA en órbita terrestre.',
+      summary: 'Transferencia formal de mando del Proyecto Génesis en órbita terrestre.',
       content: `Hoy asumí formalmente el mando de la Génesis-1 frente a la cúpula de observación de la estación Gateway. Mirar la Tierra desde aquí, con sus ciudades iluminadas contra el manto azul, siempre me quita el aliento. Pero las cifras de los informes de recursos de Houston no mienten: nuestro mundo natal necesita un respiro.
 
-La Iniciativa Génesis no es solo una misión de exploración espacial; es el seguro de vida de nuestra especie. A mi lado tengo a la tripulación más competente que la NASA pudo reunir: Leo en la sala de reactores de iones, Marcus trazando trayectorias matemáticas de Hohmann con precisión milimétrica, y J.A.R.V.I.S., cuyo núcleo cuántico ya procesa millones de terabytes de telemetría por segundo.
+La Iniciativa Génesis no es solo una misión de exploración espacial; es el seguro de vida de nuestra especie. A mi lado tengo a la tripulación más competente que el Proyecto Génesis pudo reunir: Leo en la sala de reactores de iones, Marcus trazando trayectorias matemáticas de Hohmann con precisión milimétrica, y J.A.R.V.I.S., cuyo núcleo cuántico ya procesa millones de terabytes de telemetría por segundo.
 
 Nuestra misión prioritaria: localizar mundos con índices de habitabilidad compatibles con la vida humana, y recuperar las balizas pioneras de misiones perdidas en el vacío cósmico. Que las estrellas nos concedan un camino despejado.`
     },
@@ -172,7 +172,7 @@ Nuestra misión prioritaria: localizar mundos con índices de habitabilidad comp
 
 Antes del despliegue, el planeta seleccionado no era más que una silueta espectral en el radar astronómico, una masa desconocida bloqueada por la radiación estelar. Pero a medida que los drones completaron sus barridos orbitales en 360°, J.A.R.V.I.S. comenzó a volcar telemetría en tiempo real: composición atmosférica, temperatura superficial exacta, masa volumétrica y conteo de satélites naturales.
 
-Ahora tenemos datos científicos irrefutables para evaluar la viabilidad de la futura colonia humana. El paso siguiente es la inserción transorbital.`
+Ahora tenemos datos científicos irrefutables para evaluar la viabilidad técnica de investigar y procesar recursos. El paso siguiente es la inserción transorbital.`
     },
     {
       id: 'log_03_hohmann',
@@ -205,7 +205,7 @@ Sentir el chasquido magnético del collar de atraque cuando la esclusa selló al
       summary: 'Aterrizaje en el cañón y evaluación in situ del hábitat humano.',
       content: `¡Hemos tocado suelo! El descenso en el cañón fue una prueba de fuego entre vientos huracanados y escarpes de roca afilada, pero los amortiguadores hidráulicos se bloquearon con firmeza en la plataforma.
 
-Al abrir las cámaras externas de espectrometría, J.A.R.V.I.S. confirmó la estabilidad del lecho rocoso y los recursos minerales de la zona. Clavamos la baliza cuántica de la NASA en la superficie. Si la humanidad decide migrar a este mundo, aquí comenzará la construcción de los primeros domos geodésicos y biorreactores de oxígeno. La Tierra ya ha recibido la telemetría del éxito.`
+Al abrir las cámaras externas de espectrometría, J.A.R.V.I.S. confirmó la estabilidad del lecho rocoso y los recursos minerales de la zona. Clavamos la baliza cuántica del Proyecto Génesis en la superficie. La prioridad es evaluar muestras, energía, masa y comunicaciones para ayudar a la Tierra. La Tierra ya ha recibido la telemetría del éxito.`
     },
     {
       id: 'log_06_stranded',
@@ -214,11 +214,11 @@ Al abrir las cámaras externas de espectrometría, J.A.R.V.I.S. confirmó la est
       title: 'Caja Negra // La Baliza en el Abismo Eterno',
       author: 'Cmdte. Sofia Parker (Último Mensaje de Emergencia)',
       summary: 'Registro final de supervivencia tras la pérdida crítica de propulsión.',
-      content: `Bitácora de emergencia de la Comandante Sofia Parker... Si algún día una sonda de la NASA o una nave hermana recupera esta baliza cuántica... sepan que lo dimos todo hasta el último aliento.
+      content: `Bitácora de emergencia de la Comandante Sofia Parker... Si algún día una sonda del Proyecto Génesis o una nave hermana recupera esta baliza cuántica... sepan que lo dimos todo hasta el último aliento.
 
 Los impactos múltiples perforaron el casco y el reactor principal de iones se apagó para siempre. Ahora flotamos en silencio en el vacío cósmico, rodeados de nebulosas milenarias que brillan como joyas frías. El soporte vital auxiliar resistirá unas pocas semanas. He ordenado a J.A.R.V.I.S. activar el protocolo de hibernación criogénica para la tripulación.
 
-A quien escuche esto en la Tierra: no abandonen la búsqueda de nuevos hogares. El universo es hostil, pero la perseverancia humana es infinita. Génesis-1 transmite en bucle. Parker fuera.`
+A quien escuche esto en la Tierra: no abandonen la investigación responsable de recursos. El universo es hostil, pero la perseverancia humana es infinita. Génesis-1 transmite en bucle. Parker fuera.`
     },
     {
       id: 'log_07_supplies',
@@ -309,7 +309,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
           <div class="radio-meta-row">
             <div class="radio-id-group">
               <span class="radio-char-name" id="radio-char-name">CMDTE. SOFIA PARKER</span>
-              <span class="radio-char-role" id="radio-char-role">PILOTO & ASTROBIÓLOGA NASA</span>
+              <span class="radio-char-role" id="radio-char-role">PILOTO & ASTROBIÓLOGA GÉNESIS</span>
             </div>
             <div class="radio-signal-badge" id="radio-callsign-tag">GÉNESIS LEADER</div>
           </div>
@@ -321,7 +321,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
           <div class="radio-controls-row">
             <div class="radio-freq-indicator">
               <span class="freq-icon">⚡</span>
-              <span id="radio-freq-val">CANAL NASA 1420.405 MHz</span>
+              <span id="radio-freq-val">CANAL GÉNESIS 1420.405 MHz</span>
             </div>
             <div class="radio-actions-group">
               <button id="radio-replay-btn" class="radio-action-btn" title="Repetir último mensaje de radio">
@@ -664,7 +664,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
           <!-- Barra Superior del PADD -->
           <div class="padd-topbar">
             <div class="padd-header-left">
-              <span class="padd-nasa-logo">NASA</span>
+              <span class="padd-nasa-logo">GÉNESIS</span>
               <div class="padd-title-wrap">
                 <span class="padd-dev-title">PERSONAL ACCESS DISPLAY DEVICE (PADD MK-VII)</span>
                 <span class="padd-dev-sub">COMANDANTE SOFIA PARKER // MISIÓN GÉNESIS-1</span>
@@ -798,7 +798,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
                 <div class="padd-verdict-box">
                   <span class="padd-verdict-tag">DICTAMEN CIENTÍFICO DE LA COMANDANTE PARKER:</span>
                   <p class="padd-verdict-text" id="padd-verdict-text">
-                    Candidato principal para la primera colonia permanente del Éxodo Humano. Viable mediante bio-cúpulas y extracción de agua subterránea.
+                    Destino científico posterior a la misión lunar. La presencia de minerales no confirma depósitos explotables.
                   </p>
                 </div>
               </div>
@@ -808,7 +808,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
 
           <!-- Pie del PADD -->
           <div class="padd-footer">
-            <span class="padd-footer-id">NASA ODYSSEY INITIATIVE // TERMINAL PADD ENCRIPTADO POR J.A.R.V.I.S.</span>
+            <span class="padd-footer-id">PROYECTO GÉNESIS // TERMINAL PADD ENCRIPTADO POR J.A.R.V.I.S.</span>
             <span class="padd-footer-status">TRANSMISIÓN ENCRIPTADA CON HOUSTON // SUB-LUMÍNICO OK</span>
           </div>
 
@@ -1137,7 +1137,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
       this.radio.queueSequence(selected);
     }
 
-    // PRÓLOGO: Órbita Baja Terrestre (LEO) - Iniciativa Génesis de la NASA
+    // PRÓLOGO: Órbita Baja Terrestre (LEO) - Iniciativa Génesis del Proyecto Génesis
     triggerPrologue() {
       this.hasTriggeredPrologue = true;
       this.radio.queueSequence([
@@ -1179,7 +1179,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
         this.radio.queueSequence([
           {
             character: 'sofia',
-            text: `Objetivo fijado: Marte. El planeta rojo es nuestro candidato principal para colonización. J.A.R.V.I.S., inicia análisis espectral.`,
+            text: `Objetivo fijado: Marte. El planeta rojo es un destino para estudiar muestras y recursos. J.A.R.V.I.S., inicia análisis espectral.`,
             duration: 4200
           },
           {
@@ -1533,7 +1533,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
         },
         {
           character: 'jarvis',
-          text: `Evaluación de habitabilidad completada en el terreno. La baliza cuántica de la NASA está transmitiendo. La humanidad tiene una nueva esperanza.`,
+          text: `Evaluación de habitabilidad completada en el terreno. La baliza cuántica del Proyecto Génesis está transmitiendo. La humanidad tiene una nueva esperanza.`,
           duration: 4800
         },
         {
