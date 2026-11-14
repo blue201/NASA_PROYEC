@@ -1108,12 +1108,8 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
         }
       });
 
-      // Disparar prólogo automático con un breve retardo para permitir que el canvas Three.js cargue
-      setTimeout(() => {
-        if (!this.hasTriggeredPrologue) {
-          this.triggerPrologue();
-        }
-      }, 2500);
+      // La presentación vigente se inicia únicamente en cinematic-slides.js.
+
     }
 
     // Diálogos procedurales de tripulación al pulsar [RADIO COMUNICACIONES] o Tecla 'R'
@@ -1140,33 +1136,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
     // PRÓLOGO: Órbita Baja Terrestre (LEO) - Iniciativa Génesis del Proyecto Génesis
     triggerPrologue() {
       this.hasTriggeredPrologue = true;
-      this.radio.queueSequence([
-        {
-          character: 'houston',
-          text: 'Aquí Control de Misión Houston a la Génesis-1. Comandante Sofia Parker, telemetría en verde. La supervivencia de la humanidad descansa en esta expedición.',
-          duration: 4800
-        },
-        {
-          character: 'sofia',
-          text: 'Copiado, Houston. Sofia Parker al habla. Tripulación en sus puestos. Iniciando verificación de enlace cuántico con J.A.R.V.I.S.',
-          duration: 4400
-        },
-        {
-          character: 'jarvis',
-          text: 'Núcleo cuántico en línea, Comandante. Algoritmo de habitabilidad listo para analizar exoplanetas y balizas de misiones pioneras.',
-          duration: 4600
-        },
-        {
-          character: 'marcus',
-          text: 'Marcus Vance al habla. Trayectorias de Hohmann calculadas para cada sector. Esperando su orden para seleccionar el vector de inserción.',
-          duration: 4500
-        },
-        {
-          character: 'leo',
-          text: '¡Enjambre de drones listo en las bahías de lanzamiento! Comandante, elija un planeta y presione "Escanear con Drones" para iniciar.',
-          duration: 4600
-        }
-      ]);
+      window.CinematicStorySlides?.openPrologue();
     }
 
     // EVENTO: Selección de Planeta en la Consola

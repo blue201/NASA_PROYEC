@@ -281,6 +281,8 @@
     }
 
     play(mode = 'prologue') {
+      const requested = mode === 'epilogue' ? EPILOGUE_SLIDES : PROLOGUE_SLIDES;
+      if (this.isPlaying && this.slides === requested) return;
       this.slides = mode === 'epilogue' ? EPILOGUE_SLIDES : PROLOGUE_SLIDES;
       this.currentIndex = 0;
       this.isPlaying = true;
@@ -659,36 +661,28 @@
     }
   }
 
+  // One startup owner; old save flags prevent a second first-run introduction.
+  let startupChecked = false;
   function checkAutoLaunchCinematics() {
+    if (startupChecked) return;
+    startupChecked = true;
     initCinematicSlides();
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('epilogue') && !params.has('prologue')) {
+      window.CinematicStorySlides.openEpilogue();
+      return;
+    }
+    let seen = false;
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('prologue')) {
-        window.CinematicStorySlides.openPrologue();
-        return;
-      }
-      if (urlParams.has('epilogue')) {
-        window.CinematicStorySlides.openEpilogue();
-        return;
-      }
-      const seen = localStorage.getItem('odyssey_prologue_auto_played') === 'true';
-      if (!seen) {
-        try { localStorage.setItem('odyssey_prologue_auto_played', 'true'); } catch {}
-        setTimeout(() => {
-          window.CinematicStorySlides.openPrologue();
-        }, 400);
-      }
+      seen = localStorage.getItem('odyssey_prologue_auto_played') === 'true' ||
+        localStorage.getItem('odyssey_first_prologue_seen_v1') === 'seen';
     } catch {}
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      initCinematicSlides();
-      checkAutoLaunchCinematics();
-    });
-  } else {
-    initCinematicSlides();
-    checkAutoLaunchCinematics();
+    if (!params.has('prologue') && (seen || params.has('nasa'))) return;
+    try {
+      localStorage.setItem('odyssey_prologue_auto_played', 'true');
+      localStorage.setItem('odyssey_first_prologue_seen_v1', 'seen');
+    } catch {}
+    window.CinematicStorySlides.openPrologue();
   }
 
   window.CinematicStorySlides = {
@@ -712,4 +706,10 @@
     },
     Class: CinematicSlideshow
   };
+  // Export the API before starting, including scripts loaded after DOMContentLoaded.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAutoLaunchCinematics, { once: true });
+  } else {
+    checkAutoLaunchCinematics();
+  }
 })();
