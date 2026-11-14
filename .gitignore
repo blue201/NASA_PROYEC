@@ -8,3 +8,6 @@ dist/
 
 # Modelos fuente pesados (.blend, .fbx, .gltf, .obj): se comparten por Drive, ver README
 game/sources/
+
+# Música (~116 MB): se comparte por Drive, ver README
+game/assets/music/
