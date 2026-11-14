@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Planeta (contrato v1)",
+  "type": "object",
+  "required": ["id", "name", "schema_version", "physical", "resources", "hazards"],
+  "$defs": {
+    "measured": {
+      "type": "object",
+      "required": ["value", "unit"],
+      "anyOf": [{ "required": ["source_url"] }, { "required": ["source_api"] }],
+      "properties": {
+        "value": {}, "unit": {}, "note": { "type": "string" },
+        "source_url": { "type": "string", "format": "uri" },
+        "source_api": { "type": "string" },
+        "verified": { "type": "boolean" }
+      }
+    }
+  },
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "name": { "type": "string" },
+    "schema_version": { "const": 1 },
+    "physical": { "type": "object", "additionalProperties": { "$ref": "#/$defs/measured" } },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "abundance"],
+        "properties": { "abundance": { "$ref": "#/$defs/measured" } }
+      }
+    },
+    "hazards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "source_url", "game_effect"],
+        "properties": {
+          "game_effect": { "type": "object", "required": ["target", "text"] }
+        }
+      }
+    },
+    "missions": { "type": "array", "items": { "type": "string" } }
+  }
+}

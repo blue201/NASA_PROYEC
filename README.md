@@ -1,68 +1,73 @@
-# Lunar CubeSat Mission
+# Team Rocket HN · Misión Luna
 
-Juego educativo de diseño de misión lunar, hecho por **Team Rocket HN** para el NASA Space Apps Challenge 2026 (Tegucigalpa), reto *Space Mission Design Game*.
+Juego educativo de diseño de misión espacial, hecho por **Team Rocket HN** para el NASA Space Apps Challenge 2026 (Tegucigalpa), reto *Space Mission Design Game*.
 
-1. **Diseño:** elige estructura (6U o 12U), energía, comunicaciones, instrumento y propulsión. Debes cumplir con masa, volumen, presupuesto y Δv; si te pasas, no puedes lanzar.
-2. **Misión:** en órbita lunar haces 3 pases sobre el polo sur administrando batería y bajada de datos. En el segundo pase llega una tormenta solar.
-3. **Reporte:** ves tus puntos de ciencia y por qué salió así.
+**Premisa:** la demanda de la IA agotó recursos de la Tierra. Tu equipo diseña una nave con presupuesto, masa y energía limitados, viaja a la Luna, aterriza, explora con un rover, extrae hielo de agua con un dron y recibe un reporte que explica por qué la misión salió como salió.
+
+> Repositorio privado por ahora. Nadie sube directo a `main`: lee [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Estructura
 
 ```
-web/      Frontend Vite (estático, se publica en GitHub Pages)
-api/      Backend Node en Docker: consulta NASA Images y JPL Horizons
-docker-compose.yml   Levanta api + web juntos para desarrollo
+api/            Backend Node (Docker): NASA Images, JPL Horizons y /api/planets
+data/planets/   Contrato compartido: un JSON por planeta con datos reales y fuentes
+game/           Juego 3D (Three.js), basado en Odyssey (ver Créditos)
+web/            Prototipo del hangar de diseño (se porta a game/js/design/)
+tasks/          Tres primeras tareas de cada rol
+.github/        CODEOWNERS y workflow de publicación
+.githooks/      Aviso local que bloquea el push directo a main
 ```
 
-| Carpeta | Qué hace |
-|---|---|
-| `web/src/modules/design/` | Fase de diseño y validación |
-| `web/src/modules/mission/` | Simulación de los 3 pases y el evento |
-| `web/src/modules/report/` | Reporte final |
-| `web/src/modules/sources/` | Panel de fuentes |
-| `web/src/state.js` | Estado compartido y cálculo de totales |
-| `web/src/data/cubesat.json` | Catálogo de subsistemas y reglas de misión |
-| `web/src/data/load.js` | Pide datos al backend o usa el caché |
-| `web/src/data/cache/` | Respuestas cacheadas de las APIs (las usa el sitio público) |
-| `api/src/sources.js` | Clientes de NASA Images y JPL Horizons |
-| `api/src/server.js` | Endpoints HTTP |
-| `api/scripts/write-cache.js` | Regenera `web/src/data/cache/` |
+Roles, zonas y ramas: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Cómo correrlo
 
-Con Docker (api + web):
+1. Copia `.env.example` como `.env` (las llaves son opcionales).
+2. Activa el aviso de push: `git config core.hooksPath .githooks`.
+3. Descarga los assets pesados (ver abajo).
+4. Levanta todo:
 
 ```bash
 docker compose up --build
 ```
 
-- Juego: http://localhost:5299
-- API: http://localhost:8787/health, `/api/images`, `/api/distance`
+| Servicio | URL |
+|---|---|
+| Juego 3D | http://localhost:8400 |
+| API | http://localhost:8787/health · `/api/planets` · `/api/distance` · `/api/images` |
+| Prototipo del hangar | http://localhost:5299 |
 
-Si esos puertos están ocupados: `API_PORT=9000 WEB_PORT=5200 docker compose up`.
+Si un puerto está ocupado: `GAME_PORT=8410 API_PORT=8797 docker compose up`.
 
-Solo el frontend, sin backend (usa el caché):
+Sin Docker: `cd game && PORT=8400 node serve.cjs --no-browser` y `cd api && npm start`.
 
-```bash
-cd web && npm install && npm run dev
-```
+## Assets pesados (fuera de git)
 
-## Cómo fluyen los datos
+Los modelos fuente (.blend, .fbx, .gltf, .obj; ~103 MB) **no están en el repo**. El juego corre sin ellos: solo hacen falta para editar modelos.
 
-- En desarrollo, `VITE_API_URL` apunta al backend y el juego pide los datos en vivo.
-- El sitio publicado en GitHub Pages no tiene backend: usa el JSON cacheado en `web/src/data/cache/`. Si el backend falla, el juego también cae al caché.
-- Antes de publicar, actualiza el caché: `cd api && npm run cache`, y haz commit de los JSON.
+- Enlace de Drive: **PEGAR_AQUÍ_EL_ENLACE**
+- Descomprime en `game/sources/`, de modo que quede `game/sources/blend/`, `game/sources/fbx/`, `game/sources/gltf/` y `game/sources/obj/`.
+
+`game/sources/` está en `.gitignore`.
 
 ## Data Sources
 
-No se usan llaves de API en ninguna parte. Cada respuesta guardada lleva `source_url` y `retrieved_at`.
+No se usan llaves de API en el navegador. Cada valor guardado lleva su `source_url`.
 
-- **JPL Horizons API** (https://ssd.jpl.nasa.gov/api/horizons.api): vector Luna (301) respecto al geocentro (500@399). Usamos la distancia (RG) y el tiempo de luz (LT) para el retardo de señal y el tiempo de viaje.
-- **NASA Image and Video Library** (https://images-api.nasa.gov): imágenes de la Luna, el polo sur lunar y CubeSats. Se conserva el `nasa_id` y el enlace a cada imagen.
-- **CubeSat 101** (NASA CubeSat Launch Initiative): referencia para tamaños y límites de masa por U. Los costos y potencias del catálogo son valores de balance de juego aproximados.
+- **JPL Horizons API** (https://ssd.jpl.nasa.gov/api/horizons.api): distancia Tierra–Luna y tiempo de luz.
+- **NASA Image and Video Library** (https://images-api.nasa.gov): imágenes de la Luna y CubeSats, con `nasa_id`.
+- **Datos por planeta** (`data/planets/*.json`): gravedad, temperatura, recursos y peligros con la fuente de cada valor (NASA NSSDC Moon Fact Sheet, NASA Science, LCROSS, Chang'e 4 LND, Lunar Sourcebook). Los marcados `verified: false` están en revisión.
+- **CubeSat 101** (NASA CSLI): referencia de tamaños y masas de la fase de diseño.
 
-Este proyecto no está respaldado ni afiliado a NASA. No usa logos de NASA.
+Este proyecto no está respaldado ni afiliado a NASA y no usa sus logos.
+
+## Créditos
+
+- **Odyssey**: la carpeta `game/` parte de *Odyssey*, un proyecto previo del equipo creado antes del hackathon. Su uso en la entrega está **pendiente de aprobación escrita de los organizadores**. Todo lo hecho desde el sábado 14 de noviembre de 2026 a las 09:00 queda en el historial de este repositorio.
+- **Licencia MIT (Antonio Maiorano, 2014)**: `game/LICENSE.txt` se conserva tal cual. Su nombre no aparece en ningún archivo de código del proyecto; el origen del aviso está en revisión.
+- **three.js** (MIT): `game/assets/vendor/`, licencia en `game/assets/vendor/THREE-LICENSE.txt`.
+- Texturas, panorama, voces y demás recursos: ver `game/assets/CREDITS.md`.
 
 ## Uso de IA
 
-Parte del código y la documentación se generó con ayuda de Claude (Anthropic) y fue revisada por el equipo. Todo el trabajo se hizo durante el hackathon, a partir del sábado 14 de noviembre de 2026 a las 09:00.
+Parte del código y la documentación se generó con ayuda de Claude (Anthropic) y fue revisada por el equipo. El juego Odyssey usa Gemini para su copiloto conversacional (opcional, con llave propia en `.env`).

@@ -1,0 +1,11 @@
+#!/bin/sh
+# Bloquea el push directo a main. Todo cambio entra por pull request.
+# Actívalo una vez: git config core.hooksPath .githooks
+while read local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "⛔ No se sube directo a main. Sube tu rama y abre un pull request."
+    echo "   (Emergencia real: git push --no-verify)"
+    exit 1
+  fi
+done
+exit 0

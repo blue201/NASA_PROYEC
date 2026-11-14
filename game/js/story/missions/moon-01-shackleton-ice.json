@@ -1,0 +1,16 @@
+{
+  "id": "moon-01-shackleton-ice",
+  "planet": "moon",
+  "title": "Hielo en Shackleton",
+  "objective": "Extraer hielo de agua del cráter Shackleton y enviar a la Tierra los datos de la extracción.",
+  "resource": "water-ice",
+  "target_amount": { "value": 50, "unit": "kg" },
+  "hazards": ["extreme-cold", "radiation", "dust"],
+  "briefing": "BORRADOR (Historia): la Tierra se quedó sin agua dulce suficiente tras años de centros de datos de IA. Tu equipo debe diseñar una nave capaz de llegar al polo sur lunar y traer la primera prueba de que el hielo se puede extraer.",
+  "success_text": "BORRADOR",
+  "failure_texts": {
+    "no_power": "BORRADOR: el frío del cráter agotó la batería antes de terminar la extracción.",
+    "no_downlink": "BORRADOR: extrajiste hielo, pero tu radio no pudo enviar los datos a tiempo.",
+    "overweight": "BORRADOR: la nave no despegó: pesaba más de lo que el lanzador podía llevar."
+  }
+}

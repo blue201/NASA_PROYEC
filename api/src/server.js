@@ -2,9 +2,19 @@
 //   GET /health
 //   GET /api/images     -> NASA Image and Video Library normalizado
 //   GET /api/distance   -> distancia Tierra–Luna de JPL Horizons
-// Las respuestas se guardan en memoria (TTL) para no golpear las APIs de NASA.
+//   GET /api/planets    -> todos los data/planets/*.json válidos
+//   GET /api/planets/:id
+// Las respuestas externas se guardan en memoria (TTL) para no golpear las APIs de NASA.
+// Los planetas se leen del disco en cada petición: editar el JSON se refleja al instante.
 import { createServer } from 'node:http';
 import { fetchImages, fetchMoonDistance } from './sources.js';
+import { loadPlanets } from './planets.js';
+
+async function planets() {
+  const all = await loadPlanets();
+  all.filter((p) => p.problems.length).forEach((p) => console.warn('planeta inválido:', p.problems));
+  return all.filter((p) => !p.problems.length).map((p) => p.data);
+}
 
 const PORT = Number(process.env.PORT ?? 8080);
 const TTL_MS = Number(process.env.CACHE_TTL_MIN ?? 60) * 60e3;
@@ -23,13 +33,19 @@ const routes = {
   '/health': async () => ({ ok: true }),
   '/api/images': () => cached('images', () => fetchImages()),
   '/api/distance': () => cached('distance', () => fetchMoonDistance()),
+  '/api/planets': () => planets(),
 };
 
 const server = createServer(async (req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   res.setHeader('Access-Control-Allow-Origin', CORS_ORIGIN);
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  const handler = req.method === 'GET' && routes[pathname];
+  let handler = req.method === 'GET' && routes[pathname];
+  const one = req.method === 'GET' && pathname.match(/^\/api\/planets\/([a-z0-9-]+)$/);
+  if (one) {
+    const p = (await planets()).find((x) => x.id === one[1]);
+    handler = p && (async () => p);
+  }
   if (!handler) {
     res.writeHead(404).end(JSON.stringify({ error: 'not found' }));
     return;

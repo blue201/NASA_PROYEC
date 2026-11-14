@@ -106,15 +106,18 @@ function createServer(root = __dirname) {
   });
 }
 if (require.main === module) {
+  // PORT y HOST configurables (Docker necesita HOST=0.0.0.0; en Mac 8080 suele estar ocupado).
+  const PORT = Number(process.env.PORT || 8080);
+  const HOST = process.env.HOST || '127.0.0.1';
   const server = createServer();
   server.on('error',error => {
-    console.error(error.code === 'EADDRINUSE' ? 'El puerto 8080 está ocupado. Cierra el servidor anterior e inténtalo otra vez.' : `No se pudo iniciar el servidor: ${error.message}`);
+    console.error(error.code === 'EADDRINUSE' ? `El puerto ${PORT} está ocupado. Usa otro con PORT=8400 node serve.cjs` : `No se pudo iniciar el servidor: ${error.message}`);
     process.exitCode = 1;
   });
-  server.listen(8080,'127.0.0.1',() => {
-    console.log('Odyssey abierto en http://127.0.0.1:8080/ · Deja esta ventana abierta. Ctrl+C para cerrar.');
-    if (!process.argv.includes('--no-browser')) {
-      require('node:child_process').spawn('cmd.exe',['/d','/c','start','', 'http://127.0.0.1:8080/'],{windowsHide:true,stdio:'ignore'}).on('error',()=>{});
+  server.listen(PORT,HOST,() => {
+    console.log(`Odyssey abierto en http://127.0.0.1:${PORT}/ · Deja esta ventana abierta. Ctrl+C para cerrar.`);
+    if (!process.argv.includes('--no-browser') && process.platform === 'win32') {
+      require('node:child_process').spawn('cmd.exe',['/d','/c','start','', `http://127.0.0.1:${PORT}/`],{windowsHide:true,stdio:'ignore'}).on('error',()=>{});
     }
   });
 }

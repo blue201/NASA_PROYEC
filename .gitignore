@@ -3,3 +3,8 @@ dist/
 .DS_Store
 .env
 .env.*
+!.env.example
+.local/
+
+# Modelos fuente pesados (.blend, .fbx, .gltf, .obj): se comparten por Drive, ver README
+game/sources/

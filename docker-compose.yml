@@ -5,9 +5,12 @@ services:
     build: ./api
     ports:
       - "${API_PORT:-8787}:8080"
+    volumes:
+      - ./data:/data:ro
     environment:
       CACHE_TTL_MIN: 60
       CORS_ORIGIN: "*"
+      PLANETS_DIR: /data/planets
 
   web:
     image: node:22-alpine
@@ -20,5 +23,24 @@ services:
       - "${WEB_PORT:-5299}:5173"
     environment:
       VITE_API_URL: http://localhost:${API_PORT:-8787}
+    depends_on:
+      - api
+
+  # Odyssey (juego 3D). La llave de Gemini es opcional: ponla en un archivo .env
+  # en la raíz (GEMINI_API_KEY=...), nunca en el código. .env está en .gitignore.
+  game:
+    image: node:22-alpine
+    working_dir: /app
+    command: node serve.cjs --no-browser
+    volumes:
+      - ./game:/app
+    ports:
+      - "${GAME_PORT:-8400}:8080"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      NASA_API_KEY: ${NASA_API_KEY:-}
+      API_URL: http://api:8080
     depends_on:
       - api

@@ -1,0 +1,30 @@
+# Dueños por carpeta. Reemplaza cada `TODO-usuario-...` por el usuario de GitHub real
+# (con @ delante) cuando cada persona tenga acceso al repo. La última regla que coincide gana.
+
+# Zona común: cualquier cambio necesita revisión de otra persona
+*                                   @blue201 TODO-usuario-datos TODO-usuario-historia TODO-usuario-multijugador
+
+# Datos y peligros
+/api/                               TODO-usuario-datos
+/data/                              TODO-usuario-datos
+/game/services/                     TODO-usuario-datos
+/game/js/design/                    TODO-usuario-datos @blue201
+
+# Historia
+/game/js/story/                     TODO-usuario-historia
+/game/js/cinematic/                 TODO-usuario-historia
+/game/js/jarvis/                    TODO-usuario-historia
+/game/assets/audio-es/              TODO-usuario-historia
+/game/assets/cinematics/            TODO-usuario-historia
+
+# Modelado y superficie
+/game/js/world/                     @blue201
+/game/js/surface/                   @blue201
+/game/js/fauna/                     @blue201
+/game/js/flight/landing-game.js     @blue201
+/game/assets/models/                @blue201
+/game/assets/pbr/                   @blue201
+
+# Multijugador
+/game/js/multiplayer/               TODO-usuario-multijugador
+/game/server/multiplayer/           TODO-usuario-multijugador
