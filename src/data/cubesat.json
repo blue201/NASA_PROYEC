@@ -1,0 +1,53 @@
+{
+  "_meta": {
+    "note": "Valores de referencia para el juego. Los límites de masa (1.33 kg por U) y volumen vienen de CubeSat 101 (NASA CSLI) y la CubeSat Design Specification; los costos y potencias son balance de juego aproximado. VERIFICAR contra el PDF antes de entregar.",
+    "source_url": "https://www.nasa.gov/smallsat-institute/cubesat-101/",
+    "verified": false
+  },
+  "startingBudget": 2500000,
+  "structures": [
+    { "id": "6U",  "name": "Estructura 6U",  "maxMassKg": 8, "volumeU": 6,  "costUsd": 150000, "massKg": 1.2 },
+    { "id": "12U", "name": "Estructura 12U", "maxMassKg": 16, "volumeU": 12, "costUsd": 280000, "massKg": 2.4 }
+  ],
+  "subsystems": {
+    "power": {
+      "label": "Energía",
+      "options": [
+        { "id": "body-panels",   "name": "Paneles en el cuerpo",     "generationW": 15, "storageWh": 40,  "massKg": 0.8, "volumeU": 0.5, "costUsd": 120000 },
+        { "id": "deploy-panels", "name": "Paneles desplegables",     "generationW": 45, "storageWh": 80,  "massKg": 1.6, "volumeU": 1,   "costUsd": 350000 },
+        { "id": "big-battery",   "name": "Desplegables + batería grande", "generationW": 45, "storageWh": 160, "massKg": 2.4, "volumeU": 1.5, "costUsd": 480000 }
+      ]
+    },
+    "comms": {
+      "label": "Comunicaciones",
+      "options": [
+        { "id": "uhf",     "name": "Radio UHF",           "downlinkKbps": 9.6,  "drawW": 4,  "massKg": 0.3, "volumeU": 0.3, "costUsd": 60000 },
+        { "id": "sband",   "name": "Radio banda S",       "downlinkKbps": 256,  "drawW": 12, "massKg": 0.6, "volumeU": 0.5, "costUsd": 250000 },
+        { "id": "xband",   "name": "Radio banda X + antena", "downlinkKbps": 2000, "drawW": 25, "massKg": 1.4, "volumeU": 1, "costUsd": 700000 }
+      ]
+    },
+    "instrument": {
+      "label": "Instrumento",
+      "options": [
+        { "id": "camera",   "name": "Cámara visible",          "dataMbPerPass": 200, "drawW": 6,  "massKg": 0.5, "volumeU": 0.5, "costUsd": 150000, "science": 1 },
+        { "id": "ir",       "name": "Espectrómetro infrarrojo (hielo)", "dataMbPerPass": 600, "drawW": 14, "massKg": 1.5, "volumeU": 1.5, "costUsd": 900000, "science": 3 },
+        { "id": "neutron",  "name": "Detector de neutrones",   "dataMbPerPass": 50,  "drawW": 8,  "massKg": 2.0, "volumeU": 1,   "costUsd": 600000, "science": 2 }
+      ]
+    },
+    "propulsion": {
+      "label": "Propulsión",
+      "options": [
+        { "id": "cold-gas", "name": "Gas frío",            "deltaVms": 40,  "massKg": 1.5, "volumeU": 1, "costUsd": 200000 },
+        { "id": "green",    "name": "Monopropelente verde", "deltaVms": 150, "massKg": 3.5, "volumeU": 2, "costUsd": 650000 },
+        { "id": "ion",      "name": "Iónico",              "deltaVms": 1000,"massKg": 4.0, "volumeU": 2, "costUsd": 1200000, "drawW": 30 }
+      ]
+    }
+  },
+  "mission": {
+    "requiredDeltaVms": 100,
+    "passes": 3,
+    "events": [
+      { "id": "solar-storm", "name": "Tormenta solar", "atPass": 2, "effect": "Pierdes 50% de la batería y debes decidir si apagar el instrumento" }
+    ]
+  }
+}
