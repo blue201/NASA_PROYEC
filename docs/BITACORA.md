@@ -28,6 +28,10 @@ Registro por fecha de lo hecho y lo decidido. Lo más nuevo va arriba dentro de 
 
 ### Aportes de RamiPosadas (por hora)
 
+#### 14:11 · Agua y comida diarias (PR #3)
+
+Traslado selectivo del diario de tripulación: reparto manual, reservas individuales, consumo por día simulado y consecuencias por privación. El almacén y los motores nuevos del equipo se conservan; se integra el diario sin sustituir su modelo de velocidad ni las mejoras existentes. Revisión solicitada a Blue por tocar index, UI, CSS, vuelo y el punto de consumo en world.
+
 #### 14:14 · Recursos de Marte (PR #4)
 
 Se añade data/planets/mars.json con hielo de agua, muestras con minerales de hierro y minerales identificados por CheMin (plagioclasa, piroxenos y olivino). Cada evidencia tiene fuente NASA y estado de verificación. Radio y período de rotación son aproximaciones explícitas de NASA Mars Facts. Las cinco abundancias quedan pendientes; no se prometen minas de oro ni metales puros. La API existente lo descubre sin modificar el contrato ni desplazar la misión lunar.

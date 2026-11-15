@@ -19,6 +19,11 @@ Entrega: **domingo 15 de noviembre de 2026, 17:00** (hora de Honduras).
 
 ## Pendientes anotados por RamiPosadas
 
+### Agua y comida diarias (PR #3)
+- Blue debe revisar el balance de raciones: 120 L y 60 000 kcal comunes; perfiles ficticios individuales, día de 20 minutos activos (más lento en relajado), máximo dos días asignados. No son recomendaciones médicas.
+- Conservar el fallo previo de check-jarvis-chat.cjs como incidencia separada.
+- Conciliar la bitácora con el PR de historia y docs/equipo al integrar. *(Resuelto al integrar.)*
+
 ### Recursos de Marte (PR #4)
 - Datos: caracterizar abundancias por lugar, incertidumbre y rendimiento de extracción. Los cinco null de abundancia son desconocidos, no cero.
 - Recursos de Marte son contenido de datos; su misión, conexión con recolección 3D y balance industrial quedan fuera de este PR. No se cambia moon.json ni se inventan IDs de misiones.
