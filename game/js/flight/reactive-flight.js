@@ -23,7 +23,9 @@
   fx={points,positions,colors,particles:[],acc:0,roosterAcc:0,slipLines,slipPos,slipCol,slip,machCone,lastBoost:false};instances.set(e,fx);
  }
  const visible=e.currentCameraMode!=='cockpit'&&!e.cinemaShot&&!e.landingComplete;
- fx.points.visible=visible;
+ // Sin atmósfera (Luna, Mercurio) no hay estela de viento, condensación ni cono de Mach.
+ const airless=['moon','mercury'].includes(e.planetKey)&&!e.underwater;
+ fx.points.visible=visible&&!airless;
  const fast=Math.max(0,Math.min(1,(speed-30)/140)),veryFast=Math.max(0,Math.min(1,(speed-85)/110));
  const shipScale=Math.max(.25,e.shipGroup.scale?.x||1);
  const forward=new THREE.Vector3(0,0,-1).applyQuaternion(e.shipGroup.quaternion),right=new THREE.Vector3(1,0,0).applyQuaternion(e.shipGroup.quaternion),up=new THREE.Vector3(0,1,0).applyQuaternion(e.shipGroup.quaternion);
@@ -66,7 +68,7 @@
  if(fx.slipLines){
   fx.slipLines.scale.setScalar(1);
   const slipPower=mode.entry?.88:veryFast;
-  fx.slipLines.visible=visible&&slipPower>.04;
+  fx.slipLines.visible=visible&&!airless&&slipPower>.04;
   if(fx.slipLines.visible){
    const col=mode.entry?new THREE.Color(0xffb26b):water&&alt<35?new THREE.Color(0xb8f2ff):new THREE.Color(0xcceeff);
    fx.slip.forEach((s,i)=>{
@@ -84,7 +86,7 @@
   if(fx.machCone){
    fx.machCone.scale.setScalar(.95+Math.sin(performance.now()*.025)*.06);
    const machPower=surface&&veryFast>.32?(veryFast-.32)/.68:0;
-   fx.machCone.visible=visible&&machPower>.02;
+   fx.machCone.visible=visible&&!airless&&machPower>.02;
    fx.machCone.material.opacity=machPower*.24;
   }
  }
