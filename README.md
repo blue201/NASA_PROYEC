@@ -4,7 +4,21 @@ Juego educativo de diseño de misión espacial, hecho por **Team Rocket HN** par
 
 **Premisa:** la demanda de la IA agotó recursos de la Tierra. Tu equipo diseña una nave con presupuesto, masa y energía limitados, viaja a la Luna, aterriza, explora con un rover, extrae hielo de agua con un dron y recibe un reporte que explica por qué la misión salió como salió.
 
-> Repositorio privado por ahora. Nadie sube directo a `main`: lee [CONTRIBUTING.md](CONTRIBUTING.md).
+## Enlaces (públicos, sin login)
+
+- **Jugar:** https://blue201.github.io/NASA_PROYEC/
+- **Demo (7 diapositivas):** https://blue201.github.io/NASA_PROYEC/demo/
+- **Texto de la entrega en inglés:** [docs/SUBMISSION_EN.md](docs/SUBMISSION_EN.md)
+
+## Cómo colaborar (equipo)
+
+```bash
+git clone https://github.com/blue201/NASA_PROYEC.git
+cd NASA_PROYEC
+docker compose up --build      # juego en http://localhost:8400, API en http://localhost:8787
+```
+
+Para la entrega trabajamos **directo en `main`**: cada `git push` a `main` vuelve a publicar el juego y la demo en los enlaces de arriba en unos 2 minutos (workflow `.github/workflows/pages.yml`). Si activaste el aviso local (`git config core.hooksPath .githooks`), ese aviso bloquea el push a `main`; para la entrega usa `git push --no-verify origin main` o desactívalo con `git config --unset core.hooksPath`. Sin firmas de IA en los commits (ver [AGENTS.md](AGENTS.md)).
 
 ## Estructura
 
