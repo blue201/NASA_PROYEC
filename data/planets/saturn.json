@@ -1,0 +1,54 @@
+{
+  "id": "saturn",
+  "name": "Saturno",
+  "schema_version": 1,
+  "updated_at": "2026-11-15",
+  "notes": "Valores con verified=false los debe confirmar el rol de Datos. Sin fuente no hay número.",
+  "physical": {
+    "gravity": {
+      "value": 10.44,
+      "unit": "m/s²",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturnfact.html",
+      "verified": false
+    },
+    "radius": {
+      "value": 60268,
+      "unit": "km",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturnfact.html",
+      "verified": false,
+      "note": "radio ecuatorial"
+    }
+  },
+  "resources": [
+    {
+      "id": "h2-he",
+      "name": "Hidrógeno y helio",
+      "location": "Atmósfera (no hay superficie sólida)",
+      "abundance": {
+        "value": "H₂ 96.3 / He 3.25",
+        "unit": "% en volumen",
+        "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturnfact.html",
+        "verified": false,
+        "note": "Composición atmosférica de la hoja de datos de NASA; no es un recurso extraíble en el juego."
+      },
+      "use": "Solo dato científico; sin recolección",
+      "extraction": "No aplica: no hay suelo"
+    }
+  ],
+  "hazards": [
+    {
+      "id": "no-surface",
+      "name": "Sin superficie sólida",
+      "value": null,
+      "unit": null,
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturnfact.html",
+      "verified": false,
+      "game_effect": {
+        "target": "landing",
+        "multiplier": 0,
+        "text": "No se puede aterrizar: solo se observa desde órbita"
+      }
+    }
+  ],
+  "missions": []
+}

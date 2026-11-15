@@ -2,7 +2,7 @@
   "id": "mars",
   "name": "Marte",
   "schema_version": 1,
-  "updated_at": "2026-11-14",
+  "updated_at": "2026-11-15",
   "notes": "Inventario de presencia observada, no de reservas mineras. Abundancias pendientes; null no significa cero. No se afirma ausencia de oro: no se incluye como depósito confirmado. La misión lunar conserva prioridad. Los usos y métodos de extracción son propuestas de juego, no capacidades demostradas.",
   "physical": {
     "radius": {
@@ -135,6 +135,52 @@
       },
       "use": "Investigación de muestras; cualquier uso industrial requiere caracterización y procesamiento.",
       "extraction": "Concepto de juego pendiente de validación técnica: muestreo localizado, análisis y procesamiento. No se simula producción de metal puro."
+    },
+    {
+      "id": "perchlorate",
+      "name": "Percloratos en el suelo",
+      "location": "Llanuras árticas (Vastitas Borealis), sitio de la sonda Phoenix",
+      "source_url": "https://doi.org/10.1126/science.1172466",
+      "verified": false,
+      "evidence": {
+        "value": "detectado",
+        "unit": "presencia",
+        "source_url": "https://doi.org/10.1126/science.1172466",
+        "verified": false,
+        "note": "Phoenix midió perclorato en el suelo (Hecht et al., 2009). Es tóxico; también puede liberar oxígeno al procesarlo."
+      },
+      "abundance": {
+        "value": 0.6,
+        "unit": "% en masa",
+        "note": "Orden de 0.4 a 0.6 % en las muestras de Phoenix; por verificar con la fuente.",
+        "source_url": "https://doi.org/10.1126/science.1172466",
+        "verified": false
+      },
+      "use": "Posible fuente de oxígeno; peligro químico para la salud y los equipos",
+      "extraction": "Concepto de juego: muestreo y análisis del suelo; no se simula producción industrial."
+    },
+    {
+      "id": "mid-latitude-ice",
+      "name": "Hielo bajo la superficie en latitudes medias",
+      "location": "Escarpes con hielo expuesto en latitudes medias (fotografiados por HiRISE)",
+      "source_url": "https://doi.org/10.1126/science.aao1619",
+      "verified": false,
+      "evidence": {
+        "value": "detectado",
+        "unit": "presencia",
+        "source_url": "https://doi.org/10.1126/science.aao1619",
+        "verified": false,
+        "note": "Mars Reconnaissance Orbiter observó hielo casi puro a poca profundidad (Dundas et al., 2018)."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "note": "Pendiente: no se asigna porcentaje.",
+        "source_url": "https://doi.org/10.1126/science.aao1619",
+        "verified": false
+      },
+      "use": "Agua, oxígeno y propelente tras procesarla",
+      "extraction": "Concepto de juego: excavar el borde del escarpe y fundir el hielo."
     }
   ],
   "hazards": [

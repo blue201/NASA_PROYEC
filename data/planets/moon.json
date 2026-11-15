@@ -2,25 +2,68 @@
   "id": "moon",
   "name": "Luna",
   "schema_version": 1,
-  "updated_at": "2026-11-14",
+  "updated_at": "2026-11-15",
   "notes": "Valores con verified=false los debe confirmar el rol de Datos antes de la entrega.",
-
   "physical": {
-    "gravity": { "value": 1.62, "unit": "m/s²", "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html", "verified": true },
-    "radius": { "value": 1737.4, "unit": "km", "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html", "verified": true },
-    "day_length": { "value": 708.7, "unit": "h", "note": "día solar (sinódico), 29.53 días", "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html", "verified": true },
-    "temperature_day_max": { "value": 120, "unit": "°C", "note": "ecuador al mediodía", "source_url": "https://science.nasa.gov/moon/facts/", "verified": false },
-    "temperature_night_min": { "value": -130, "unit": "°C", "note": "ecuador de noche", "source_url": "https://science.nasa.gov/moon/facts/", "verified": false },
-    "temperature_polar_crater": { "value": -246, "unit": "°C", "note": "cráteres en sombra permanente del polo sur", "source_url": "https://science.nasa.gov/moon/facts/", "verified": false },
-    "distance_from_earth": { "value": null, "unit": "km", "note": "se llena en vivo desde JPL Horizons", "source_api": "/api/distance" }
+    "gravity": {
+      "value": 1.62,
+      "unit": "m/s²",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html",
+      "verified": true
+    },
+    "radius": {
+      "value": 1737.4,
+      "unit": "km",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html",
+      "verified": true
+    },
+    "day_length": {
+      "value": 708.7,
+      "unit": "h",
+      "note": "día solar (sinódico), 29.53 días",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html",
+      "verified": true
+    },
+    "temperature_day_max": {
+      "value": 120,
+      "unit": "°C",
+      "note": "ecuador al mediodía",
+      "source_url": "https://science.nasa.gov/moon/facts/",
+      "verified": false
+    },
+    "temperature_night_min": {
+      "value": -130,
+      "unit": "°C",
+      "note": "ecuador de noche",
+      "source_url": "https://science.nasa.gov/moon/facts/",
+      "verified": false
+    },
+    "temperature_polar_crater": {
+      "value": -246,
+      "unit": "°C",
+      "note": "cráteres en sombra permanente del polo sur",
+      "source_url": "https://science.nasa.gov/moon/facts/",
+      "verified": false
+    },
+    "distance_from_earth": {
+      "value": null,
+      "unit": "km",
+      "note": "se llena en vivo desde JPL Horizons",
+      "source_api": "/api/distance"
+    }
   },
-
   "resources": [
     {
       "id": "water-ice",
       "name": "Hielo de agua",
       "location": "Cráteres en sombra permanente del polo sur (p. ej. Cabeus, Shackleton)",
-      "abundance": { "value": 5.6, "unit": "% en masa", "note": "medido por LCROSS en el material expulsado de Cabeus (±2.9)", "source_url": "https://doi.org/10.1126/science.1186986", "verified": true },
+      "abundance": {
+        "value": 5.6,
+        "unit": "% en masa",
+        "note": "medido por LCROSS en el material expulsado de Cabeus (±2.9)",
+        "source_url": "https://doi.org/10.1126/science.1186986",
+        "verified": true
+      },
       "use": "Agua potable, oxígeno y combustible (hidrógeno + oxígeno)",
       "extraction": "excavar regolito helado y calentarlo"
     },
@@ -28,7 +71,13 @@
       "id": "regolith-oxygen",
       "name": "Oxígeno del regolito",
       "location": "Toda la superficie, ligado en minerales (óxidos)",
-      "abundance": { "value": 43, "unit": "% en masa", "note": "aproximado; está químicamente ligado, no libre", "source_url": "https://www.lpi.usra.edu/publications/books/lunar_sourcebook/", "verified": false },
+      "abundance": {
+        "value": 43,
+        "unit": "% en masa",
+        "note": "aproximado; está químicamente ligado, no libre",
+        "source_url": "https://www.lpi.usra.edu/publications/books/lunar_sourcebook/",
+        "verified": false
+      },
       "use": "Soporte vital y oxidante para cohetes",
       "extraction": "reducción del regolito a alta temperatura (mucha energía)"
     },
@@ -36,51 +85,101 @@
       "id": "helium-3",
       "name": "Helio-3",
       "location": "Regolito expuesto al viento solar, más en mares ricos en titanio",
-      "abundance": { "value": 10, "unit": "ppb", "note": "orden de magnitud; varía entre ~1 y ~15 ppb según la zona", "source_url": "https://www.lpi.usra.edu/publications/books/lunar_sourcebook/", "verified": false },
+      "abundance": {
+        "value": 10,
+        "unit": "ppb",
+        "note": "orden de magnitud; varía entre ~1 y ~15 ppb según la zona",
+        "source_url": "https://www.lpi.usra.edu/publications/books/lunar_sourcebook/",
+        "verified": false
+      },
       "use": "Posible combustible de fusión (aún experimental)",
       "extraction": "procesar enormes volúmenes de regolito"
+    },
+    {
+      "id": "ilmenite",
+      "name": "Ilmenita (óxido de hierro y titanio)",
+      "location": "Mares basálticos ricos en titanio (p. ej. Mare Tranquillitatis, sitio de Apollo 11)",
+      "abundance": {
+        "value": null,
+        "unit": "% en volumen",
+        "note": "Abundante en basaltos de alto titanio de las muestras Apollo; porcentaje por verificar con la fuente.",
+        "source_url": "https://www.lpi.usra.edu/publications/books/lunar_sourcebook/",
+        "verified": false
+      },
+      "use": "Fuente de oxígeno (reducción con hidrógeno) y de hierro y titanio",
+      "extraction": "excavar regolito de mare y procesarlo a alta temperatura (mucha energía)"
     }
   ],
-
   "hazards": [
     {
       "id": "radiation",
       "name": "Radiación en superficie",
-      "value": 1369, "unit": "µSv/día",
+      "value": 1369,
+      "unit": "µSv/día",
       "note": "medido por el instrumento LND del Chang'e 4",
-      "source_url": "https://doi.org/10.1126/sciadv.aaz1334", "verified": true,
-      "game_effect": { "target": "electronics", "per_hour": -0.5, "text": "Sin blindaje, la electrónica se degrada" }
+      "source_url": "https://doi.org/10.1126/sciadv.aaz1334",
+      "verified": true,
+      "game_effect": {
+        "target": "electronics",
+        "per_hour": -0.5,
+        "text": "Sin blindaje, la electrónica se degrada"
+      }
     },
     {
       "id": "extreme-cold",
       "name": "Frío extremo en cráteres polares",
-      "value": -246, "unit": "°C",
-      "source_url": "https://science.nasa.gov/moon/facts/", "verified": false,
-      "game_effect": { "target": "battery", "per_hour": -8, "text": "Los calentadores gastan batería" }
+      "value": -246,
+      "unit": "°C",
+      "source_url": "https://science.nasa.gov/moon/facts/",
+      "verified": false,
+      "game_effect": {
+        "target": "battery",
+        "per_hour": -8,
+        "text": "Los calentadores gastan batería"
+      }
     },
     {
       "id": "heat",
       "name": "Calor del día lunar",
-      "value": 120, "unit": "°C",
-      "source_url": "https://science.nasa.gov/moon/facts/", "verified": false,
-      "game_effect": { "target": "battery", "per_hour": -3, "text": "Los radiadores trabajan más" }
+      "value": 120,
+      "unit": "°C",
+      "source_url": "https://science.nasa.gov/moon/facts/",
+      "verified": false,
+      "game_effect": {
+        "target": "battery",
+        "per_hour": -3,
+        "text": "Los radiadores trabajan más"
+      }
     },
     {
       "id": "dust",
       "name": "Polvo lunar abrasivo",
-      "value": null, "unit": null,
+      "value": null,
+      "unit": null,
       "note": "partículas afiladas y con carga eléctrica que se pegan a juntas y paneles (experiencia Apollo)",
-      "source_url": "https://www.nasa.gov/humans-in-space/lunar-dust/", "verified": false,
-      "game_effect": { "target": "solar_panels", "per_hour": -1, "text": "Paneles cubiertos generan menos" }
+      "source_url": "https://www.nasa.gov/humans-in-space/lunar-dust/",
+      "verified": false,
+      "game_effect": {
+        "target": "solar_panels",
+        "per_hour": -1,
+        "text": "Paneles cubiertos generan menos"
+      }
     },
     {
       "id": "long-night",
       "name": "Noche lunar de ~14 días",
-      "value": 354, "unit": "h",
-      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html", "verified": true,
-      "game_effect": { "target": "power_generation", "multiplier": 0, "text": "Sin sol no hay generación solar" }
+      "value": 354,
+      "unit": "h",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html",
+      "verified": true,
+      "game_effect": {
+        "target": "power_generation",
+        "multiplier": 0,
+        "text": "Sin sol no hay generación solar"
+      }
     }
   ],
-
-  "missions": ["moon-01-shackleton-ice"]
+  "missions": [
+    "moon-01-shackleton-ice"
+  ]
 }

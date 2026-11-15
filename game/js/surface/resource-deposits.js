@@ -1,0 +1,161 @@
+/* Depósitos de recursos reales visibles en la superficie (rol: Modelado).
+   Lee data/planets/<id>.json (vía la API, puerto 8787) y pone en el suelo el material
+   de cada recurso real, con su nombre y su fuente al acercarse.
+   Sin datos inventados: si un recurso no tiene "location" de superficie, no se dibuja.
+   Expone window.ResourceDeposits = { build, dispose, nearest, list }. */
+(function () {
+  const COUNT_PER_RESOURCE = 5;
+  const NEAR_M = 70;
+
+  // Aspecto por tipo de material (colores de roca, sin brillos).
+  const LOOK = {
+    'water-ice': { color: 0x575e62, rough: 0.45, flat: 0.25, size: 7 },        // regolito helado: gris oscuro con leve escarcha
+    'mid-latitude-ice': { color: 0x7d878c, rough: 0.4, flat: 0.4, size: 9 },
+    'ilmenite': { color: 0x2b2b2e, rough: 0.55, flat: 0.8, size: 6 },
+    'perchlorate': { color: 0xa89f88, rough: 0.9, flat: 0.15, size: 12 },     // vetas de sal pálida
+    'iron-bearing-minerals': { color: 0x5a3a35, rough: 0.8, flat: 0.7, size: 6 },
+    'plagioclase': { color: 0x9c968b, rough: 0.85, flat: 0.7, size: 5 },
+    'pyroxene': { color: 0x3f4a3a, rough: 0.85, flat: 0.7, size: 5 },
+    'olivine': { color: 0x5d6a37, rough: 0.8, flat: 0.7, size: 5 },
+    'sulfur': { color: 0x9d9157, rough: 0.9, flat: 0.3, size: 8 },
+    'basalt': { color: 0x3a3632, rough: 0.9, flat: 0.8, size: 7 },
+  };
+  const DEFAULT_LOOK = { color: 0x6f6a63, rough: 0.9, flat: 0.7, size: 6 };
+
+  const params = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
+  const API = (params.get('api') || (typeof location !== 'undefined' ? location.protocol + '//' + location.hostname + ':8787' : '')).replace(/\/$/, '');
+
+  let current = null; // { explorer, group, deposits: [] }
+
+  // Recursos que se pueden "ver tirados": tienen ubicación en el suelo (no atmósfera ni toda la superficie difusa).
+  function surfaceResources(planet) {
+    return (planet?.resources || []).filter((r) => {
+      const loc = (r.location || '').toLowerCase();
+      if (!loc) return false;
+      if (loc.includes('atmósfera') || loc.includes('atmosfera')) return false;
+      if (r.id === 'regolith-oxygen' || r.id === 'helium-3' || r.id === 'co2-atmosphere') return false; // difusos en todo el regolito o el aire
+      return true;
+    });
+  }
+
+  function sourceOf(r) {
+    return r.abundance?.source_url || r.source_url || r.evidence?.source_url || '';
+  }
+
+  // Posiciones deterministas alrededor de la plataforma, lejos de ella.
+  function positionsFor(index, total, padX, padZ) {
+    const out = [];
+    for (let i = 0; i < COUNT_PER_RESOURCE; i++) {
+      const angle = (index / Math.max(1, total)) * Math.PI * 2 + i * 0.37 + 0.6;
+      const dist = 260 + i * 210 + index * 45;
+      out.push([padX + Math.cos(angle) * dist, padZ + Math.sin(angle) * dist]);
+    }
+    return out;
+  }
+
+  function build(explorer, planet) {
+    dispose();
+    const THREE = window.THREE || globalThis.THREE;
+    const heightAt = window.SurfaceNavigation?.heightAt || (() => 0);
+    const key = explorer.planetKey;
+    const group = new THREE.Group();
+    group.name = 'Depósitos de recursos reales';
+    const pad = explorer.landingPad?.position || { x: 0, z: -650 };
+    const resources = surfaceResources(planet);
+    const deposits = [];
+    const geo = new THREE.IcosahedronGeometry(1, 1);
+    resources.forEach((r, idx) => {
+      const look = LOOK[r.id] || DEFAULT_LOOK;
+      const mat = new THREE.MeshStandardMaterial({ color: look.color, roughness: look.rough, metalness: r.id === 'ilmenite' ? 0.35 : 0, flatShading: true });
+      for (const [x, z] of positionsFor(idx, resources.length, pad.x, pad.z)) {
+        const y = heightAt(x, z, key);
+        const cluster = new THREE.Group();
+        cluster.position.set(x, y, z);
+        // Varios trozos sueltos: "material tirado" en el suelo.
+        for (let k = 0; k < 7; k++) {
+          const piece = new THREE.Mesh(geo, mat);
+          const s = look.size * (0.45 + ((k * 37) % 10) / 14);
+          piece.scale.set(s, s * look.flat, s * (0.8 + (k % 3) * 0.2));
+          piece.position.set(Math.sin(k * 2.1) * look.size * 1.6, s * look.flat * 0.3, Math.cos(k * 1.7) * look.size * 1.6);
+          piece.rotation.set(k * 0.4, k * 1.3, k * 0.2);
+          piece.castShadow = piece.receiveShadow = true;
+          cluster.add(piece);
+        }
+        group.add(cluster);
+        deposits.push({ id: r.id, name: r.name, source_url: sourceOf(r), verified: !!(r.abundance?.verified ?? r.verified), position: { x, y, z }, mesh: cluster, resource: r });
+      }
+    });
+    explorer.scene?.add(group);
+    current = { explorer, group, deposits };
+    return deposits;
+  }
+
+  function dispose() {
+    if (!current) return;
+    current.group.parent?.remove(current.group);
+    current.group.traverse((o) => { o.geometry?.dispose?.(); o.material?.dispose?.(); });
+    current = null;
+    hideLabel();
+  }
+
+  function nearest(pos, maxDist = Infinity) {
+    let best = null, bd = maxDist;
+    for (const d of current?.deposits || []) {
+      const dist = Math.hypot(d.position.x - pos.x, d.position.z - pos.z);
+      if (dist < bd) { bd = dist; best = d; }
+    }
+    return best ? { deposit: best, distance: bd } : null;
+  }
+
+  // Etiqueta al acercarse: nombre del recurso y fuente.
+  let label = null;
+  function showLabel(d) {
+    if (typeof document === 'undefined') return;
+    if (!label) {
+      label = document.createElement('div');
+      label.className = 'hg-banner hg-resource-label';
+      label.setAttribute('role', 'status');
+      document.body.appendChild(label);
+    }
+    const host = d.source_url ? d.source_url.replace(/^https?:\/\//, '').split('/')[0] : 'sin fuente';
+    label.textContent = '⛏ ' + d.name + ' · fuente: ' + host + (d.verified ? '' : ' (por verificar)');
+  }
+  function hideLabel() { label?.remove?.(); label = null; }
+
+  function tick() {
+    if (typeof requestAnimationFrame !== 'undefined') requestAnimationFrame(tick);
+    const e = current?.explorer;
+    if (!e || !e.isActive || e.arrival) { hideLabel(); return; }
+    const near = nearest(e.shipGroup.position, NEAR_M);
+    if (near) showLabel(near.deposit); else hideLabel();
+  }
+
+  async function loadPlanet(key) {
+    try {
+      const r = await fetch(API + '/api/planets/' + key);
+      if (r.ok) return r.json();
+    } catch (e) { /* sin API */ }
+    if (key === 'moon') return window.MoonData?.planet || null; // respaldo local de la Luna
+    return null;
+  }
+
+  // Engancharse al inicio y fin de la exploración de superficie, sin tocar surface-explorer.js.
+  function install() {
+    const P = window.PlanetSurfaceExplorer;
+    if (!P || P.prototype.__depositsHooked) return;
+    P.prototype.__depositsHooked = true;
+    const start = P.prototype.start, stop = P.prototype.stop;
+    P.prototype.start = function (key) {
+      const out = start.apply(this, arguments);
+      const self = this;
+      loadPlanet(self.ancientEarth ? 'earth' : key).then((planet) => { if (planet && self.isActive && self.planetKey === key) build(self, planet); });
+      return out;
+    };
+    P.prototype.stop = function () { dispose(); return stop.apply(this, arguments); };
+    if (typeof requestAnimationFrame !== 'undefined') requestAnimationFrame(tick);
+  }
+
+  window.ResourceDeposits = { build, dispose, nearest, surfaceResources, install, get list() { return current?.deposits || []; } };
+  if (window.PlanetSurfaceExplorer) install();
+  else if (typeof window.addEventListener === 'function') window.addEventListener('load', install);
+})();
