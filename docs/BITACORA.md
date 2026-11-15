@@ -31,3 +31,9 @@ Registro por fecha de lo hecho y lo decidido. Lo más nuevo va arriba dentro de 
 #### 14:14 · Recursos de Marte (PR #4)
 
 Se añade data/planets/mars.json con hielo de agua, muestras con minerales de hierro y minerales identificados por CheMin (plagioclasa, piroxenos y olivino). Cada evidencia tiene fuente NASA y estado de verificación. Radio y período de rotación son aproximaciones explícitas de NASA Mars Facts. Las cinco abundancias quedan pendientes; no se prometen minas de oro ni metales puros. La API existente lo descubre sin modificar el contrato ni desplazar la misión lunar.
+
+#### 14:27 · Historia de Génesis (PR #2)
+
+Adaptación selectiva de Génesis al repositorio del equipo: prólogo de siete escenas (56 segundos sin pausas), misión lunar y explicaciones de presupuesto, masa, energía y comunicaciones. Se mantiene el reproductor CRT existente y se reemplazan las grabaciones con guion obsoleto por la narración del texto vigente. No se importan modelos ni música.
+
+Se elimina el segundo disparador de inicio en main y el prólogo antiguo por radio. Los accesos heredados abren la presentación vigente; una llamada repetida no reinicia una escena activa. Se conservan las marcas de partidas anteriores.

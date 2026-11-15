@@ -24,7 +24,7 @@ for (const rel of imgMatches) {
 }
 
 const audioMatches = [...code.matchAll(/audioSrc:\s*['"]([^'"]+)['"]/g)].map(m => m[1]);
-assert(audioMatches.length >= 4, 'Debe tener audios de voz asignados');
+assert(code.includes('window.planetNarrator.speak'), 'La narración debe usar el texto actualizado, no grabaciones del guion anterior');
 for (const rel of audioMatches) {
   const fullPath = path.join(basePath, rel);
   assert(fs.existsSync(fullPath), `Audio ${rel} referenciado en cinematic-slides debe existir`);
