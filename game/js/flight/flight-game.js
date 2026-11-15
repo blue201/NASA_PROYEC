@@ -149,7 +149,7 @@ class FlightGameEngine {
       {
         id: 'black_hole_event_horizon',
         title: 'Horizonte de Sucesos de Sagitario A* (Disco de Acreción Relativista)',
-        image: 'assets/black_hole_gargantua.jpg',
+        image: 'assets/milky-way-eso.jpg', // imagen real (ESO, CC BY 4.0)
         cause: 'Atracción Gravitacional Relativista // Cruce del Radio de Schwarzschild',
         beacon: 'MODO CINEMÁTICO // VISTA PANORÁMICA DEL DISCO DE ACRECIÓN',
         telemetry: 'GRAVEDAD: RELATIVISTA // LENTE DE EINSTEIN // EN REPOSO',
