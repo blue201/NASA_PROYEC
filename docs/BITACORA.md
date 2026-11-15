@@ -4,6 +4,14 @@ Registro por fecha de lo hecho y lo decidido. Lo más nuevo va arriba dentro de 
 
 ## 2026-11-15
 
+### Partidas cooperativas de recolección mineral
+
+Se agrega el modo optativo `?multi=1`: salas para 2–4 jugadores con destino planetario fijado por el anfitrión, reservas exclusivas de mineral, selección de estrategia por dron y manifiesto compartido que solo recibe carga cuando el dron vuelve a la nave. La coordinación usa el servidor Node existente; los drones y depósitos cooperativos se cargan únicamente en este modo. Las salas son temporales y se mantienen en memoria.
+
+Se modifican `game/serve.cjs`, `game/index.html`, `game/js/multiplayer/`, `game/server/multiplayer/` y esta bitácora. Requiere revisión de zona común y del rol de superficie antes de integrar.
+
+## 2026-11-15
+
 ### Portada orbital, diario y controles de música
 
 Se anima la nave de la portada sobre un campo estelar y se acerca el diario a una página de cuaderno ilustrado. El tema del prólogo intenta iniciarse al abrir el menú y vuelve a intentarlo con la primera interacción si el navegador bloquea el autoplay. Pausa ahora ofrece pista anterior/siguiente y pausar/reanudar; el volumen se mantiene en los controles existentes.
