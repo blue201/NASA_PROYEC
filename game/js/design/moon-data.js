@@ -8,7 +8,11 @@
 (function () {
   const TIMEOUT_MS = 4000;
   const FALLBACK_URL = 'js/design/moon.fallback.json';
+  const IMAGES_FALLBACK = 'js/design/nasa-images.fallback.json';
+  const DISTANCE_FALLBACK = 'js/design/horizons-moon.fallback.json';
   const params = new URLSearchParams(location.search);
+  // En el sitio publicado (https, sin servidor propio) no hay API: se usan los datos guardados.
+  const STATIC = !params.get('api') && location.protocol === 'https:';
   const API = (params.get('api') || location.protocol + '//' + location.hostname + ':8787').replace(/\/$/, '');
 
   function getJson(url) {
@@ -34,7 +38,9 @@
   const data = { planet: null, distance: null, images: [], source: 'cargando', api: API };
 
   data.ready = (async () => {
-    const [planet, distance, images] = await Promise.allSettled([
+    const none = Promise.reject(new Error('sitio estático'));
+    none.catch(() => {});
+    const [planet, distance, images] = await Promise.allSettled(STATIC ? [none, none, none] : [
       getJson(API + '/api/planets/moon'),
       getJson(API + '/api/distance'),
       getJson(API + '/api/images'),
@@ -43,16 +49,19 @@
       data.planet = planet.value;
       data.source = 'api';
     } else {
-      data.planet = await getJson(FALLBACK_URL).catch(() => null);
+      data.planet = await getJson('data/planets/moon.json').catch(() => getJson(FALLBACK_URL)).catch(() => null);
       data.source = 'local';
       console.warn('API no disponible, usando moon.fallback.json:', planet.reason);
     }
-    if (distance.status === 'fulfilled' && distance.value.rows && distance.value.rows.length) {
-      const today = distance.value.rows[0];
-      data.distance = { km: today.range_km, lightTimeS: today.light_time_s, date: today.date, source_url: distance.value.source_url, retrieved_at: distance.value.retrieved_at };
+    // Sin API: distancia e imágenes guardadas (JPL Horizons y NASA Image Library, con su fecha de consulta).
+    const dist = distance.status === 'fulfilled' ? distance.value : await getJson(DISTANCE_FALLBACK).catch(() => null);
+    if (dist && dist.rows && dist.rows.length) {
+      const today = dist.rows[0];
+      data.distance = { km: today.range_km, lightTimeS: today.light_time_s, date: today.date, source_url: dist.source_url, retrieved_at: dist.retrieved_at };
     }
-    if (images.status === 'fulfilled') data.images = images.value.items || [];
-    if (data.source !== 'api' || !data.distance) {
+    const imgs = images.status === 'fulfilled' ? images.value : await getJson(IMAGES_FALLBACK).catch(() => null);
+    data.images = (imgs && imgs.items) || [];
+    if (data.source !== 'api' && !STATIC) {
       banner('Sin conexión con la API: usando datos guardados de la Luna. El juego sigue funcionando.');
     }
     document.dispatchEvent(new CustomEvent('moondata:ready', { detail: data }));

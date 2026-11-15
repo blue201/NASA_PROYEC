@@ -598,7 +598,7 @@
 
       if (this.progressive) {
         document.getElementById('challenge-rules').textContent =
-          `Sin límite de tiempo · Responde las 3 preguntas progresivas sobre ${profile.name} (eligiendo una opción o escribiendo el resultado). Si fallas, J.A.R.V.I.S. te dará una pista explicativa.`;
+          `Sin límite de tiempo · Responde las 3 preguntas progresivas sobre ${profile.name} (eligiendo una opción o escribiendo el resultado). Si fallas, A.T.L.A.S. te dará una pista explicativa.`;
       } else {
         document.getElementById('challenge-rules').textContent = `${['Fácil', 'Media', 'Difícil'][this.level]} · 40 s por intento · Cada error añade ${penalties[this.level]} s al resultado de misión.`;
       }
@@ -890,7 +890,7 @@
         this.input.classList?.add('input-invalid');
       }
       const hint = this.question?.hint || `Revisa la operación (${this.question?.equation || ''}) y la ficha científica de arriba.`;
-      this.feedback.textContent = `🤖 Pista de J.A.R.V.I.S.: ${hint} Inténtalo de nuevo eligiendo una opción o escribiendo el resultado.`;
+      this.feedback.textContent = `🤖 Pista de A.T.L.A.S.: ${hint} Inténtalo de nuevo eligiendo una opción o escribiendo el resultado.`;
       this.retry.hidden = false;
       this.retry.textContent = 'Cambiar pregunta';
       this.input.select?.();
@@ -912,7 +912,7 @@
         this.input.classList?.remove('input-valid');
         this.input.classList?.add('input-invalid');
       }
-      const hintText = this.question?.hint ? ` 🤖 Pista de J.A.R.V.I.S.: ${this.question.hint}` : '';
+      const hintText = this.question?.hint ? ` 🤖 Pista de A.T.L.A.S.: ${this.question.hint}` : '';
       this.feedback.textContent = this.bonus
         ? reason + ' Puedes reintentarlo sin penalización.' + hintText
         : `${reason} +${penalties[this.level]} s de penalización. Revisa los datos y vuelve a intentarlo.${hintText}`;

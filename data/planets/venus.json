@@ -1,0 +1,105 @@
+{
+  "id": "venus",
+  "name": "Venus",
+  "schema_version": 1,
+  "updated_at": "2026-11-15",
+  "notes": "Valores con verified=false los debe confirmar el rol de Datos. Sin fuente no hay número.",
+  "physical": {
+    "gravity": {
+      "value": 8.87,
+      "unit": "m/s²",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html",
+      "verified": false
+    },
+    "radius": {
+      "value": 6051.8,
+      "unit": "km",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html",
+      "verified": false
+    },
+    "temperature_surface": {
+      "value": 464,
+      "unit": "°C",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html",
+      "verified": false,
+      "note": "temperatura media en la superficie"
+    },
+    "pressure_surface": {
+      "value": 92,
+      "unit": "bar",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html",
+      "verified": false
+    }
+  },
+  "resources": [
+    {
+      "id": "co2-atmosphere",
+      "name": "Dióxido de carbono atmosférico",
+      "location": "Atmósfera",
+      "abundance": {
+        "value": 96.5,
+        "unit": "% en volumen",
+        "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html",
+        "verified": false
+      },
+      "use": "Producir oxígeno y combustible a partir de CO₂",
+      "extraction": "Concepto de juego: captura desde la atmósfera"
+    },
+    {
+      "id": "basalt",
+      "name": "Basalto en la superficie",
+      "location": "Llanuras volcánicas (sitios de Venera 13 y 14)",
+      "abundance": {
+        "value": null,
+        "unit": "presencia",
+        "source_url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1981-106D",
+        "verified": false,
+        "note": "Análisis de suelo de Venera 13; composición basáltica. Por verificar."
+      },
+      "use": "Dato científico",
+      "extraction": "Concepto de juego: muestreo breve (los equipos sobreviven poco)"
+    }
+  ],
+  "hazards": [
+    {
+      "id": "heat",
+      "name": "Calor extremo",
+      "value": 464,
+      "unit": "°C",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html",
+      "verified": false,
+      "game_effect": {
+        "target": "battery",
+        "per_hour": -20,
+        "text": "La refrigeración agota la energía muy rápido"
+      }
+    },
+    {
+      "id": "pressure",
+      "name": "Presión aplastante",
+      "value": 92,
+      "unit": "bar",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html",
+      "verified": false,
+      "game_effect": {
+        "target": "hull",
+        "per_hour": -5,
+        "text": "El casco sufre daño continuo"
+      }
+    },
+    {
+      "id": "acid-clouds",
+      "name": "Nubes de ácido sulfúrico",
+      "value": null,
+      "unit": null,
+      "source_url": "https://science.nasa.gov/venus/facts/",
+      "verified": false,
+      "game_effect": {
+        "target": "hull",
+        "per_hour": -1,
+        "text": "Corrosión al atravesar las nubes"
+      }
+    }
+  ],
+  "missions": []
+}

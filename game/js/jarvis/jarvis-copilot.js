@@ -2,7 +2,7 @@
 (()=>{
  let route=null,warningCooldown=0;
  const normalize=t=>String(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- function navigate(position,land=false){const e=window.surfaceExplorer,s=window.ExpeditionSystems?.state;if(!e?.isActive||e.arrival||e.autoLanding||e.surfaceLift||e.landingComplete||!s?.operational)return false;route={engine:e,target:position.clone(),land};window.ExplorationUpgrades?.message(land?'JARVIS · Aproximación asistida a la base':'JARVIS · Rumbo al lugar secreto');return true;}
+ function navigate(position,land=false){const e=window.surfaceExplorer,s=window.ExpeditionSystems?.state;if(!e?.isActive||e.arrival||e.autoLanding||e.surfaceLift||e.landingComplete||!s?.operational)return false;route={engine:e,target:position.clone(),land};window.ExplorationUpgrades?.message(land?'ATLAS · Aproximación asistida a la base':'ATLAS · Rumbo al lugar secreto');return true;}
  function cancel(){if(route){route.engine.keys={};route=null;}}
  function command(text){const q=normalize(text),e=window.surfaceExplorer,s=window.ExpeditionSystems?.state;
  if(/cancel(a|ar)|deten|manual/.test(q)&&/piloto|ruta|ayuda|guia/.test(q)){cancel();return 'Copiloto desconectado. Tienes el control.';}
@@ -12,10 +12,10 @@
  if(/busca|lleva|guia|ir /.test(q)&&/cueva|gruta|ruina|secreto|deposito/.test(q)){const sites=window.ExplorationUpgrades?.sites||[],type=/cueva|gruta/.test(q)?0:/ruina/.test(q)?1:/deposito/.test(q)?2:null,site=sites.find(x=>type===null||x.type===type);return site&&navigate(site.position,false)?'Rumbo al lugar secreto. Me detendré al aproximarnos para que lo explores.':'Entra en un planeta para localizar sus lugares secretos.';}
  return null;
  }
- function update(e,dt){warningCooldown=Math.max(0,warningCooldown-dt);const s=window.ExpeditionSystems?.state;if(!warningCooldown&&s&&(s.hull<25||s.oxygen<15||s.fuel<10)){const alert=command('diagnostico');window.ExplorationUpgrades?.message('JARVIS · '+alert);window.planetNarrator?.speak(alert,'jarvis');warningCooldown=90;}
+ function update(e,dt){warningCooldown=Math.max(0,warningCooldown-dt);const s=window.ExpeditionSystems?.state;if(!warningCooldown&&s&&(s.hull<25||s.oxygen<15||s.fuel<10)){const alert=command('diagnostico');window.ExplorationUpgrades?.message('ATLAS · '+alert);window.planetNarrator?.speak(alert,'jarvis');warningCooldown=90;}
  if(!route||route.engine!==e)return;if(!s?.operational||e.arrival||e.autoLanding||e.surfaceLift){cancel();return;}const p=e.shipGroup.position,t=route.target,distance=Math.hypot(t.x-p.x,t.z-p.z);e.keys={};
  if(route.land&&e.canLandAtBase()){cancel();e.authorizeLanding();return;}
- if(!route.land&&distance<65){e.keys.Space=true;route=null;window.ExplorationUpgrades?.message('JARVIS · Lugar a la vista. Explora y acércate para descubrirlo.');return;}
+ if(!route.land&&distance<65){e.keys.Space=true;route=null;window.ExplorationUpgrades?.message('ATLAS · Lugar a la vista. Explora y acércate para descubrirlo.');return;}
  const dx=(t.x-p.x)/(distance||1),dz=(t.z-p.z)/(distance||1);let clearance=-Infinity;for(let i=0;i<=5;i++){const ahead=Math.min(distance,150)*i/5;clearance=Math.max(clearance,window.SurfaceNavigation.heightAt(p.x+dx*ahead,p.z+dz*ahead,e.planetKey)+65);}for(const b of e.rockBodies||[]){if(!b.bounds)continue;const c=b.center,along=(c.x-p.x)*dx+(c.z-p.z)*dz,lateral=Math.abs((c.x-p.x)*dz-(c.z-p.z)*dx);if(along>0&&along<Math.min(distance,160)&&lateral<45)clearance=Math.max(clearance,b.bounds.max.y+30);}const altitude=route.land&&distance<95?t.y:Math.max(t.y,clearance);const desiredYaw=Math.atan2(-dx,-dz),delta=Math.atan2(Math.sin(desiredYaw-e.cameraYaw),Math.cos(desiredYaw-e.cameraYaw));e.pendingYaw=0;e.pendingPitch=0;e.cameraYaw+=delta*(1-Math.exp(-dt*2));e.cameraPitch*=Math.exp(-dt*3);
  if(p.y<altitude-8)e.keys.KeyQ=true;else if(p.y>altitude+8)e.keys.KeyE=true;
  if(p.y>=clearance-5&&distance>40&&Math.abs(delta)<.3)e.keys.KeyW=true;else e.keys.Space=true;

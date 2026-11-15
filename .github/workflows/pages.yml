@@ -17,21 +17,21 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-      - run: npm ci
-      - run: npm run build
+      # Publica el juego (game/) como sitio estático. Sin API: usa los datos de respaldo
+      # (js/design/*.fallback.json). No se publican pruebas, fuentes 3D ni scripts de Windows.
+      - name: Preparar sitio
+        run: |
+          mkdir -p _site
+          rsync -a --exclude tests --exclude sources --exclude 'assets/music' \
+            --exclude '*.ps1' --exclude '*.bat' --exclude serve.cjs --exclude services --exclude server \
+            game/ _site/
+          cp -r data _site/data
+          touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: web/dist
+          path: _site
   deploy:
     needs: build
     runs-on: ubuntu-latest

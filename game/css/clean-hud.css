@@ -245,7 +245,7 @@ body #star-map-toggle{top:16px!important}@media(max-width:600px){body #star-map-
 /* Retired selection toolbar; active flight settings remain in pause. */
 #ship-controls-drawer { display: none !important; }
 
-/* Progressive 3-step challenge: steps, NASA data card, quick options and JARVIS hints. */
+/* Progressive 3-step challenge: steps, NASA data card, quick options and ATLAS hints. */
 #mission-challenge{width:min(640px,calc(100vw - 28px));max-height:92dvh;overflow:auto;box-sizing:border-box}
 .challenge-steps{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.challenge-steps[hidden]{display:none}
 .challenge-step-pill{flex:1 1 140px;text-align:center;padding:6px 10px;border-radius:999px;font:600 12px system-ui;border:1px solid #4d6b78;color:#9fb6c1;background:#0d1f29}

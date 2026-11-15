@@ -230,14 +230,14 @@
     },
     {
       title: 'INFORME DE SISTEMAS FINALES',
-      speaker: 'J.A.R.V.I.S.',
+      speaker: 'A.T.L.A.S.',
       role: 'IA Sintética de Navegación',
       quote: '«Todos los objetivos primarios de la misión han sido completados al 100%. Protocolo de reposo activado. Ha sido un honor inmenso navegar el cosmos a su lado, Comandante. Guardando archivo definitivo...»',
       theme: 'jarvis',
       icon: '🤖',
       imageSrc: 'assets/jarvis_ai.jpg',
       avatarSrc: 'assets/jarvis_ai.jpg',
-      imageDesc: 'El núcleo de JARVIS modulando luces en señal de saludo de misión cumplida.'
+      imageDesc: 'El núcleo de ATLAS modulando luces en señal de saludo de misión cumplida.'
     },
     {
       title: 'EL FUTURO COMIENZA HOY',

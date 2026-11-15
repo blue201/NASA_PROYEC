@@ -57,3 +57,6 @@ Three.js r128 y OrbitControls r128: MIT, código local obtenido de cdnjs/jsDeliv
 «#24 Dizzying space travel - Inktober2019», de Canary Games. Modelo y animación bajo Creative Commons Attribution 4.0, verificados mediante la API pública de Sketchfab el 15 de noviembre de 2026. Se muestran mediante el visor oficial de Sketchfab y su SDK 1.12.1, cargados al entrar al Cretácico. La atribución aparece también junto al visor.
 
 Fuente del modelo https://sketchfab.com/3d-models/24-dizzying-space-travel-inktober2019-08ee5e4cabee421ebf0b2cc927d4d6fc . Licencia https://creativecommons.org/licenses/by/4.0/ . Documentación del visor https://sketchfab.com/developers/viewer .
+
+## Imágenes generadas con SI (Super Intelligence)
+Los retratos `sofia_parker.jpg`, `leo_chen.jpg`, `marcus_vance.jpg`, `houston_director.jpg`, `jarvis_ai.jpg`, `crew-expressions-v2.png` y la ilustración `stranded_deep_space.png` llevan la marca de agua "SI-generated" en la esquina inferior derecha, como piden las reglas de Space Apps. En los retratos se taparon los emblemas de NASA (y uno que lo imitaba) y el texto "Stark Industries" de la pantalla de JARVIS. Se retiró `black_hole_gargantua.jpg`; esa escena usa ahora el panorama real de la Vía Láctea (ESO/S. Brunier, CC BY 4.0).

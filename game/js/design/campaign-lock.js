@@ -3,7 +3,7 @@
    - Marte se abre al completar la misión lunar (aterrizaje registrado en ExpeditionSystems).
    - El resto se ve con candado. El Cretácico queda oculto.
    - ?pruebas=1 (modo de pruebas de Odyssey) abre todo para el equipo.
-   No modifica main.js: intercepta pestañas, menú de superficie, viajes de JARVIS y mapa estelar.
+   No modifica main.js: intercepta pestañas, menú de superficie, viajes de ATLAS y mapa estelar.
    Se carga después de main.js. Zona común: cambios con revisión. */
 (function () {
   const ALWAYS = ['earth', 'moon'];
@@ -66,7 +66,7 @@
       }, true);
     });
 
-    // Viajes por voz o texto (JARVIS) y mapa estelar.
+    // Viajes por voz o texto (ATLAS) y mapa estelar.
     const travel = window.requestPlanetTravel;
     if (typeof travel === 'function') {
       window.requestPlanetTravel = function (key) {
@@ -92,8 +92,13 @@
     setInterval(refresh, 1500);
   }
 
-  if (document.readyState === 'complete') install();
-  else window.addEventListener('load', install);
+  // Tras DOMContentLoaded (cuando main.js ya armó la interfaz). No se espera a 'load':
+  // en el sitio publicado algunos recursos tardan o faltan y 'load' puede no llegar nunca.
+  let installed = false;
+  const once = () => { if (!installed) { installed = true; install(); } };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(once, 0));
+  else setTimeout(once, 0);
+  window.addEventListener('load', once);
 
   window.CampaignLock = { isOpen, refresh, moonDone };
 })();

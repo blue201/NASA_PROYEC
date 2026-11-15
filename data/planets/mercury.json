@@ -1,0 +1,94 @@
+{
+  "id": "mercury",
+  "name": "Mercurio",
+  "schema_version": 1,
+  "updated_at": "2026-11-15",
+  "notes": "Valores con verified=false los debe confirmar el rol de Datos. Sin fuente no hay número.",
+  "physical": {
+    "gravity": {
+      "value": 3.7,
+      "unit": "m/s²",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html",
+      "verified": false
+    },
+    "radius": {
+      "value": 2439.7,
+      "unit": "km",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html",
+      "verified": false
+    },
+    "temperature_day_max": {
+      "value": 430,
+      "unit": "°C",
+      "source_url": "https://science.nasa.gov/mercury/facts/",
+      "verified": false,
+      "note": "lado de día"
+    },
+    "temperature_night_min": {
+      "value": -180,
+      "unit": "°C",
+      "source_url": "https://science.nasa.gov/mercury/facts/",
+      "verified": false,
+      "note": "lado de noche"
+    }
+  },
+  "resources": [
+    {
+      "id": "water-ice",
+      "name": "Hielo de agua en cráteres polares",
+      "location": "Cráteres en sombra permanente del polo norte",
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://doi.org/10.1126/science.1229953",
+        "verified": false,
+        "note": "MESSENGER (Lawrence et al., 2013) y radar de Arecibo indican hielo; porcentaje pendiente."
+      },
+      "use": "Agua, oxígeno y propelente",
+      "extraction": "Concepto de juego: excavar en sombra permanente"
+    },
+    {
+      "id": "sulfur",
+      "name": "Superficie rica en azufre",
+      "location": "Toda la superficie, según el espectrómetro de rayos X de MESSENGER",
+      "abundance": {
+        "value": 4,
+        "unit": "% en masa",
+        "source_url": "https://doi.org/10.1126/science.1211567",
+        "verified": false,
+        "note": "Hasta ~4 % (Nittler et al., 2011); por verificar."
+      },
+      "use": "Dato científico sobre la formación del planeta",
+      "extraction": "Concepto de juego: muestreo del suelo"
+    }
+  ],
+  "hazards": [
+    {
+      "id": "heat",
+      "name": "Calor extremo de día",
+      "value": 430,
+      "unit": "°C",
+      "source_url": "https://science.nasa.gov/mercury/facts/",
+      "verified": false,
+      "game_effect": {
+        "target": "battery",
+        "per_hour": -10,
+        "text": "Los radiadores consumen mucha energía"
+      }
+    },
+    {
+      "id": "radiation",
+      "name": "Radiación solar intensa",
+      "value": null,
+      "unit": null,
+      "source_url": "https://science.nasa.gov/mercury/facts/",
+      "verified": false,
+      "game_effect": {
+        "target": "electronics",
+        "per_hour": -1,
+        "text": "Sin blindaje, la electrónica se degrada"
+      }
+    }
+  ],
+  "missions": []
+}

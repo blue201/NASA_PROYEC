@@ -1,6 +1,6 @@
 /* ==========================================================================
    NASA ODYSSEY // NARRATIVE & STORY SYSTEM (STAR FOX RADIO & CAPTAIN PADD)
-   Human Exodus / Genesis Initiative // Comandante Sofia Parker & J.A.R.V.I.S.
+   Human Exodus / Genesis Initiative // Comandante Sofia Parker & A.T.L.A.S.
    90s Retro Anime Aesthetics, Procedural Radio Chatter & Living Crew
    ========================================================================== */
 
@@ -21,7 +21,7 @@
     },
     jarvis: {
       id: 'jarvis',
-      name: 'J.A.R.V.I.S.',
+      name: 'A.T.L.A.S.',
       role: 'I.A. Cuántica de a Bordo',
       callsign: 'QUANTUM CORE 01',
       avatar: 'assets/jarvis_ai.jpg',
@@ -157,7 +157,7 @@
       summary: 'Transferencia formal de mando del Proyecto Génesis en órbita terrestre.',
       content: `Hoy asumí formalmente el mando de la Génesis-1 frente a la cúpula de observación de la estación Gateway. Mirar la Tierra desde aquí, con sus ciudades iluminadas contra el manto azul, siempre me quita el aliento. Pero las cifras de los informes de recursos de Houston no mienten: nuestro mundo natal necesita un respiro.
 
-La Iniciativa Génesis no es solo una misión de exploración espacial; es el seguro de vida de nuestra especie. A mi lado tengo a la tripulación más competente que el Proyecto Génesis pudo reunir: Leo en la sala de reactores de iones, Marcus trazando trayectorias matemáticas de Hohmann con precisión milimétrica, y J.A.R.V.I.S., cuyo núcleo cuántico ya procesa millones de terabytes de telemetría por segundo.
+La Iniciativa Génesis no es solo una misión de exploración espacial; es el seguro de vida de nuestra especie. A mi lado tengo a la tripulación más competente que el Proyecto Génesis pudo reunir: Leo en la sala de reactores de iones, Marcus trazando trayectorias matemáticas de Hohmann con precisión milimétrica, y A.T.L.A.S., cuyo núcleo cuántico ya procesa millones de terabytes de telemetría por segundo.
 
 Nuestra misión prioritaria: localizar mundos con índices de habitabilidad compatibles con la vida humana, y recuperar las balizas pioneras de misiones perdidas en el vacío cósmico. Que las estrellas nos concedan un camino despejado.`
     },
@@ -170,7 +170,7 @@ Nuestra misión prioritaria: localizar mundos con índices de habitabilidad comp
       summary: 'Despliegue exitoso del enjambre de 3 drones y desencriptación espectral.',
       content: `Acabamos de lanzar el primer enjambre de drones de reconocimiento orbital. Ver las tres unidades Alpha, Beta y Gamma separarse del fuselaje de la Génesis como saetas de luz ha sido magnífico. Leo afinó los sensores lidar y el espectrómetro de masas hasta el límite.
 
-Antes del despliegue, el planeta seleccionado no era más que una silueta espectral en el radar astronómico, una masa desconocida bloqueada por la radiación estelar. Pero a medida que los drones completaron sus barridos orbitales en 360°, J.A.R.V.I.S. comenzó a volcar telemetría en tiempo real: composición atmosférica, temperatura superficial exacta, masa volumétrica y conteo de satélites naturales.
+Antes del despliegue, el planeta seleccionado no era más que una silueta espectral en el radar astronómico, una masa desconocida bloqueada por la radiación estelar. Pero a medida que los drones completaron sus barridos orbitales en 360°, A.T.L.A.S. comenzó a volcar telemetría en tiempo real: composición atmosférica, temperatura superficial exacta, masa volumétrica y conteo de satélites naturales.
 
 Ahora tenemos datos científicos irrefutables para evaluar la viabilidad técnica de investigar y procesar recursos. El paso siguiente es la inserción transorbital.`
     },
@@ -205,7 +205,7 @@ Sentir el chasquido magnético del collar de atraque cuando la esclusa selló al
       summary: 'Aterrizaje en el cañón y evaluación in situ del hábitat humano.',
       content: `¡Hemos tocado suelo! El descenso en el cañón fue una prueba de fuego entre vientos huracanados y escarpes de roca afilada, pero los amortiguadores hidráulicos se bloquearon con firmeza en la plataforma.
 
-Al abrir las cámaras externas de espectrometría, J.A.R.V.I.S. confirmó la estabilidad del lecho rocoso y los recursos minerales de la zona. Clavamos la baliza cuántica del Proyecto Génesis en la superficie. La prioridad es evaluar muestras, energía, masa y comunicaciones para ayudar a la Tierra. La Tierra ya ha recibido la telemetría del éxito.`
+Al abrir las cámaras externas de espectrometría, A.T.L.A.S. confirmó la estabilidad del lecho rocoso y los recursos minerales de la zona. Clavamos la baliza cuántica del Proyecto Génesis en la superficie. La prioridad es evaluar muestras, energía, masa y comunicaciones para ayudar a la Tierra. La Tierra ya ha recibido la telemetría del éxito.`
     },
     {
       id: 'log_06_stranded',
@@ -216,7 +216,7 @@ Al abrir las cámaras externas de espectrometría, J.A.R.V.I.S. confirmó la est
       summary: 'Registro final de supervivencia tras la pérdida crítica de propulsión.',
       content: `Bitácora de emergencia de la Comandante Sofia Parker... Si algún día una sonda del Proyecto Génesis o una nave hermana recupera esta baliza cuántica... sepan que lo dimos todo hasta el último aliento.
 
-Los impactos múltiples perforaron el casco y el reactor principal de iones se apagó para siempre. Ahora flotamos en silencio en el vacío cósmico, rodeados de nebulosas milenarias que brillan como joyas frías. El soporte vital auxiliar resistirá unas pocas semanas. He ordenado a J.A.R.V.I.S. activar el protocolo de hibernación criogénica para la tripulación.
+Los impactos múltiples perforaron el casco y el reactor principal de iones se apagó para siempre. Ahora flotamos en silencio en el vacío cósmico, rodeados de nebulosas milenarias que brillan como joyas frías. El soporte vital auxiliar resistirá unas pocas semanas. He ordenado a A.T.L.A.S. activar el protocolo de hibernación criogénica para la tripulación.
 
 A quien escuche esto en la Tierra: no abandonen la investigación responsable de recursos. El universo es hostil, pero la perseverancia humana es infinita. Génesis-1 transmite en bucle. Parker fuera.`
     },
@@ -674,7 +674,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
             <div class="padd-header-right">
               <div class="padd-telemetry-badge">
                 <span class="pulse-green"></span>
-                <span>CONECTADO AL NÚCLEO J.A.R.V.I.S.</span>
+                <span>CONECTADO AL NÚCLEO A.T.L.A.S.</span>
               </div>
               <button id="close-padd-modal-btn" class="padd-close-btn" title="Cerrar PADD">&times;</button>
             </div>
@@ -808,7 +808,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
 
           <!-- Pie del PADD -->
           <div class="padd-footer">
-            <span class="padd-footer-id">PROYECTO GÉNESIS // TERMINAL PADD ENCRIPTADO POR J.A.R.V.I.S.</span>
+            <span class="padd-footer-id">PROYECTO GÉNESIS // TERMINAL PADD ENCRIPTADO POR A.T.L.A.S.</span>
             <span class="padd-footer-status">TRANSMISIÓN ENCRIPTADA CON HOUSTON // SUB-LUMÍNICO OK</span>
           </div>
 
@@ -1116,7 +1116,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
     triggerCrewChatter() {
       const banters = [
         [
-          { character: 'sofia', text: 'Aquí Parker. J.A.R.V.I.S., confirma el estado de los filtros biológicos y el algoritmo de habitabilidad.', duration: 4200 },
+          { character: 'sofia', text: 'Aquí Parker. A.T.L.A.S., confirma el estado de los filtros biológicos y el algoritmo de habitabilidad.', duration: 4200 },
           { character: 'jarvis', text: 'Filtros al 100%, Comandante. Listo para procesar firmas atmosféricas y espectrometría UV.', duration: 4200 },
           { character: 'leo', text: '¡Y las bahías de drones están selladas y listas para eyección orbital!', duration: 3800 }
         ],
@@ -1149,7 +1149,7 @@ Si el casco baja del 40%, las mamparas se sellan automáticamente. Mis tripulant
         this.radio.queueSequence([
           {
             character: 'sofia',
-            text: `Objetivo fijado: Marte. El planeta rojo es un destino para estudiar muestras y recursos. J.A.R.V.I.S., inicia análisis espectral.`,
+            text: `Objetivo fijado: Marte. El planeta rojo es un destino para estudiar muestras y recursos. A.T.L.A.S., inicia análisis espectral.`,
             duration: 4200
           },
           {
