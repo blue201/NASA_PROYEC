@@ -25,3 +25,9 @@ Registro por fecha de lo hecho y lo decidido. Lo más nuevo va arriba dentro de 
 - **Hangar en el juego (rama `feat/hangar`):** paso a (pantalla con el botón 🛠 Hangar) y paso b (el despegue pasa por el hangar y se bloquea si el diseño no cumple). Paso c (valores en la cabina) en curso.
 - **GitHub:** subidas `rol/datos`, `rol/historia`, `rol/modelado`, `rol/multijugador` y `feat/hangar`. `main` pendiente de que Blue la suba (requiere saltarse el aviso local una vez).
 - Música y modelos fuente sacados de **todo el historial** de git antes del primer push.
+
+### Aportes de RamiPosadas (por hora)
+
+#### 14:14 · Recursos de Marte (PR #4)
+
+Se añade data/planets/mars.json con hielo de agua, muestras con minerales de hierro y minerales identificados por CheMin (plagioclasa, piroxenos y olivino). Cada evidencia tiene fuente NASA y estado de verificación. Radio y período de rotación son aproximaciones explícitas de NASA Mars Facts. Las cinco abundancias quedan pendientes; no se prometen minas de oro ni metales puros. La API existente lo descubre sin modificar el contrato ni desplazar la misión lunar.
