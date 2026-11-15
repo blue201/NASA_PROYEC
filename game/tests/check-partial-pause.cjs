@@ -57,7 +57,8 @@ qte.resume(); assert.equal(timers.size, 0);
 
 let paused = 0; let resumed = 0; let saved = 0; let drained = 0;
 let engine = { keys: { KeyW: true }, ship: { keys: { boost: true } }, mouse: { isDown: true },
-  isDragging: true, isBrakingPedal: true, isThrottlingPedal: true,
+  isDragging: true, isDirectDragging: true, dragPointerId: 9, dragVelocityX: 2, dragVelocityY: 3,
+  isBrakingPedal: true, isThrottlingPedal: true,
   clock: { getDelta() { drained++; } }, qteSystem: { pause() { paused++; }, resume() { resumed++; } } };
 const controller = new window.PartialPauseController({ getEngine: () => engine,
   beforePause() { saved++; }, onResume() {} });
@@ -68,6 +69,10 @@ assert.equal(engine.keys.KeyW, false);
 assert.equal(engine.ship.keys.boost, false);
 assert.equal(engine.mouse.isDown, false);
 assert.equal(engine.isDragging, false);
+assert.equal(engine.isDirectDragging, false);
+assert.equal(engine.dragPointerId, undefined);
+assert.equal(engine.dragVelocityX, 0);
+assert.equal(engine.dragVelocityY, 0);
 assert.equal(engine.isBrakingPedal, false);
 assert.equal(saved, 1); assert.equal(paused, 1);
 window.dispatchEvent(key('Escape', true));
@@ -102,6 +107,17 @@ assert.equal(controller.isPaused, true);
 controller.resume();
 engine = null; controller.sync();
 assert.equal(document.getElementById('partial-pause-button').hidden, true);
+engine = { keys: {}, clock: { getDelta() {} } };
+controller.pause();
+engine = { keys: {}, clock: { getDelta() {} } };
+controller.sync();
+assert.equal(controller.isPaused, false, 'a changed engine cannot leave the pause controller stuck');
+controller.pause();
+document.getElementById('partial-pause-dialog').open = false;
+controller.sync();
+assert.equal(controller.isPaused, false, 'sync recovers a closed dialog even if its close event was missed');
+const cleanHud = fs.readFileSync(path.join(project, 'css/clean-hud.css'), 'utf8');
+assert(!cleanHud.includes('body #partial-pause-button{display:none!important}'), 'CSS must allow the visible pause button');
 
 // Call the production ambient methods: mission counters and ship position stay unchanged.
 for (const [file, exported] of [['flight/flight-game.js','FlightGameEngine'], ['flight/landing-game.js','PlanetaryLandingEngine'], ['world/space-explorer.js','SpaceExplorationEngine']]) {

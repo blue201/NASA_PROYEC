@@ -41,10 +41,26 @@ Personajes 3D, geometría, esqueletos simples y animación: creados para este pr
 Voces activas: Microsoft es-MX-DaliaNeural (Sofía y narradora), es-MX-JorgeNeural y es-ES-AlvaroNeural; generación mediante edge-tts 7.3.1 y archivos WAV incluidos localmente. El audio sigue siendo sintético. El proveedor no es una actriz ni un actor de Marvel/Disney.
 Three.js r128 y OrbitControls r128: MIT, código local obtenido de cdnjs/jsDelivr; repositorio https://github.com/mrdoob/three.js (MIT: https://github.com/mrdoob/three.js/blob/r128/LICENSE).
 
+## Dron Assault
+
+`Assault_Drone_Concept.usdz` es el modelo proporcionado para integrar en el proyecto. `Assault_Drone_Concept.glb` es una conversion local para cargarlo con el GLTFLoader ya incluido. Autor, fuente original y licencia de redistribucion del USDZ no estan documentados; verificar antes de distribuir publicamente.
+
 ## Modelos 3D de NASA (`assets/models/nasa/`)
 - `25042_Perseverance.glb`: Mars Perseverance Rover, 3D Model. Crédito: NASA/JPL-Caltech. Origen: https://science.nasa.gov/resource/mars-perseverance-rover-3d-model/ (glTF, descargado el 15 de noviembre de 2026). Modificación: se taparon con el gris del panel el emblema de NASA y el logo de JPL de las texturas `arm_graphics` y `blade`, y las letras "NASA" y "JPL" de la textura `mars_2020_03`, porque las reglas del reto no permiten logos de NASA. El resto del modelo no cambia.
 - `25043_Ingenuity_v3.glb`: Mars Ingenuity Helicopter, 3D Model. Crédito: NASA/JPL-Caltech. Origen: https://science.nasa.gov/resource/mars-ingenuity-helicopter-3d-model/ (glTF, descargado el 15 de noviembre de 2026). Modificación: se taparon con el gris de la placa el emblema de NASA y el logo de JPL de la textura `blade`.
 - Uso conforme a las pautas de medios de NASA, citando la fuente. No implica respaldo de NASA ni de JPL al juego.
+
+## Prólogo Génesis de 15 escenas
+
+- `assets/cinematics/prologue-01-earth.jpg`, `prologue-02-sofia.jpg`, `prologue-03-leo.jpg`, `prologue-04-marcus.jpg`, `prologue-05-control.jpg`, `prologue-06-jarvis.jpg` y `prologue-07-moon.jpg`. Ilustraciones generadas para Proyecto Génesis / Team Rocket HN, según los créditos de la copia local de Odyssey. Recuperadas de la copia del equipo en `Desktop/ULTIMO/SPACE/Space/work/NASA_PROYEC`. Licencia de redistribución pendiente de documentar.
+- `assets/cinematics/prologue-s02-city.jpg`, `prologue-s03-veins.jpg`, `prologue-s04-mine.jpg`, `prologue-s05-depletion.jpg`, `prologue-s06-empty-mine.jpg`, `prologue-s07-hospital.jpg`, `prologue-s08-recycle.jpg` y `prologue-s09-probes.jpg`. Imágenes recuperadas de la misma presentación local del equipo. Autoría y licencia pendientes de documentar.
+- `assets/cinematics/prologue-theme.mp3`. Pista identificada por el usuario como «The Last Of Us - Theme song», archivo procedente de audio-extractor.net. Recuperada de la misma presentación local. Derechos reservados a sus titulares originales. La copia no incluye una licencia de redistribución y su autorización queda pendiente de documentar.
+
+## Viaje al planeta cretácico
+
+«#24 Dizzying space travel - Inktober2019», de Canary Games. Modelo y animación bajo Creative Commons Attribution 4.0, verificados mediante la API pública de Sketchfab el 15 de noviembre de 2026. Se muestran mediante el visor oficial de Sketchfab y su SDK 1.12.1, cargados al entrar al Cretácico. La atribución aparece también junto al visor.
+
+Fuente del modelo https://sketchfab.com/3d-models/24-dizzying-space-travel-inktober2019-08ee5e4cabee421ebf0b2cc927d4d6fc . Licencia https://creativecommons.org/licenses/by/4.0/ . Documentación del visor https://sketchfab.com/developers/viewer .
 
 ## Imágenes generadas con SI (Super Intelligence)
 Los retratos `sofia_parker.jpg`, `leo_chen.jpg`, `marcus_vance.jpg`, `houston_director.jpg`, `jarvis_ai.jpg`, `crew-expressions-v2.png` y la ilustración `stranded_deep_space.png` llevan la marca de agua "SI-generated" en la esquina inferior derecha, como piden las reglas de Space Apps. En los retratos se taparon los emblemas de NASA (y uno que lo imitaba) y el texto "Stark Industries" de la pantalla de JARVIS. Se retiró `black_hole_gargantua.jpg`; esa escena usa ahora el panorama real de la Vía Láctea (ESO/S. Brunier, CC BY 4.0).

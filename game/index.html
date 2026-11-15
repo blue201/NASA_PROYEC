@@ -28,6 +28,33 @@
 </head>
 <body>
 
+  <dialog id="start-menu" class="start-menu" aria-labelledby="start-title" aria-describedby="start-menu-status">
+    <div class="start-menu-flight" aria-hidden="true"><span class="start-menu-stars"></span><canvas id="start-menu-ship" class="start-menu-ship" role="img" aria-label="Nave Odyssey"></canvas><span class="start-menu-orbit"></span></div>
+    <div class="start-menu-content">
+      <p class="start-menu-eyebrow">TEAM ROCKET HN</p>
+      <h1 id="start-title">Génesis</h1>
+      <p class="start-menu-tagline">Una misión para volver a empezar.</p>
+      <div id="start-menu-actions" class="start-menu-actions">
+        <button id="start-new" type="button" class="start-primary">Nueva misión</button>
+        <button id="start-load" type="button">Cargar misión</button>
+        <button id="start-options" type="button">Opciones</button>
+      </div>
+      <button id="start-menu-music" class="start-menu-music" type="button" aria-pressed="false">▶ Escuchar tema del prólogo</button>
+      <section id="start-menu-options" hidden>
+        <h2>Opciones</h2>
+        <div id="start-audio-controls"></div>
+        <button id="start-options-back" type="button">Volver</button>
+      </section>
+      <section id="start-menu-confirmation" hidden>
+        <h2>Nueva misión</h2>
+        <p>Se reemplazará el progreso de la misión guardada.</p>
+        <button id="start-confirm-new" type="button">Empezar de nuevo</button>
+        <button id="start-cancel-new" type="button">Cancelar</button>
+      </section>
+      <p id="start-menu-status" role="status"></p>
+    </div>
+  </dialog>
+
   <!-- Fondo Fotorrealista de Escenas de Deriva (Detrás del Canvas 3D) -->
   <div class="stranded-backdrop-layer" id="stranded-backdrop-layer"></div>
 
@@ -42,7 +69,7 @@
       <div class="nasa-branding">
         <div class="nasa-insignia">
           <span class="nasa-meatball"></span>
-          <span class="nasa-text">ODYSSEY</span>
+          <span class="nasa-text">NASA</span>
         </div>
         <div class="mission-tag">
           <span class="pulse-indicator"></span>
@@ -269,15 +296,15 @@
             </div>
             <div class="math-step-item">
               <span class="step-num">2. IMPULSO ORBITAL Δv (HOHMANN):</span>
-              <span class="step-eq">Δv = √(μ/r₁)·[√(2r₂/(r₁+r₂)) - 1] = <strong class="text-cyan" id="math-step-deltav">5.7 km/s</strong></span>
+              <span class="step-eq">Δv = √(μ/r₁)·[√(2r₂/(r₁+r₂)) - 1] = <strong class="text-cyan" id="math-step-deltav">Pendiente de cálculo manual</strong></span>
             </div>
             <div class="math-step-item">
-              <span class="step-num">3. TIEMPO DE TRÁNSITO CRUCERO (T):</span>
-              <span class="step-eq">T = D / V(1,000 km/s) = <strong class="text-warning" id="math-step-time">62.5 horas de vuelo</strong></span>
+              <span class="step-num">3. TIEMPO DE TRANSFERENCIA HOHMANN (T):</span>
+              <span class="step-eq">T = π√(a³/μ) = <strong class="text-warning" id="math-step-time">Pendiente de cálculo manual</strong></span>
             </div>
             <div class="math-step-item">
               <span class="step-num">4. REQUERIMIENTO DE COMBUSTIBLE:</span>
-              <span class="step-eq">Req: <strong class="text-danger" id="math-step-fuel">146.25%</strong> (Déficit: -46.25%)</span>
+              <span class="step-eq">Req: <strong class="text-danger" id="math-step-fuel">Pendiente de cálculo manual</strong></span>
             </div>
             <div class="math-step-item">
               <span class="step-num">5. CONSUMO DE OXÍGENO VITAL:</span>
@@ -285,9 +312,7 @@
             </div>
           </div>
 
-          <div class="math-risk-notice" id="math-risk-notice">
-            🚨 <strong>ADVERTENCIA MATEMÁTICA:</strong> Los suministros base no alcanzan para el vuelo continuo. <strong>Debes realizar mínimo 2 acoples de reabastecimiento (QTE)</strong> con satélites en ruta. Si fallas los acoples, ¡la nave quedará varada y desolada a la deriva en el vacío!
-          </div>
+          <div class="math-risk-notice" id="math-risk-notice">Resuelve la transferencia y revisa las necesidades de combustible antes del despegue.</div>
 
           <button type="button" id="open-math-modal-btn" class="calc-open-modal-btn glow-effect">
             <span class="btn-flare"></span>
@@ -1215,13 +1240,14 @@
       <!-- Barra de Progreso y Escaneo Matemático en Tiempo Real -->
       <div class="calc-progress-section">
         <div class="calc-progress-label-row">
-          <span class="calc-status-text" id="calc-status-indicator">PROCESANDO INTEGRACIÓN ORBITAL KEPLERIANA...</span>
+          <span class="calc-status-text" id="calc-status-indicator">El piloto resolverá cada etapa antes del despegue.</span>
           <span class="calc-pct-text text-cyan" id="calc-progress-pct">0%</span>
         </div>
         <div class="calc-progress-track">
           <div class="calc-progress-fill" id="calc-progress-fill" style="width: 0%;"></div>
         </div>
       </div>
+      <p class="calc-player-instructions">Elige la respuesta correcta en cada etapa. Los resultados se muestran con dos decimales.</p>
 
       <!-- Grid de Tarjetas de Pasos Matemáticos con Fórmulas Auténticas -->
       <div class="calc-steps-grid" id="calc-steps-grid">
@@ -1370,7 +1396,7 @@
             </div>
             <div class="step-stat-item">
               <span class="stat-lbl">Solución de Trayectoria:</span>
-              <span class="stat-val text-success" id="cstat-trajectory-status">BLOQUEO EXITOSO</span>
+              <span class="stat-val text-warning" id="cstat-trajectory-status">CÁLCULOS DEL PILOTO PENDIENTES</span>
             </div>
           </div>
         </div>
@@ -1383,7 +1409,7 @@
         </button>
         <button type="button" id="execute-flight-plan-btn" class="launch-btn glow-effect calc-execute-btn" disabled>
           <span class="btn-flare"></span>
-          <span class="btn-text">🚀 INICIAR VIAJE CON TRAYECTORIA CALCULADA</span>
+          <span class="btn-text">🚀 INICIAR VIAJE CON CÁLCULOS VERIFICADOS</span>
         </button>
       </div>
     </div>
@@ -1397,7 +1423,7 @@
         <div class="header-left">
           <div class="nasa-insignia small">
             <span class="nasa-meatball"></span>
-            <span class="nasa-text">ODYSSEY</span>
+            <span class="nasa-text">NASA</span>
           </div>
           <div class="modal-title-wrap">
             <h2 id="photo-modal-title" class="photo-modal-title">GALERÍA DE IMÁGENES ARCHIVO NASA // NASA OPEN API</h2>
@@ -1564,7 +1590,7 @@
         <div class="crew-card-intro">
           <div class="crew-badge">🤖</div>
           <div class="crew-info">
-            <strong>A.T.L.A.S.</strong>
+            <strong>J.A.R.V.I.S.</strong>
             <span class="crew-role">IA Sintética de Navegación Táctica</span>
             <p class="crew-quote">"Sistemas de a bordo al 100%. Cálculos orbitales y análisis listos para su orden, capitana."</p>
           </div>
@@ -1574,7 +1600,7 @@
 
     <div class="mission-intro-actions">
 
-      <button type="button" id="mission-intro-nasa-btn" class="mission-start-btn" style="background: linear-gradient(135deg, #0284c7, #2563eb); margin-right: 0.5rem;">🛰️ Consola de datos científicos [N]</button>
+      <button type="button" id="mission-intro-nasa-btn" class="mission-start-btn" style="background: linear-gradient(135deg, #0284c7, #2563eb); margin-right: 0.5rem;">🛰️ Consola NASA en Vivo [N]</button>
       <button type="button" id="mission-intro-skip" class="mission-start-btn" autofocus>Comenzar Misión Espacial</button>
     </div>
   </dialog>
@@ -1618,17 +1644,24 @@
   </aside>
 
   <button id="partial-pause-button" class="partial-pause-button" type="button" aria-haspopup="dialog" aria-controls="partial-pause-dialog" hidden>Ⅱ Pausa <kbd>Esc</kbd></button>
+  <button id="crew-diary-button" type="button" aria-haspopup="dialog" aria-controls="crew-diary-dialog" aria-label="Abrir diario de tripulación" hidden><span aria-hidden="true">📖</span><span>Diario</span></button>
+  <dialog id="crew-diary-dialog" class="crew-diary-dialog" aria-labelledby="crew-diary-title">
+    <header class="crew-diary-header"><div><small>ODYSSEY · BITÁCORA DE A BORDO</small><h2 id="crew-diary-title">Diario de tripulación</h2></div><button id="crew-diary-close" type="button" aria-label="Cerrar diario">×</button></header>
+    <div id="crew-diary-content" class="crew-diary-content"></div>
+  </dialog>
   <dialog id="partial-pause-dialog" class="mission-dialog pause-dialog" aria-labelledby="pause-title" aria-describedby="pause-description">
     <p class="mission-eyebrow">EXPEDICIÓN EN PAUSA</p>
-    <h1 id="pause-title">Configuración</h1>
-    <p id="pause-description">Juego en pausa. Ajusta el sonido a tu gusto.</p>
+    <h1 id="pause-title">Misión en pausa</h1>
+    <p id="pause-description">La misión está detenida. Ajusta las opciones o continúa la expedición.</p>
     <button id="partial-pause-resume" type="button" autofocus>Continuar expedición</button>
     <button type="button" id="pause-prologue-btn" hidden style="display:none;" aria-hidden="true"></button>
     <button type="button" id="pause-epilogue-btn" hidden style="display:none;" aria-hidden="true"></button>
-    <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;">
-
-      <button type="button" id="pause-nasa-btn" style="background:#0c4a6e;border:1px solid #00f3ff;color:#e0f2fe;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;">🛰️ Consola de datos científicos [N]</button>
-    </div>
+    <div class="pause-settings-grid" aria-label="Opciones de expedicion">
+      <button type="button" class="pause-section-trigger" data-pause-modal-open="pause-controls-modal">Controles</button>
+      <button type="button" class="pause-section-trigger" data-pause-modal-open="pause-audio-modal">Audio</button>
+      <button type="button" class="pause-section-trigger" data-pause-modal-open="pause-video-modal">Video</button>
+      <button type="button" class="pause-section-trigger" data-pause-modal-open="pause-config-modal">Configuraciones</button>
+    </div>    <button id="pause-return-menu" class="pause-return-menu" type="button">Volver al menú principal</button>
     <p class="hangar-hint">También puedes continuar con Escape.</p>
     <details id="performance-report" class="performance-report">
       <summary>Rendimiento · referencia Full HD</summary>
@@ -1636,14 +1669,31 @@
       <p>Se excluyen la pausa, las pestañas ocultas y los primeros 2 segundos tras cada interrupción o cambio de actividad. Las muestras se separan por actividad y resolución.</p>
       <div id="performance-report-body"></div>
     </details>
-  </dialog>
+    <dialog class="pause-section-modal" id="pause-controls-modal" aria-labelledby="pause-controls-title">
+      <header><h2 id="pause-controls-title">Controles</h2><button type="button" data-pause-modal-close aria-label="Cerrar">×</button></header>
+      <div class="pause-section-content" id="pause-controls-content"></div>
+    </dialog>
+    <dialog class="pause-section-modal" id="pause-audio-modal" aria-labelledby="pause-audio-title">
+      <header><h2 id="pause-audio-title">Audio</h2><button type="button" data-pause-modal-close aria-label="Cerrar">×</button></header>
+      <div class="pause-section-content" id="pause-audio-content"></div>
+    </dialog>
+    <dialog class="pause-section-modal" id="pause-video-modal" aria-labelledby="pause-video-title">
+      <header><h2 id="pause-video-title">Video</h2><button type="button" data-pause-modal-close aria-label="Cerrar">×</button></header>
+      <div class="pause-section-content" id="pause-video-content"></div>
+    </dialog>
+    <dialog class="pause-section-modal" id="pause-config-modal" aria-labelledby="pause-config-title">
+      <header><h2 id="pause-config-title">Configuraciones</h2><button type="button" data-pause-modal-close aria-label="Cerrar">×</button></header>
+      <div class="pause-section-content" id="pause-config-content">
+        <button type="button" id="pause-nasa-btn">Consola NASA en Vivo [N]</button>
+      </div>
+    </dialog>  </dialog>
 
   <p id="recovery-status" class="recovery-status" role="status" aria-live="polite" hidden></p>
 
   <!-- Scripts Modulares del Juego -->
   <dialog id="mission-challenge" class="mission-dialog" aria-labelledby="challenge-title">
     <header class="challenge-heading">
-      <div><span class="challenge-eyebrow" id="challenge-eyebrow">CONTROL DE NAVEGACIÓN · A.T.L.A.S.</span><h2 id="challenge-title">Autorizar maniobra</h2></div>
+      <div><span class="challenge-eyebrow" id="challenge-eyebrow">CONTROL DE NAVEGACIÓN · J.A.R.V.I.S.</span><h2 id="challenge-title">Autorizar maniobra</h2></div>
       <div class="challenge-clock"><span>ESTADO</span><strong id="challenge-time">40 s</strong></div>
     </header>
     <p id="challenge-rules"></p>
@@ -1719,8 +1769,6 @@
   <script src="js/world/airless-landscape.js"></script>
   <script src="js/audio/fx-audio.js"></script><script src="js/audio/entry-fx.js"></script>
   <script src="js/world/planet-phenomena.js"></script><script src="js/flight/reactive-flight.js"></script><script src="js/world/world-details.js"></script><script src="js/world/nasa-ground-points.js"></script><script src="js/world/surface-explorer.js"></script>
-  <script src="js/surface/resource-deposits.js"></script>
-  <script src="js/surface/viper.js"></script>
   <script src="js/cinematic/immersion-view.js"></script>
   <script src="js/cinematic/sofia-tragedy.js"></script>
   <script src="js/audio/situational-music.js"></script>
@@ -1731,6 +1779,8 @@
   <script src="js/jarvis/jarvis-live.js"></script>
   <script src="js/jarvis/jarvis-chat.js"></script>
 <script src="js/jarvis/jarvis-planets.js"></script>
+  <!-- El menú publica su estado antes de que main decida cargar o iniciar la misión. -->
+  <script src="js/ui/start-menu.js"></script>
   <script src="js/core/main.js"></script>
   <script src="js/design/campaign-lock.js"></script>
 
@@ -1784,7 +1834,7 @@
 <script src="js/world/stellar-map.js"></script><link rel="stylesheet" href="css/stellar-map.css">
 <script src="js/ui/nasa-hud-console.js"></script>
 <script src="js/cinematic/cinematic-slides.js"></script>
+<script src="js/multiplayer/cooperative-mission.js"></script>
 <div id="vertical-flight-controls" aria-label="Altura"><button id="explorer-up" aria-label="Subir">↑ Q</button><button id="explorer-down" aria-label="Bajar">↓ E</button></div>
 </body>
 </html>
-

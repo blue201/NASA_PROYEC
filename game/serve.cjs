@@ -35,6 +35,7 @@ function createServer(root = __dirname) {
     const reqPath = req.url.split('?')[0];
     if(reqPath==='/api/voice'){require('./services/voice-service.cjs').handle(req,res);return;}
     if(reqPath==='/api/jarvis'){require('./services/jarvis-service.cjs').handle(req,res);return;}
+    if(reqPath==='/api/multiplayer'){require('./server/multiplayer/rooms.cjs').handle(req,res);return;}
     if(reqPath==='/favicon.ico'){res.writeHead(204);res.end();return;}
     if (!['GET','HEAD'].includes(req.method)) { res.writeHead(405,{'Allow':'GET, HEAD'}); res.end(); return; }
     if(reqPath==='/api/apod'){

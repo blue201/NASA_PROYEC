@@ -58,6 +58,98 @@
       },
       "use": "Dato científico",
       "extraction": "Concepto de juego: muestreo breve (los equipos sobreviven poco)"
+    },
+    {
+      "id": "orthopyroxene",
+      "name": "Ortopiroxeno (inferido)",
+      "location": "Normative mineral model for Venera 14 / Vega 2 landing-site rock",
+      "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+      "verified": false,
+      "evidence": {
+        "value": "mineralogia inferida",
+        "unit": "inferencia normativa/geoquimica",
+        "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+        "verified": false,
+        "note": "Inferred from lander XRF chemistry with normative calculations; Venus mineralogy was not directly measured."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
+    },
+    {
+      "id": "olivine",
+      "name": "Olivino (inferido)",
+      "location": "Normative mineral model for Venera and Vega landing-site rock",
+      "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+      "verified": false,
+      "evidence": {
+        "value": "mineralogia inferida",
+        "unit": "inferencia normativa/geoquimica",
+        "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+        "verified": false,
+        "note": "Inferred from lander XRF chemistry with normative calculations; Venus mineralogy was not directly measured."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
+    },
+    {
+      "id": "anorthite",
+      "name": "Anortita (inferida)",
+      "location": "Normative mineral model for Venera 13 / 14 and Vega 2 landing-site rock",
+      "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+      "verified": false,
+      "evidence": {
+        "value": "mineralogia inferida",
+        "unit": "inferencia normativa/geoquimica",
+        "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+        "verified": false,
+        "note": "Plagioclase endmember inferred from lander XRF chemistry; not a direct mineral measurement."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
+    },
+    {
+      "id": "ilmenite",
+      "name": "Ilmenita (inferida)",
+      "location": "Normative mineral model for Venera and Vega landing-site rock",
+      "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+      "verified": false,
+      "evidence": {
+        "value": "mineralogia inferida",
+        "unit": "inferencia normativa/geoquimica",
+        "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+        "verified": false,
+        "note": "Normative calculation from lander XRF chemistry; Venus mineralogy was not directly measured."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://repository.hou.usra.edu/server/api/core/bitstreams/5b0a72ea-16a2-4152-9b0c-01c77cd8df3f/content",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
     }
   ],
   "hazards": [

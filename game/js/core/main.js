@@ -391,27 +391,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const tel = computeOrbitalTelemetry(planetKey);
 
     mathStepDist.textContent = tel.distanceDisplay;
-    mathStepDeltav.textContent = `${tel.dv_total} km/s`;
-    mathStepTime.textContent = tel.time_odyssey;
-
-    if (tel.fuel_status_pct > 100) {
-      mathStepFuel.innerHTML = `<span class="text-danger">${tel.fuel_status_pct}%</span> (Déficit: -${(tel.fuel_status_pct - 100).toFixed(1)}%)`;
-    } else {
-      mathStepFuel.innerHTML = `<span class="text-success">${tel.fuel_status_pct}%</span> (Suficiente)`;
-    }
-
-    if (tel.oxygen_status_pct > 100) {
-      mathStepOxygen.innerHTML = `<span class="text-danger">${tel.oxygen_status_pct}%</span> (Déficit: -${(tel.oxygen_status_pct - 100).toFixed(1)}%)`;
-    } else {
-      mathStepOxygen.innerHTML = `<span class="text-success">${tel.oxygen_status_pct}%</span> (Suficiente)`;
-    }
+    mathStepDeltav.textContent = 'Pendiente: resuélvelo en el ordenador de vuelo';
+    mathStepTime.textContent = 'Pendiente: resuélvelo en el ordenador de vuelo';
+    mathStepFuel.textContent = 'Pendiente: resuélvelo en el ordenador de vuelo';
+    mathStepOxygen.textContent = 'Pendiente: resuélvelo en el ordenador de vuelo';
 
     if (data.isBlackHole) {
       mathRiskNotice.innerHTML = `🚨 <strong>ADVERTENCIA RELATIVISTA:</strong> Destino: <strong>${data.name}</strong> (${tel.distanceDisplay}). Distorsión extrema de espacio-tiempo: <em>Dilatación temporal gravitacional $\\Delta t' = \\Delta t / \\sqrt{1 - R_s/r}$</em>. Peligro de espaguetización letal en el horizonte de sucesos. ¡Se requieren maniobras de acople precisas para evitar la caída irreversible hacia la singularidad!`;
     } else if (data.isDeepSpaceNebula) {
       mathRiskNotice.innerHTML = `🌌 <strong>VASTEDAD CÓSMICA PROFUNDA:</strong> Distancia: <strong>${tel.distanceDisplay}</strong>. Navegación a través de la inmensidad de la cuna estelar. Consumo de propulsión hiperlumínica masivo; sin acoples la nave quedará perdida en el vacío intergaláctico.`;
     } else {
-      mathRiskNotice.innerHTML = `🚨 <strong>ADVERTENCIA MATEMÁTICA:</strong> Distancia hacia ${data.name}: <strong>${tel.distanceDisplay}</strong>. Semieje Hohmann: <strong>${(tel.a_km / 1e6).toFixed(1)}M km</strong>. Impulso $\\Delta v$: <strong>${tel.dv_total} km/s</strong>. Se requieren <strong>mínimo ${tel.min_dockings} acople(s) exitoso(s)</strong> con satélites en ruta para evitar quedar varado en el vacío.`;
+      mathRiskNotice.innerHTML = `🚨 <strong>ADVERTENCIA MATEMÁTICA:</strong> Destino: <strong>${data.name}</strong> (${tel.distanceDisplay}). Resuelve la trayectoria, el tiempo de transferencia y el propelente en el ordenador de vuelo. Se requieren <strong>mínimo ${tel.min_dockings} acople(s) exitoso(s)</strong> con satélites en ruta para evitar quedar varado en el vacío.`;
     }
 
     if (data.nasaRealPhotoUrl) {
@@ -430,144 +420,164 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function runOrbitalCalculationSequence(planetKey) {
     if (calcAnimationTimer) clearInterval(calcAnimationTimer);
-
+    calcAnimationTimer = null;
     const telemetry = computeOrbitalTelemetry(planetKey);
     const pData = NASA_PLANETARY_DATABASE[planetKey] || NASA_PLANETARY_DATABASE.mars;
-
-    if (calcModalRoute) {
-      calcModalRoute.textContent = `RUTA: TIERRA (1.000 AU) ➔ ${pData.name.toUpperCase()} (${telemetry.distanceDisplay})`;
-    }
-
-    // Llenar datos en tarjetas
-    if (cstatR1) cstatR1.textContent = `${(telemetry.r1_km / 1e6).toFixed(2)} × 10⁶ km (${telemetry.r1_au.toFixed(3)} AU)`;
-    if (cstatR2) cstatR2.textContent = `${(telemetry.r2_km / 1e6).toLocaleString(undefined, {maximumFractionDigits: 2})} × 10⁶ km (${telemetry.r2_au.toFixed(3)} AU)`;
-    if (cstatA) cstatA.textContent = `${(telemetry.a_km / 1e6).toLocaleString(undefined, {maximumFractionDigits: 2})} × 10⁶ km (${telemetry.a_au.toFixed(3)} AU)`;
+    if (calcModalRoute) calcModalRoute.textContent = 'RUTA: TIERRA (1.000 AU) -> ' + pData.name.toUpperCase() + ' (' + telemetry.distanceDisplay + ')';
+    if (cstatR1) cstatR1.textContent = (telemetry.r1_km / 1e6).toFixed(2) + ' x 10^6 km (' + telemetry.r1_au.toFixed(3) + ' AU)';
+    if (cstatR2) cstatR2.textContent = (telemetry.r2_km / 1e6).toFixed(2) + ' x 10^6 km (' + telemetry.r2_au.toFixed(3) + ' AU)';
     if (cstatDist) cstatDist.textContent = telemetry.distanceDisplay;
-
-    if (cstatDv1) cstatDv1.textContent = `+${telemetry.dv1} km/s`;
-    if (cstatDv2) cstatDv2.textContent = `+${telemetry.dv2} km/s`;
-    if (cstatDvTotal) cstatDvTotal.textContent = `${telemetry.dv_total} km/s`;
-
-    if (cstatFuelMass) cstatFuelMass.textContent = `${telemetry.fuel_mass_kg} kg de plasma`;
-    if (cstatFuelStatus) {
-      cstatFuelStatus.textContent = `${telemetry.fuel_status_pct}% capacidad (${telemetry.fuel_status_pct > 100 ? 'Déficit -' + (telemetry.fuel_status_pct - 100).toFixed(1) + '%' : 'Suficiente'})`;
-      cstatFuelStatus.className = telemetry.fuel_status_pct > 100 ? 'stat-val text-danger font-bold' : 'stat-val text-success font-bold';
-    }
-
-    if (cstatTimeKepler) cstatTimeKepler.textContent = telemetry.time_kepler_days;
-    if (cstatTimeOdyssey) cstatTimeOdyssey.textContent = telemetry.time_odyssey;
-    if (cstatLorentz) cstatLorentz.textContent = `${telemetry.lorentz_gamma} (v/c = ${(1000 / 299792).toFixed(5)})`;
-    if (cstatPhaseAngle) cstatPhaseAngle.textContent = `${telemetry.phase_angle_deg}° de adelanto orbital`;
-
+    if (cstatLorentz) cstatLorentz.textContent = telemetry.lorentz_gamma + ' (factor gamma)';
+    if (cstatPhaseAngle) cstatPhaseAngle.textContent = telemetry.phase_angle_deg + ' degrees';
     if (cstatO2Status) {
-      cstatO2Status.textContent = `${telemetry.oxygen_status_pct}% consumo (${telemetry.oxygen_status_pct > 100 ? 'Déficit -' + (telemetry.oxygen_status_pct - 100).toFixed(1) + '%' : 'Nominal'})`;
+      cstatO2Status.textContent = telemetry.oxygen_status_pct + '% consumption';
       cstatO2Status.className = telemetry.oxygen_status_pct > 100 ? 'stat-val text-danger font-bold' : 'stat-val text-success font-bold';
     }
-    if (cstatDockingsNeeded) cstatDockingsNeeded.textContent = `${telemetry.min_dockings} ACOPLE(S) QTE OBLIGATORIO(S)`;
+    if (cstatDockingsNeeded) cstatDockingsNeeded.textContent = telemetry.min_dockings + ' ACOPLES DE REABASTECIMIENTO NECESARIOS';
+    const pending = 'Pendiente: resuelve esta etapa';
+    [[cstatA, pending], [cstatDv1, pending], [cstatDv2, pending], [cstatDvTotal, pending],
+      [cstatTimeKepler, pending], [cstatFuelMass, pending], [cstatFuelStatus, pending], [cstatO2Status, pending]].forEach(([element, value]) => {
+      if (element) element.textContent = value;
+    });
+    if (cstatFuelStatus) cstatFuelStatus.className = 'stat-val text-warning font-bold';
+    if (cstatO2Status) cstatO2Status.className = 'stat-val text-warning font-bold';
     if (cstatTrajectoryStatus) {
-      cstatTrajectoryStatus.textContent = 'CALCULANDO...';
+      cstatTrajectoryStatus.textContent = 'CÁLCULOS DEL PILOTO PENDIENTES';
       cstatTrajectoryStatus.className = 'stat-val text-warning';
     }
-
-    // Reset de estados visuales
-    calcStepCards.forEach((card, idx) => {
-      if (card) {
-        card.classList.remove('active-calculating', 'locked-in');
-      }
-      if (stepLockTags[idx]) {
-        stepLockTags[idx].textContent = 'PENDIENTE';
-      }
+    calcStepCards.forEach((card, index) => {
+      if (!card) return;
+      card.classList.remove('active-calculating', 'locked-in');
+      card.querySelectorAll('.manual-orbital-form').forEach(form => form.remove());
+      if (stepLockTags[index]) stepLockTags[index].textContent = 'PENDIENTE';
     });
-
     if (executeFlightPlanBtn) {
       executeFlightPlanBtn.disabled = true;
       executeFlightPlanBtn.classList.remove('pulse-glow');
     }
-
-    let progress = 0;
     if (calcProgressFill) calcProgressFill.style.width = '0%';
     if (calcProgressPct) calcProgressPct.textContent = '0%';
-    if (calcStatusIndicator) calcStatusIndicator.textContent = 'INICIALIZANDO INTEGRACIÓN ORBITAL KEPLERIANA...';
-
-    if (window.spaceAudio) {
-      window.spaceAudio.ensureContext();
-      window.spaceAudio.playCalculationBeep(1);
-    }
-    if (calcStepCards[0]) calcStepCards[0].classList.add('active-calculating');
-    if (stepLockTags[0]) stepLockTags[0].textContent = 'CALCULANDO...';
-
-    calcAnimationTimer = setInterval(() => {
-      progress += 2;
-      if (progress > 100) progress = 100;
-
-      if (calcProgressFill) calcProgressFill.style.width = `${progress}%`;
-      if (calcProgressPct) calcProgressPct.textContent = `${progress}%`;
-
-      if (progress === 20) {
-        if (calcStepCards[0]) {
-          calcStepCards[0].classList.remove('active-calculating');
-          calcStepCards[0].classList.add('locked-in');
-        }
-        if (stepLockTags[0]) stepLockTags[0].textContent = 'BLOQUEADO ✓';
-        if (calcStepCards[1]) calcStepCards[1].classList.add('active-calculating');
-        if (stepLockTags[1]) stepLockTags[1].textContent = 'CALCULANDO...';
-        if (calcStatusIndicator) calcStatusIndicator.textContent = 'CALCULANDO IMPULSO Δv DE HOHMANN & INYECCIÓN DE ESCAPE...';
-        if (window.spaceAudio) window.spaceAudio.playCalculationBeep(2);
-      } else if (progress === 40) {
-        if (calcStepCards[1]) {
-          calcStepCards[1].classList.remove('active-calculating');
-          calcStepCards[1].classList.add('locked-in');
-        }
-        if (stepLockTags[1]) stepLockTags[1].textContent = 'BLOQUEADO ✓';
-        if (calcStepCards[2]) calcStepCards[2].classList.add('active-calculating');
-        if (stepLockTags[2]) stepLockTags[2].textContent = 'CALCULANDO...';
-        if (calcStatusIndicator) calcStatusIndicator.textContent = 'INTEGRANDO ECUACIÓN DE COHETE DE TSIOLKOVSKY & CONSUMO DE PLASMA...';
-        if (window.spaceAudio) window.spaceAudio.playCalculationBeep(3);
-      } else if (progress === 60) {
-        if (calcStepCards[2]) {
-          calcStepCards[2].classList.remove('active-calculating');
-          calcStepCards[2].classList.add('locked-in');
-        }
-        if (stepLockTags[2]) stepLockTags[2].textContent = 'BLOQUEADO ✓';
-        if (calcStepCards[3]) calcStepCards[3].classList.add('active-calculating');
-        if (stepLockTags[3]) stepLockTags[3].textContent = 'CALCULANDO...';
-        if (calcStatusIndicator) calcStatusIndicator.textContent = 'RESOLVIENDO FACTOR LORENTZ, CINEMÁTICA Y VENTANA DE FASE...';
-        if (window.spaceAudio) window.spaceAudio.playCalculationBeep(4);
-      } else if (progress === 80) {
-        if (calcStepCards[3]) {
-          calcStepCards[3].classList.remove('active-calculating');
-          calcStepCards[3].classList.add('locked-in');
-        }
-        if (stepLockTags[3]) stepLockTags[3].textContent = 'BLOQUEADO ✓';
-        if (calcStepCards[4]) calcStepCards[4].classList.add('active-calculating');
-        if (stepLockTags[4]) stepLockTags[4].textContent = 'CALCULANDO...';
-        if (calcStatusIndicator) calcStatusIndicator.textContent = 'EVALUANDO MATRIZ DE SUPERVIVENCIA & ACOPLE SATELITAL...';
-        if (window.spaceAudio) window.spaceAudio.playCalculationBeep(5);
-      } else if (progress >= 100) {
-        clearInterval(calcAnimationTimer);
-        calcAnimationTimer = null;
-
-        if (calcStepCards[4]) {
-          calcStepCards[4].classList.remove('active-calculating');
-          calcStepCards[4].classList.add('locked-in');
-        }
-        if (stepLockTags[4]) stepLockTags[4].textContent = 'BLOQUEADO ✓';
-        if (cstatTrajectoryStatus) {
-          cstatTrajectoryStatus.textContent = 'BLOQUEADO ✓ (LOCK-ON)';
-          cstatTrajectoryStatus.className = 'stat-val text-success font-bold';
-        }
-        if (calcStatusIndicator) {
-          calcStatusIndicator.textContent = '¡TRAYECTORIA ORBITAL VALIDADA Y BLOQUEADA AL 100%! LISTO PARA DESPEGUE.';
-        }
-        if (executeFlightPlanBtn) {
-          executeFlightPlanBtn.disabled = false;
-          executeFlightPlanBtn.classList.add('pulse-glow');
-        }
-        if (window.spaceAudio) {
-          window.spaceAudio.playTrajectoryLockSound();
-        }
+    if (calcStatusIndicator) calcStatusIndicator.textContent = 'Elige una respuesta en cada etapa para desbloquear la siguiente.';
+    const transferDays = Math.PI * Math.sqrt(Math.pow(telemetry.a_km, 3) / 132712440018) / 86400;
+    const exhaustVelocityKm = (4850 * 9.81) / 1000;
+    const fuelKg = 12500 * (1 - Math.exp(-Number(telemetry.dv_total) / exhaustVelocityKm));
+    const exercises = [
+      { title: '1. Impulso total de la trayectoria (km/s)', prompt: 'Suma los impulsos de salida y llegada: Δv total = ' + Number(telemetry.dv1).toFixed(2) + ' + ' + Number(telemetry.dv2).toFixed(2) + ' km/s.', expected: Number(telemetry.dv_total), choiceStep: 0.15, reveal: () => { if (cstatA) cstatA.textContent = (telemetry.a_km / 1e6).toFixed(2) + ' x 10^6 km'; if (cstatDv1) cstatDv1.textContent = '+' + Number(telemetry.dv1).toFixed(2) + ' km/s'; if (cstatDv2) cstatDv2.textContent = '+' + Number(telemetry.dv2).toFixed(2) + ' km/s'; if (cstatDvTotal) cstatDvTotal.textContent = Number(telemetry.dv_total).toFixed(2) + ' km/s'; if (mathStepDeltav) mathStepDeltav.textContent = Number(telemetry.dv_total).toFixed(2) + ' km/s'; } },
+      { title: '2. Tiempo de transferencia (días)', prompt: 'Usa t = π × √(a³/μ) y convierte el resultado de segundos a días.', expected: transferDays, choiceStep: 0.5, reveal: () => { if (cstatTimeKepler) cstatTimeKepler.textContent = transferDays.toFixed(2) + ' días'; if (mathStepTime) mathStepTime.textContent = transferDays.toFixed(2) + ' días (Hohmann)'; } },
+      { title: '3. Propelente requerido (toneladas)', prompt: 'Aplica mprop = m0 × (1 − exp(−Δv/ve)) / 1000; m0 = 12500 kg e Isp = 4850 s.', expected: fuelKg / 1000, choiceStep: 0.5, reveal: () => { if (cstatFuelMass) cstatFuelMass.textContent = Math.round(fuelKg).toLocaleString('es-HN') + ' kg de plasma'; if (cstatFuelStatus) { cstatFuelStatus.textContent = telemetry.fuel_status_pct + '% de capacidad (' + (telemetry.fuel_status_pct > 100 ? 'déficit' : 'suficiente') + ')'; cstatFuelStatus.className = telemetry.fuel_status_pct > 100 ? 'stat-val text-danger font-bold' : 'stat-val text-success font-bold'; } if (mathStepFuel) mathStepFuel.textContent = telemetry.fuel_status_pct + '% de capacidad'; if (cstatO2Status) { cstatO2Status.textContent = Number(telemetry.oxygen_status_pct).toFixed(2) + '% del suministro'; cstatO2Status.className = telemetry.oxygen_status_pct > 100 ? 'stat-val text-danger font-bold' : 'stat-val text-success font-bold'; } if (mathStepOxygen) mathStepOxygen.textContent = Number(telemetry.oxygen_status_pct).toFixed(2) + '% del suministro'; } }
+    ];
+    const makeChoices = exercise => {
+      const correct = Number(Number(exercise.expected).toFixed(2));
+      const values = new Set([correct.toFixed(2)]);
+      for (const offset of [-4, -2, 2, 4, 6, 8]) {
+        values.add(Math.max(0, Number((correct + exercise.choiceStep * offset).toFixed(2))).toFixed(2));
+        if (values.size === 4) break;
       }
-    }, 34);
+      const choices = [...values].map(value => ({ value, correct: value === correct.toFixed(2) }));
+      for (let index = choices.length - 1; index > 0; index--) {
+        const swap = Math.floor(Math.random() * (index + 1));
+        [choices[index], choices[swap]] = [choices[swap], choices[index]];
+      }
+      return choices;
+    };
+    const exerciseForms = [];
+    exercises.forEach((exercise, index) => {
+      const cardIndex = Math.min(index, calcStepCards.length - 1);
+      const card = calcStepCards[cardIndex];
+      if (!card) return;
+      const form = document.createElement('form');
+      form.className = 'manual-orbital-form';
+      exerciseForms[index] = form;
+      const label = document.createElement('label');
+      label.textContent = exercise.title;
+      const prompt = document.createElement('small');
+      prompt.textContent = exercise.prompt;
+      const choices = document.createElement('fieldset');
+      choices.className = 'orbital-choice-grid';
+      choices.disabled = index !== 0;
+      choices.setAttribute('aria-label', exercise.title);
+      makeChoices(exercise).forEach((choice, choiceIndex) => {
+        const option = document.createElement('label');
+        option.className = 'orbital-choice';
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'orbital-answer-' + index;
+        input.value = choice.value;
+        input.dataset.correct = String(choice.correct);
+        input.required = true;
+        input.id = 'orbital-answer-' + index + '-' + choiceIndex;
+        const value = document.createElement('span');
+        value.textContent = choice.value;
+        option.htmlFor = input.id;
+        option.append(input, value);
+        choices.append(option);
+      });
+      const feedback = document.createElement('p');
+      feedback.className = 'manual-orbital-feedback';
+      feedback.setAttribute('role', 'status');
+      form.append(label, prompt, choices, feedback);
+      card.append(form);
+      form.addEventListener('change', event => {
+        if (!event.target.matches('input[type="radio"]')) return;
+        if (choices.disabled) return;
+        const answer = choices.querySelector('input:checked');
+        if (!answer) return;
+        choices.querySelectorAll('.orbital-choice').forEach(option => option.classList.remove('is-correct', 'is-incorrect'));
+        if (answer.dataset.correct !== 'true') {
+          answer.closest('.orbital-choice')?.classList.add('is-incorrect');
+          feedback.textContent = 'Respuesta incorrecta. Prueba otra opción.';
+          feedback.classList.add('incorrect');
+          return;
+        }
+        answer.closest('.orbital-choice')?.classList.add('is-correct');
+        exercise.reveal();
+        feedback.textContent = 'Correcto. Pasando a la siguiente pregunta…';
+        feedback.classList.remove('incorrect');
+        choices.disabled = true;
+        const next = exercises[index + 1];
+        const nextCardIndex = Math.min(index + 1, calcStepCards.length - 1);
+        if (next && nextCardIndex === cardIndex) {
+          card.classList.remove('locked-in');
+          card.classList.add('active-calculating');
+          if (stepLockTags[cardIndex]) stepLockTags[cardIndex].textContent = 'TU TURNO';
+        } else {
+          card.classList.remove('active-calculating');
+          card.classList.add('locked-in');
+          if (stepLockTags[cardIndex]) stepLockTags[cardIndex].textContent = 'RESUELTO';
+        }
+        const progress = Math.round(((index + 1) / exercises.length) * 100);
+        if (calcProgressFill) calcProgressFill.style.width = progress + '%';
+        if (calcProgressPct) calcProgressPct.textContent = progress + '%';
+        if (window.spaceAudio) window.spaceAudio.playCalculationBeep(index + 1);
+        if (next) {
+          const nextCard = calcStepCards[nextCardIndex];
+          const nextForm = exerciseForms[index + 1];
+          const nextInput = nextForm?.querySelector('input');
+          const nextChoices = nextForm?.querySelector('fieldset');
+          if (nextChoices) nextChoices.disabled = false;
+          nextCard?.classList.add('active-calculating');
+          if (nextCardIndex !== cardIndex && stepLockTags[nextCardIndex]) stepLockTags[nextCardIndex].textContent = 'TU TURNO';
+          if (calcStatusIndicator) calcStatusIndicator.textContent = next.title + ' listo. Selecciona la respuesta correcta.';
+          nextInput?.focus();
+        } else {
+          if (cstatTrajectoryStatus) {
+            cstatTrajectoryStatus.textContent = 'TODOS LOS CÁLCULOS MANUALES VERIFICADOS';
+            cstatTrajectoryStatus.className = 'stat-val text-success font-bold';
+          }
+          if (calcStatusIndicator) calcStatusIndicator.textContent = 'Cálculos verificados. La trayectoria está lista.';
+          if (executeFlightPlanBtn) {
+            executeFlightPlanBtn.disabled = false;
+            executeFlightPlanBtn.classList.add('pulse-glow');
+            executeFlightPlanBtn.focus();
+          }
+          window.spaceAudio?.playTrajectoryLockSound?.();
+        }
+      });
+      if (index === 0) {
+        card.classList.add('active-calculating');
+        if (stepLockTags[cardIndex]) stepLockTags[cardIndex].textContent = 'TU TURNO';
+      }
+    });
   }
 
   // 5. RENDERIZADO DE MATERIALES Y COMPONENTES QUÍMICOS IDENTIFICADOS
@@ -616,6 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!pData) return;
 
     const isScanned = !!scannedPlanets[planetKey];
+    if (scanPlanetBtn) scanPlanetBtn.hidden = isScanned;
     document.getElementById('planet-conditions-box')?.classList.toggle('scan-pending', !isScanned);
 
     if (!isScanned) {
@@ -1052,6 +1063,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  function selectPlanetTab(planetKey) {
+    const tab = [...planetTabs].find(item => item.getAttribute('data-planet') === planetKey);
+    if (window.CampaignLock && !window.CampaignLock.isOpen(planetKey)) return false;
+    if (!tab) {
+      selectedPlanetKey = planetKey;
+      planetViewer.loadPlanet(planetKey);
+      updateOrbitalMathematics(planetKey);
+      return true;
+    }
+    tab.click();
+    return true;
+  }
+
   // Inicializar con Marte (Desconocido hasta lanzar sonda o aproximación)
   renderPlanetaryTelemetry('mars');
   updateOrbitalMathematics('mars');
@@ -1181,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 8. Botón de Despegue desde la Tierra (Abre el Ordenador de Cálculo de Trayectoria)
   launchBtn.addEventListener('click', () => {
-    executeFlightPlanBtn.disabled=false;executeFlightPlanBtn.click();
+    openOrbitalCalculationModal(selectedPlanetKey);
   });
 
   if (openMathModalBtn) {
@@ -1222,12 +1246,6 @@ document.addEventListener('DOMContentLoaded', () => {
     executeFlightPlanBtn.addEventListener('click', async () => {
       if (executeFlightPlanBtn.disabled) return;
       const missionPlanetKey = selectedPlanetKey;
-      if (window.missionChallenges?.requestProgressive) {
-        executeFlightPlanBtn.disabled = true;
-        const authorized = await window.missionChallenges.requestProgressive('mission', missionPlanetKey);
-        executeFlightPlanBtn.disabled = false;
-        if (!authorized) return;
-      }
       landingEngine?.stop();
       window.surfaceExplorer?.stop();
       document.getElementById('landing-simulation-screen')?.classList.remove('active');
@@ -1669,7 +1687,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('surface-menu-toggle')?.addEventListener('click', () => { surfaceMenu.hidden = !surfaceMenu.hidden;const key=document.getElementById('surface-planet').value;document.getElementById('surface-lock-status').textContent=key==='uranus'?'Vuelo atmosférico: sin suelo sólido.':window.ExpeditionSystems.state.canLand(key)?'Superficie habilitada: misión y aterrizaje completados.':'Superficie bloqueada. Completa la misión de aproximación, los QTE y el aterrizaje.'; });
   document.getElementById('surface-close')?.addEventListener('click', () => { surfaceMenu.hidden = true; });
   let surfaceEntryPending=false;
-  async function openSurface(key,landing=false,hull=100,ancient=false){
+  function openSurface(key,landing=false,hull=100,ancient=false,restoring=false){
     if(surfaceEntryPending)return;
     if(key==='cretaceous'){key='earth';ancient=true;}
     if(!['earth','moon','mars','venus','mercury','uranus','saturn','jupiter','neptune'].includes(key)){flightScreen.classList.remove('active');flightEngine.stop();spaceExplorationEngine.startExploration();window.PlanetNavigation?.go(spaceExplorationEngine,key);return;}
@@ -1686,7 +1704,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     surfaceMenu.hidden=true;
     selectionScreen.classList.remove('active');flightScreen.classList.remove('active');landingScreen.classList.remove('active');planetViewer.pause();flightEngine.stop();landingEngine.stop();
-    window.surfaceExplorer.ancientEarth=ancient;window.surfaceExplorer.start(key);window.surfaceExplorer.beginArrival();
+    window.surfaceExplorer.ancientEarth=ancient;window.surfaceExplorer.start(key);
+    if (!restoring) window.surfaceExplorer.beginArrival();
     if(landing){window.ExpeditionSystems.state.hull=Math.max(0,Math.min(100,hull));}
   }
   window.addEventListener('odyssey-test-surface',event=>{if(!window.ODYSSEY_TEST_MODE)return;const key=event.detail?.planet;if(!NASA_PLANETARY_DATABASE[key])return;window.surfaceExplorer?.stop();window.ExpeditionSystems.state.resupply();openSurface(key,true,100);});
@@ -1757,11 +1776,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const center=earth.mesh.getWorldPosition(new THREE.Vector3());spaceExplorationEngine.shipGroup.position.copy(center).add(new THREE.Vector3(0,45,earth.radius+110));spaceExplorationEngine.cameraYaw=0;spaceExplorationEngine.cameraPitch=-.15;
     document.getElementById('expedition-status').textContent='Remolque completado: base orbital terrestre. Combustible, oxígeno y kits repuestos.';
   });
-  window.addEventListener('odyssey-select-expedition',event=>{const key=event.detail?.planet;if(!NASA_PLANETARY_DATABASE[key])return;selectedPlanetKey=key;spaceExplorationEngine.stopExploration();selectionScreen.classList.add('active');planetViewer.resume();planetViewer.currentCameraMode='orbit';planetViewer.loadPlanet(key);renderPlanetaryTelemetry(key);planetInfoCard.classList.remove('collapsed');if(expandPlanetPanelBtn)expandPlanetPanelBtn.style.display='none';});
+  window.addEventListener('odyssey-select-expedition',event=>{const key=event.detail?.planet;if(!NASA_PLANETARY_DATABASE[key])return;spaceExplorationEngine.stopExploration();selectionScreen.classList.add('active');planetViewer.resume();planetViewer.currentCameraMode='orbit';if(!selectPlanetTab(key))return;renderPlanetaryTelemetry(key);planetInfoCard.classList.remove('collapsed');if(expandPlanetPanelBtn)expandPlanetPanelBtn.style.display='none';});
   document.getElementById('expedition-mission')?.addEventListener('click',()=>{
     const target=spaceExplorationEngine?.isActive&&window.ExpeditionSystems.nearest(spaceExplorationEngine);
     if(!target){document.getElementById('expedition-status').textContent='Acércate a un planeta para iniciar su aproximación.';return;}
-    selectedPlanetKey=target.planetKey;spaceExplorationEngine.stopExploration();selectionScreen.classList.add('active');planetViewer.resume();planetViewer.loadPlanet(selectedPlanetKey);renderPlanetaryTelemetry(selectedPlanetKey);launchBtn.click();
+    spaceExplorationEngine.stopExploration();selectionScreen.classList.add('active');planetViewer.resume();if(!selectPlanetTab(target.planetKey))return;renderPlanetaryTelemetry(selectedPlanetKey);launchBtn.click();
   });
   window.addEventListener('odyssey-orbital-scan',async event=>{
     const key=event.detail?.planet;if(!NASA_PLANETARY_DATABASE[key])return;scannedPlanets[key]=true;renderPlanetaryTelemetry(key);saveExpedition(true);
@@ -1769,7 +1788,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startExpedition=window.ExpeditionApproach?.complete(key);
     await window.JarvisPlanet?.analyze(key);
     if(startExpedition){
-      selectedPlanetKey=key;spaceExplorationEngine.stopExploration();selectionScreen.classList.add('active');planetViewer.resume();planetViewer.loadPlanet(key);executeFlightPlanBtn.disabled=false;executeFlightPlanBtn.click();return;
+      spaceExplorationEngine.stopExploration();selectionScreen.classList.add('active');planetViewer.resume();if(!selectPlanetTab(key))return;openOrbitalCalculationModal(key);return;
     }
     const d=NASA_PLANETARY_DATABASE[key];if(flightScanClassBadge)flightScanClassBadge.textContent=d.planetClass||'Análisis orbital';if(flightScanSpectralText)flightScanSpectralText.textContent=d.atmosphereComposition||d.spectralSignature||'Sin atmósfera densa';if(flightScanScoreVal)flightScanScoreVal.textContent=`${d.resourceScore||0}%`;if(flightScanMaterialsList)flightScanMaterialsList.innerHTML=buildMaterialsListHTML(d.materials);flightScanModal?.classList.add('active');
   });
@@ -1916,6 +1935,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Desbloqueo inicial de audio en el primer clic o pulsación del usuario
   const unlockAudioContext = () => {
+    const prologueAudio = window.cinematicSlides?.prologueAudio;
+    if (prologueAudio?.paused) prologueAudio.play().catch(() => {});
     if (window.spaceAudio) {window.spaceAudio.ensureContext();if(window.spaceAudio._musicWanted!==false){if(window.sofiaTragedy?.isActive)window.sofiaTragedy.musicWasPlaying=true;else window.spaceAudio.startOrchestralSoundtrack();}}
     window.removeEventListener('click', unlockAudioContext);
     window.removeEventListener('keydown', unlockAudioContext);
@@ -1977,9 +1998,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const lostCanvases = new Set();
 
   function captureExpedition() {
-    if (window.surfaceExplorer?.isActive) return null;
     const base = { planet: selectedPlanetKey,
       scanned: Object.keys(scannedPlanets).filter(key => scannedPlanets[key]) };
+    if (window.surfaceExplorer?.isActive) {
+      const explorer = window.surfaceExplorer;
+      if (explorer.arrival || explorer.autoLanding || explorer.surfaceLift || explorer.landingChallengePending) return null;
+      return { ...base, phase: 'surface', planet: explorer.planetKey, hull: window.ExpeditionSystems.state.hull,
+        surface: { position: explorer.shipGroup.position.toArray(), yaw: explorer.cameraYaw,
+          pitch: explorer.cameraPitch, camera: explorer.currentCameraMode,
+          landed: !!explorer.landingComplete, ancient: !!explorer.ancientEarth } };
+    }
     if (completeModal.classList.contains('active') || touchdownModal.classList.contains('active')) {
       return { ...base, phase: 'menu' };
     }
@@ -2012,7 +2040,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!state) return;
     const phase = `${state.phase}:${state.planet}`;
     const now = performance.now();
-    if (force || phase !== lastCheckpointPhase || (['flight', 'exploration'].includes(state.phase) && now - lastCheckpointTime >= 15000)) {
+    if (force || phase !== lastCheckpointPhase || (['flight', 'exploration', 'surface'].includes(state.phase) && now - lastCheckpointTime >= 15000)) {
+      window.CrewDiary?.save();
+      window.ExpeditionSystems?.state?.save?.();
       checkpoints.save(state);
       lastCheckpointPhase = phase;
       lastCheckpointTime = now;
@@ -2061,6 +2091,27 @@ document.addEventListener('DOMContentLoaded', () => {
           const element = document.getElementById(id);
           if (element) element.textContent = value;
         });
+      } else if (state.phase === 'surface') {
+        const surface = state.surface;
+        openSurface(state.planet, true, state.hull, surface.ancient, true);
+        const explorer = window.surfaceExplorer;
+        const [x, y, z] = surface.position;
+        const position = window.SurfaceNavigation.constrain({ x, y, z }, state.planet);
+        explorer.shipGroup.position.set(position.x, position.y, position.z);
+        if (surface.landed) {
+          explorer.shipGroup.position.copy(explorer.landingPad.position);
+          explorer.shipGroup.position.y += 19;
+        }
+        explorer.cameraYaw = surface.yaw;
+        explorer.cameraPitch = surface.pitch;
+        explorer.currentCameraMode = surface.camera;
+        explorer.landingComplete = surface.landed;
+        explorer.landingAuthorized = surface.landed;
+        explorer.cameraMount = new THREE.Vector3(0, 12, 55);
+        explorer.camera.position.copy(explorer.shipGroup.position).add(
+          explorer.cameraMount.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), surface.yaw));
+        explorer.camera.lookAt(explorer.shipGroup.position);
+        explorer.clock.getDelta();
       } else if (state.phase === 'landing') {
         // Resume at the safe entrance to the phase, not inside a regenerated obstacle.
         landingEngine.startDescent(state.planet, state.hull);
@@ -2139,11 +2190,13 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('pagehide', () => saveExpedition(true));
 
   function getPausableEngine() {
+    if (window.StartMenu?.awaitingChoice || window.CinematicStorySlides?.isPlaying) return null;
     if (renderPaused || lostCanvases.size || completeModal.classList.contains('active') || touchdownModal.classList.contains('active')) return null;
     if (window.surfaceExplorer?.isActive) return window.surfaceExplorer;
     if (spaceExplorationEngine?.isActive) return spaceExplorationEngine;
     if (landingEngine.isActive || landingEngine.isTouchdownAnimation) return landingEngine;
     if (flightEngine.isFlying && !flightEngine.isStrandedCinematic) return flightEngine;
+    if (selectionScreen.classList.contains('active')) return planetViewer;
     return null;
   }
   if (window.PartialPauseController) {
@@ -2180,12 +2233,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   const introDialog = document.getElementById('mission-intro');
-  if (introDialog.open) introDialog.addEventListener('close', resumeSavedExpedition, { once: true });
+  if (window.StartMenu) {
+    planetViewer.pause();
+    window.StartMenu.initialize({
+      hasSave: !!savedExpedition,
+      onLoad: resumeSavedExpedition,
+      onFreshStart: () => {
+        checkpointReady = true;
+        document.querySelector('.planet-tab[data-planet="moon"]')?.click();
+        planetViewer.resume();
+        saveExpedition(true);
+        window.CinematicStorySlides?.autoLaunch();
+      }
+    });
+  } else if (introDialog.open) introDialog.addEventListener('close', resumeSavedExpedition, { once: true });
   else resumeSavedExpedition();
 
   // 19. Loop de renderizado continuo unificado y óptimo
   function gameLoop(frameTime) {
     requestAnimationFrame(gameLoop);
+    if (window.StartMenu?.awaitingChoice) { window.performanceMonitor?.suspend(); return; }
     if (renderPaused || lostCanvases.size) { window.performanceMonitor?.suspend(); return; }
     try {
     watchGraphicsContexts();
@@ -2201,7 +2268,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const engine = getPausableEngine();
       if (engine) {
         window.partialPause?.clearControls(engine);
-        engine.updatePaused();
+        engine.updatePaused?.();
       } else if (!planetViewer.isPaused) planetViewer.update();
       window.performanceMonitor?.suspend();
       return;
@@ -2211,7 +2278,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.partialPause.sync();
       if (window.partialPause.isPaused) {
         window.performanceMonitor?.suspend();
-        window.partialPause.engine.updatePaused();
+        window.partialPause.engine?.updatePaused?.();
         return;
       }
     }

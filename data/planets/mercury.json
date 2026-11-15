@@ -60,6 +60,75 @@
       },
       "use": "Dato científico sobre la formación del planeta",
       "extraction": "Concepto de juego: muestreo del suelo"
+    },
+    {
+      "id": "enstatite",
+      "name": "Enstatita (inferida)",
+      "location": "Older terrain and surface materials measured by MESSENGER XRS",
+      "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+      "verified": false,
+      "evidence": {
+        "value": "mineralogia inferida",
+        "unit": "inferencia normativa/geoquimica",
+        "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+        "verified": false,
+        "note": "MESSENGER elemental measurements imply that enstatite is likely dominant; mineral phase was inferred, not directly sampled."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
+    },
+    {
+      "id": "plagioclase",
+      "name": "Plagioclasa (inferida)",
+      "location": "Mercury surface materials measured by MESSENGER XRS",
+      "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+      "verified": false,
+      "evidence": {
+        "value": "mineralogia inferida",
+        "unit": "inferencia normativa/geoquimica",
+        "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+        "verified": false,
+        "note": "MESSENGER elemental measurements imply plagioclase feldspar; mineral phase was inferred, not directly sampled."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
+    },
+    {
+      "id": "oldhamite",
+      "name": "Oldhamita (sulfuro inferido)",
+      "location": "Mercury surface materials measured by MESSENGER XRS",
+      "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+      "verified": false,
+      "evidence": {
+        "value": "mineralogia inferida",
+        "unit": "inferencia normativa/geoquimica",
+        "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+        "verified": false,
+        "note": "MESSENGER elemental measurements imply possible Ca, Mg, or Fe sulfides such as oldhamite; not directly sampled."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20140005995.pdf",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
     }
   ],
   "hazards": [

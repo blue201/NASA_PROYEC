@@ -7264,6 +7264,42 @@ select {
   color: #94a3b8;
 }
 
+.cinematic-story-modal.is-prologue {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  align-items: stretch;
+  justify-content: stretch;
+  overflow: hidden;
+}
+
+.cinematic-story-modal.is-prologue .cine-viewport {
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.cinematic-story-modal.is-prologue .cine-controls {
+  justify-content: flex-end;
+  padding: 14px clamp(16px, 4vw, 48px);
+}
+
+.cinematic-story-modal.is-prologue #cine-btn-next {
+  min-width: 190px;
+  min-height: 48px;
+  font-size: 14px;
+}
+
+.cinematic-story-modal.is-prologue .cine-subtitle-bar {
+  padding: 18px clamp(18px, 5vw, 64px);
+}
+
 /* ==========================================================================
    INTERFERENCIA DE TV ANTIGUA EN LA INTRO
    Scanlines, ruido, glitch RGB, desplazamiento vertical y cortes de señal
@@ -7467,6 +7503,17 @@ select {
   animation: cineTubeFlicker 4.2s steps(12) infinite;
 }
 
+/* La textura CRT permanece durante el prólogo; los cortes intensos siguen siendo breves. */
+.cine-stage.crt-active:not(.signal-cut):not(.signal-glitch) .cine-slide-img { filter: contrast(1.08) saturate(1.12); }
+.cine-stage.crt-active .cine-scanlines { opacity: .38; }
+.cine-stage.crt-active .cine-roll { opacity: .52; }
+.cine-stage.crt-active:not(.signal-cut):not(.signal-glitch) .cine-noise {
+  opacity: .1;
+  animation: cineNoiseFuzz .22s steps(4) infinite;
+  background-image: repeating-conic-gradient(rgba(255,255,255,.14) 0% 25%,rgba(4,8,12,.18) 25% 50%);
+  background-size: 4px 4px;
+}
+
 @keyframes cineTubeFlicker {
   0%, 100% { opacity: 0; }
   8% { opacity: 0.5; }
@@ -7501,6 +7548,7 @@ select {
   .cine-stage.signal-cut .cine-slide-img {
     opacity: 0.35;
   }
+  .cine-stage.crt-active .cine-noise { opacity: .12; animation: none; }
 }
 
 /* ==========================================================================

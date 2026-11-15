@@ -6,88 +6,169 @@
 (()=>{
   const PROLOGUE_SLIDES = [
     {
-      title: "2084 · UNA TIERRA AL LÍMITE",
-      speaker: "TEAM ROCKET HN",
-      role: "Proyecto Génesis",
-      quote: "En este futuro ficticio, la demanda tecnológica y de IA agotó reservas accesibles. La medicina y la industria necesitan una nueva estrategia.",
+      title: "ARCHIVO 01 · LA TIERRA — Todo comenzó aquí.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Archivo Histórico de la Tierra",
+      quote: "Un mundo lleno de vida. Bajo nuestros pies, los materiales que hicieron posible nuestro futuro.",
       theme: "cosmic",
       icon: "🌍",
-      imageSrc: "assets/nasa-photos/earth.jpg",
+      imageSrc: "assets/cinematics/prologue-01-earth.jpg",
       avatarSrc: null,
-      imageDesc: "2084 · UNA TIERRA AL LÍMITE",
-      durationMs: 8000
+      imageDesc: "ARCHIVO 01 · LA TIERRA — Todo comenzó aquí."
     },
     {
-      title: "UNA MISIÓN, NO UNA COLONIA",
+      title: "ARCHIVO 02 · EL PROGRESO — Aprendimos a crear.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Desarrollo Tecnológico",
+      quote: "Ciudades, hospitales, satélites y nuevas tecnologías. Cada avance necesitaba algo de la Tierra.",
+      theme: "cosmic",
+      icon: "🏙️",
+      imageSrc: "assets/cinematics/prologue-s02-city.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 02 · EL PROGRESO — Aprendimos a crear."
+    },
+    {
+      title: "ARCHIVO 03 · MATERIA PRIMA — El precio invisible.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Recursos Minerales Terrestres",
+      quote: "Oro para circuitos. Cobre para redes. Hierro para construir. Carbón para la industria.",
+      theme: "cosmic",
+      icon: "⛏️",
+      imageSrc: "assets/cinematics/prologue-s03-veins.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 03 · MATERIA PRIMA — El precio invisible."
+    },
+    {
+      title: "ARCHIVO 04 · EXTRACCIÓN — Siempre un poco más.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Demanda Global",
+      quote: "Durante generaciones excavamos más profundo. La demanda crecía más rápido que nuestra capacidad de recuperar materiales.",
+      theme: "cosmic",
+      icon: "🏗️",
+      imageSrc: "assets/cinematics/prologue-s04-mine.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 04 · EXTRACCIÓN — Siempre un poco más."
+    },
+    {
+      title: "ARCHIVO 05 · ADVERTENCIA — Las reservas disminuyeron.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Alerta de Suministros",
+      quote: "Primero cerraron pequeñas minas. Después, regiones enteras dejaron de producir.",
+      theme: "houston",
+      icon: "⚠️",
+      imageSrc: "assets/cinematics/prologue-s05-depletion.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 05 · ADVERTENCIA — Las reservas disminuyeron."
+    },
+    {
+      title: "ARCHIVO 06 · ESCASEZ — Hasta que casi no quedó nada.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Agotamiento de Depósitos",
+      quote: "En este futuro, encontrar depósitos minerales aprovechables en la Tierra se volvió casi imposible.",
+      theme: "houston",
+      icon: "🏜️",
+      imageSrc: "assets/cinematics/prologue-s06-empty-mine.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 06 · ESCASEZ — Hasta que casi no quedó nada."
+    },
+    {
+      title: "ARCHIVO 07 · CONSECUENCIAS — El mundo empezó a detenerse.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Emergencia Sanitaria y Energética",
+      quote: "Hospitales esperando componentes. Equipos médicos sin repuestos. Redes eléctricas al límite. La escasez ya no era una cifra: costaba vidas.",
+      theme: "houston",
+      icon: "🏥",
+      imageSrc: "assets/cinematics/prologue-s07-hospital.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 07 · CONSECUENCIAS — El mundo empezó a detenerse."
+    },
+    {
+      title: "ARCHIVO 08 · RESPUESTA — Reutilizar ya no bastaba.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Límite de Reciclaje",
+      quote: "Reciclar ya no cubría la demanda. La Tierra había explotado sus depósitos accesibles. Necesitábamos recursos nuevos antes de perder lo que habíamos construido.",
+      theme: "cosmic",
+      icon: "♻️",
+      imageSrc: "assets/cinematics/prologue-s08-recycle.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 08 · RESPUESTA — Reutilizar ya no bastaba."
+    },
+    {
+      title: "ARCHIVO 09 · UNA SEÑAL — Miramos más allá.",
+      speaker: "BITÁCORA · PROYECTO GÉNESIS",
+      role: "Sondas de Reconocimiento",
+      quote: "Las sondas señalaron otros mundos. Rocas, metales y nuevas posibilidades esperando ser investigadas.",
+      theme: "cosmic",
+      icon: "🛰️",
+      imageSrc: "assets/cinematics/prologue-s09-probes.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 09 · UNA SEÑAL — Miramos más allá."
+    },
+    {
+      title: "ARCHIVO 10 · RESPUESTA — PROYECTO GÉNESIS",
+      speaker: "PROYECTO GÉNESIS",
+      role: "Iniciativa Espacial Internacional",
+      quote: "Un nuevo comienzo. El Proyecto Génesis reúne una expedición para buscar recursos fuera de la Tierra.",
+      theme: "jarvis",
+      icon: "🌐",
+      imageSrc: "assets/cinematics/prologue-06-jarvis.jpg",
+      avatarSrc: null,
+      imageDesc: "ARCHIVO 10 · RESPUESTA — PROYECTO GÉNESIS"
+    },
+    {
+      title: "ARCHIVO 11 · LA TRIPULACIÓN — Nadie viaja solo.",
       speaker: "CAPITANA SOFÍA PARKER",
-      role: "Comandante",
-      quote: "Génesis comienza en la Luna: investigar su hielo, cuidar a la tripulación y traer conocimiento útil para proteger la Tierra.",
+      role: "Comandante · Génesis-1",
+      quote: "Sofia Parker dirige la Génesis-1. Leo cuida sus motores, Marcus traza las rutas y JARVIS analiza cada descubrimiento.",
       theme: "sofia",
       icon: "👩‍🚀",
-      imageSrc: "assets/sofia_parker.jpg",
+      imageSrc: "assets/cinematics/prologue-02-sofia.jpg",
       avatarSrc: "assets/sofia_parker.jpg",
-      imageDesc: "UNA MISIÓN, NO UNA COLONIA",
-      durationMs: 8000
+      imageDesc: "ARCHIVO 11 · LA TRIPULACIÓN — Nadie viaja solo."
     },
     {
-      title: "DISEÑA ANTES DE DESPEGAR",
-      speaker: "INGENIERO LEO CHEN",
-      role: "Ingeniería",
-      quote: "Cada instrumento añade masa y consume energía. Reparte el presupuesto entre propulsión, batería, protección y carga científica.",
-      theme: "leo",
-      icon: "👨‍🔧",
-      imageSrc: "assets/leo_chen.jpg",
-      avatarSrc: "assets/leo_chen.jpg",
-      imageDesc: "DISEÑA ANTES DE DESPEGAR",
-      durationMs: 8000
-    },
-    {
-      title: "MEDIR ANTES DE PROMETER",
-      speaker: "MARCUS VANCE",
-      role: "Navegación y muestras",
-      quote: "Detectar hielo no garantiza poder extraerlo. Estudia el terreno, la energía disponible y cuánto material puedes transportar.",
+      title: "ARCHIVO 12 · TU MISIÓN — Encuentra lo que necesitamos.",
+      speaker: "OFICIAL MARCUS VANCE",
+      role: "Navegación y Análisis Mineral",
+      quote: "Investiga hielo lunar y recoge muestras de los recursos detectados. Identifica su composición: encontrar un mineral no garantiza poder extraerlo ni convertirlo en metal puro.",
       theme: "marcus",
       icon: "👨‍🔬",
-      imageSrc: "assets/marcus_vance.jpg",
+      imageSrc: "assets/cinematics/prologue-04-marcus.jpg",
       avatarSrc: "assets/marcus_vance.jpg",
-      imageDesc: "MEDIR ANTES DE PROMETER",
-      durationMs: 8000
+      imageDesc: "ARCHIVO 12 · TU MISIÓN — Encuentra lo que necesitamos."
     },
     {
-      title: "EL FRÍO TAMBIÉN CUESTA",
-      speaker: "CONTROL DE MISIÓN",
-      role: "Comunicaciones",
-      quote: "En la sombra lunar los calentadores gastan batería. Reserva energía para explorar con rover y dron y enviar los datos.",
+      title: "ARCHIVO 13 · CADA VIAJE — Llegar es solo el comienzo.",
+      speaker: "INGENIERO JEFE LEO CHEN",
+      role: "Ingeniería de Vuelo y Suministros",
+      quote: "Conserva combustible, agua y comida. Investiga el terreno y aterriza en la base para registrar la expedición.",
+      theme: "leo",
+      icon: "👨‍🔧",
+      imageSrc: "assets/cinematics/prologue-03-leo.jpg",
+      avatarSrc: "assets/leo_chen.jpg",
+      imageDesc: "ARCHIVO 13 · CADA VIAJE — Llegar es solo el comienzo."
+    },
+    {
+      title: "ARCHIVO 14 · EL COMPROMISO — Que valga la pena.",
+      speaker: "CONTROL DE MISIÓN · HOUSTON",
+      role: "Dirección del Proyecto Génesis",
+      quote: "No buscamos otro hogar. Buscamos recursos para salvar el nuestro. Cada cargamento puede sostener un hospital, una investigación o una nueva tecnología.",
       theme: "houston",
       icon: "📡",
-      imageSrc: "assets/houston_director.jpg",
+      imageSrc: "assets/cinematics/prologue-05-control.jpg",
       avatarSrc: "assets/houston_director.jpg",
-      imageDesc: "EL FRÍO TAMBIÉN CUESTA",
-      durationMs: 8000
+      imageDesc: "ARCHIVO 14 · EL COMPROMISO — Que valga la pena."
     },
     {
-      title: "DECISIONES CON CONSECUENCIAS",
-      speaker: "ASISTENTE DE A BORDO",
-      role: "Planificación",
-      quote: "Sin energía, la extracción se detiene. Sin comunicaciones, no llega la evidencia. Sin margen de masa, la nave no despega.",
+      title: "ARCHIVO 15 · GÉNESIS-1 — Un nuevo comienzo.",
+      speaker: "J.A.R.V.I.S.",
+      role: "IA de Navegación · Génesis-1",
+      quote: "Tu objetivo: buscar y recuperar recursos en otros mundos para darle un futuro a la Tierra. La expedición comienza contigo.",
       theme: "jarvis",
-      icon: "🤖",
-      imageSrc: "assets/jarvis_ai.jpg",
-      avatarSrc: "assets/jarvis_ai.jpg",
-      imageDesc: "DECISIONES CON CONSECUENCIAS",
-      durationMs: 8000
-    },
-    {
-      title: "PRIMER DESTINO: LA LUNA",
-      speaker: "PROYECTO GÉNESIS",
-      role: "Diseño → vuelo → exploración → reporte",
-      quote: "Diseña la misión, aterriza, investiga el hielo y transmite los resultados. El informe explicará qué funcionó y qué debes mejorar.",
-      theme: "cosmic",
       icon: "🚀",
-      imageSrc: "assets/2k_moon.jpg",
-      avatarSrc: null,
-      imageDesc: "PRIMER DESTINO: LA LUNA",
-      durationMs: 8000
+      imageSrc: "assets/cinematics/prologue-07-moon.jpg",
+      avatarSrc: "assets/jarvis_ai.jpg",
+      imageDesc: "ARCHIVO 15 · GÉNESIS-1 — Un nuevo comienzo."
     }
   ];
 
@@ -225,10 +306,10 @@
             <div class="cine-subtitle-bar" id="cine-subtitle-box">
               <div class="cine-meta-header">
                 <span class="cine-tag" id="cine-title"></span>
-                <span class="cine-counter" id="cine-counter">1 / 7</span>
+                <span class="cine-counter" id="cine-counter">1 / 15</span>
               </div>
               <p class="cine-dialogue" id="cine-dialogue"></p>
-              <div class="cine-reading-hint" id="cine-reading-hint">Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar</div>
+              <div class="cine-reading-hint" id="cine-reading-hint">Pulsa Siguiente cuando quieras continuar.</div>
             </div>
           </div>
 
@@ -239,7 +320,7 @@
           <footer class="cine-controls">
             <button type="button" id="cine-btn-prev" class="cine-btn">◀ Anterior</button>
             <button type="button" id="cine-btn-skip" class="cine-btn cine-btn-ghost">Omitir [Esc]</button>
-            <button type="button" id="cine-btn-next" class="cine-btn cine-btn-primary">Siguiente [Espacio] ▶</button>
+            <button type="button" id="cine-btn-next" class="cine-btn cine-btn-primary">Siguiente</button>
           </footer>
         </div>
       `;
@@ -261,7 +342,23 @@
       });
 
       window.addEventListener('keydown', (e) => {
+        if (!this.isPlaying || this.slides !== PROLOGUE_SLIDES) return;
+        if (!['Space', 'ArrowRight', 'ArrowLeft', 'Enter', 'Escape'].includes(e.code)) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (e.code === 'Space' && !e.repeat) {
+          this.syncPrologueMusic();
+          if (this.prologueAudio?.paused) this.prologueAudio.play().catch(() => {});
+          this.next();
+        }
+      }, true);
+
+      window.addEventListener('keydown', (e) => {
         if (!this.isPlaying) return;
+        if (this.slides === PROLOGUE_SLIDES) {
+          if (['Space', 'ArrowRight', 'ArrowLeft', 'Enter', 'Escape'].includes(e.code)) e.preventDefault();
+          return;
+        }
         if (e.code === 'Space' || e.code === 'ArrowRight' || e.code === 'Enter') {
           e.preventDefault();
           this.next();
@@ -278,6 +375,18 @@
       document.getElementById('topbar-epilogue-btn')?.addEventListener('click', () => this.play('epilogue'));
       document.getElementById('flight-prologue-btn')?.addEventListener('click', () => this.play('prologue'));
       document.getElementById('flight-epilogue-btn')?.addEventListener('click', () => this.play('epilogue'));
+      // El navegador permite el audio después de la primera interacción.
+      const resumeMusic = () => {
+        this.syncPrologueMusic();
+        if (this.isPlaying && this.prologueAudio?.paused) this.prologueAudio.play().catch(() => {});
+      };
+      this.modal.addEventListener('pointerdown', resumeMusic);
+      window.addEventListener('keydown', resumeMusic);
+      window.addEventListener('odyssey-audio-mix', () => this.syncPrologueMusic());
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) this.prologueAudio?.pause();
+        else resumeMusic();
+      });
     }
 
     play(mode = 'prologue') {
@@ -288,7 +397,12 @@
       this.isPlaying = true;
       this.isPaused = false;
       if (!this.modal) this.setupDOM();
-      if (this.modal) this.modal.style.display = 'flex';
+      if (this.modal) {
+        this.modal.style.display = 'flex';
+        this.modal.classList.toggle('is-prologue', this.slides === PROLOGUE_SLIDES);
+        this.modal.querySelector('#cine-btn-prev').hidden = this.slides === PROLOGUE_SLIDES;
+        this.modal.querySelector('#cine-btn-skip').hidden = this.slides === PROLOGUE_SLIDES;
+      }
       // Encendido de televisor: la pantalla "arranca" como un tubo catódico
       const viewport = this.modal?.querySelector('.cine-viewport');
       if (viewport && !this.reducedMotion) {
@@ -300,6 +414,37 @@
       }
       this.showSlide(0);
       window.spaceAudio?.setScoreMode?.('cinematic');
+      this.startPrologueMusic();
+    }
+
+    startPrologueMusic() {
+      this.stopPrologueMusic();
+      if (this.slides !== PROLOGUE_SLIDES || typeof Audio === 'undefined') return;
+      this.restoreMusic = window.spaceAudio?._musicWanted !== false;
+      window.spaceAudio?.stopOrchestralSoundtrack?.();
+      if (window.spaceAudio) window.spaceAudio._musicWanted = false;
+      const audio = new Audio('assets/cinematics/prologue-theme.mp3');
+      audio.loop = true;
+      this.prologueAudio = audio;
+      this.syncPrologueMusic();
+      audio.play().catch(() => {});
+    }
+
+    syncPrologueMusic() {
+      if (!this.prologueAudio) return;
+      this.prologueAudio.volume = Math.min(1, Math.max(0, window.AudioMix?.levels?.music ?? 0.7));
+      this.prologueAudio.muted = !!window.spaceAudio?.isMuted;
+    }
+
+    stopPrologueMusic() {
+      if (!this.prologueAudio) return;
+      this.prologueAudio.pause();
+      this.prologueAudio.currentTime = 0;
+      this.prologueAudio = null;
+      if (window.spaceAudio) {
+        window.spaceAudio._musicWanted = this.restoreMusic;
+        if (this.restoreMusic && !window.spaceAudio.isMuted) window.spaceAudio.startOrchestralSoundtrack?.();
+      }
     }
 
     clearAutoTimer() {
@@ -426,7 +571,9 @@
       }
 
       const hint = document.getElementById('cine-reading-hint');
-      if (hint) hint.textContent = 'Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar';
+      if (hint) hint.textContent = this.slides === PROLOGUE_SLIDES
+        ? 'Pulsa Siguiente cuando quieras continuar.'
+        : 'Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar';
 
       this.timer = setTimeout(() => {
         if (!this.isPlaying || this.isPaused) return;
@@ -446,7 +593,7 @@
       const slide = this.slides[index];
 
       const stage = document.getElementById('cine-stage');
-      if (stage) stage.className = `cine-stage theme-${slide.theme}`;
+      if (stage) stage.className = `cine-stage theme-${slide.theme}${this.slides === PROLOGUE_SLIDES ? ' crt-active' : ''}`;
 
       const titleEl = document.getElementById('cine-title');
       if (titleEl) titleEl.textContent = slide.title;
@@ -523,14 +670,16 @@
       if (prevBtn) prevBtn.disabled = index === 0;
       if (nextBtn) {
         if (index === this.slides.length - 1) {
-          nextBtn.textContent = this.slides === EPILOGUE_SLIDES ? 'Finalizar Misión 🏆' : 'Iniciar Misión 🚀';
+          nextBtn.textContent = this.slides === EPILOGUE_SLIDES ? 'Finalizar Misión 🏆' : this.slides === PROLOGUE_SLIDES ? 'Iniciar Misión [Espacio] 🚀' : 'Iniciar Misión 🚀';
         } else {
           nextBtn.textContent = 'Siguiente [Espacio] ▶';
         }
       }
 
       const hint = document.getElementById('cine-reading-hint');
-      if (hint) hint.textContent = 'Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar';
+      if (hint) hint.textContent = this.slides === PROLOGUE_SLIDES
+        ? 'Pulsa [Espacio] o Siguiente para continuar. El prólogo no tiene retroceso.'
+        : 'Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar';
 
       // Reproducción de audio y detención previa limpia
       this.playTickSound();
@@ -555,7 +704,13 @@
       const baseReadingDurationMs = slide.durationMs || Math.max(16000, quoteLength * 85 + 5000);
       const postSpeechBufferMs = 4500;
 
-      if (slide.audioSrc) {
+      if (this.slides === PROLOGUE_SLIDES) {
+        const progress = document.getElementById('cine-progress');
+        if (progress) {
+          progress.style.transition = 'none';
+          progress.style.width = (((index + 1) / this.slides.length) * 100) + '%';
+        }
+      } else if (slide.audioSrc) {
         try {
           const audio = new Audio(slide.audioSrc);
           audio.volume = 0.85;
@@ -602,12 +757,14 @@
     }
 
     prev() {
+      if (this.slides === PROLOGUE_SLIDES) return;
       if (this.currentIndex > 0) {
         this.showSlide(this.currentIndex - 1);
       }
     }
 
     close() {
+      this.stopPrologueMusic();
       this.clearAutoTimer();
       this.clearGlitchTimers();
       document.getElementById('cine-stage')?.classList.remove('signal-cut', 'signal-glitch');
@@ -661,10 +818,11 @@
     }
   }
 
-  // One startup owner; old save flags prevent a second first-run introduction.
+  // Un único inicio. La versión de 15 escenas se muestra una vez incluso tras ver la antigua.
   let startupChecked = false;
   function checkAutoLaunchCinematics() {
     if (startupChecked) return;
+    if (window.StartMenu?.awaitingChoice) return;
     startupChecked = true;
     initCinematicSlides();
     const params = new URLSearchParams(window.location.search);
@@ -674,18 +832,19 @@
     }
     let seen = false;
     try {
-      seen = localStorage.getItem('odyssey_prologue_auto_played') === 'true' ||
-        localStorage.getItem('odyssey_first_prologue_seen_v1') === 'seen';
+      seen = localStorage.getItem('odyssey_prologue_v3_15slides') === 'seen';
     } catch {}
     if (!params.has('prologue') && (seen || params.has('nasa'))) return;
     try {
       localStorage.setItem('odyssey_prologue_auto_played', 'true');
       localStorage.setItem('odyssey_first_prologue_seen_v1', 'seen');
+      localStorage.setItem('odyssey_prologue_v3_15slides', 'seen');
     } catch {}
     window.CinematicStorySlides.openPrologue();
   }
 
   window.CinematicStorySlides = {
+    autoLaunch: checkAutoLaunchCinematics,
     openPrologue: () => {
       initCinematicSlides();
       window.cinematicSlides?.play('prologue');

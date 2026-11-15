@@ -781,7 +781,7 @@
       // lectura (getter): eso lanzaba un error y el botón no hacía nada.
       if(s&&this.returnToSelection){s.fuel=Math.max(s.fuel||0,depCost+5);s.oxygen=Math.max(s.oxygen||0,2);s.hull=Math.max(s.hull||0,1);}
       if(s&&(!s.operational||s.fuel<depCost)){this.landingGuide.textContent=`Despegue requiere ${depCost}% de combustible, oxígeno y casco operativo.`;return;}
-      if(s){s.fuel-=depCost;s.save();}this.beginArrival();window.EntryFX?.clear(this);if(this.arrivalGlobe){this.arrivalGlobe.visible=false;this.arrivalGlobe.material.opacity=0;}this.arrival.end.copy(this.shipGroup.position);this.arrival.departure=true;this.arrival.yaw=this.cameraYaw||0;this.arrival.cameraStart=this.camera.position.clone();this.arrival.sky=this.scene.background.clone();document.getElementById('surface-exit').hidden=true;document.getElementById('surface-land').hidden=true;document.getElementById('surface-success')?.remove?.();
+      if(s){s.fuel-=depCost;s.save();}this.beginArrival({departure:true});window.EntryFX?.clear(this);if(this.arrivalGlobe){this.arrivalGlobe.visible=false;this.arrivalGlobe.material.opacity=0;}this.arrival.end.copy(this.shipGroup.position);this.arrival.departure=true;this.arrival.yaw=this.cameraYaw||0;this.arrival.cameraStart=this.camera.position.clone();this.arrival.sky=this.scene.background.clone();document.getElementById('surface-exit').hidden=true;document.getElementById('surface-land').hidden=true;document.getElementById('surface-success')?.remove?.();
     }
 
 

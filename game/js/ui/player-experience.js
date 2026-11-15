@@ -11,12 +11,14 @@
  }
  document.addEventListener('DOMContentLoaded',()=>{
   const hud=document.createElement('aside');hud.id='supply-bars';hud.setAttribute('aria-label','Suministros de la nave');
-  const fields=[['hull','Casco'],['fuel','Combustible'],['oxygen','Oxígeno'],['water','Agua'],['food','Comida'],['supplies','Repuestos']];
+  const fields=[['hull','Casco'],['fuel','Combustible'],['oxygen','Oxígeno']];
   const header=document.createElement('header');header.className='supply-bars-header';header.id='supply-bars-header';
   header.innerHTML='<div class="supply-bars-title-wrap"><strong id="supply-bars-title">ESTADO DE LA NAVE</strong><span class="supply-bars-mini-stat" id="supply-bars-mini-stat" aria-hidden="true" style="display:none;">100%</span></div><button type="button" class="supply-bars-toggle-btn" id="supply-bars-toggle-btn" aria-expanded="true" aria-label="Minimizar panel de estado de la nave" title="Minimizar / Expandir panel [M]"><span class="supply-toggle-icon" aria-hidden="true">−</span></button>';
   hud.append(header);
   hud.insertAdjacentHTML('beforeend',fields.map(([key,label])=>`<label><span>${label}</span><output data-value="${key}">100%</output><meter min="0" max="100" value="100" data-resource="${key}" aria-label="${label}"></meter></label>`).join('')+'<p id="supply-consequence"></p>');
   document.body.append(hud);
+  let mapObserver;const placeStarMapButton=()=>{const button=document.getElementById('star-map-toggle');if(button){if(button.parentElement!==hud){button.classList.add('supply-bars-map-button');hud.prepend(button);}mapObserver?.disconnect();}};
+  mapObserver=new MutationObserver(placeStarMapButton);mapObserver.observe(document.body,{childList:true,subtree:true});placeStarMapButton();
   let isMinimized=false;try{isMinimized=localStorage.getItem('odyssey_supply_bars_collapsed')==='true';}catch(e){}
   const toggleBtn=header.querySelector('#supply-bars-toggle-btn');const miniStat=header.querySelector('#supply-bars-mini-stat');const toggleIcon=header.querySelector('.supply-toggle-icon');
   const applyMinimized=(min)=>{
@@ -37,7 +39,7 @@
    if(miniStat){const hullVal=Math.ceil(values.hull??100);miniStat.textContent=hullVal+'%';miniStat.style.color=hullVal<30?'#ff785c':hullVal<70?'#f3d58a':'#38bdf8';}
    hud.hidden=!document.body.classList.contains('exploring-space')&&!document.body.classList.contains('surface-exploring')&&!document.getElementById('flight-hud-screen')?.classList.contains('active');
    nav.hidden=!document.body.classList.contains('exploring-space');const route=document.querySelector('.planet-route');if(route&&route.parentElement!==nav.lastElementChild){nav.lastElementChild.prepend(route);const label=route.querySelector('label');if(label)label.textContent='Planeta';}
-   hud.querySelector('p').textContent=values.oxygen<=0?'Oxígeno agotado · soporte vital perdido':values.hull<=0?'Nave perdida':values.fuel<=0?'Sin combustible · a la deriva':s.water<=0?'Sin agua · soporte vital deteriorándose':s.food<=0?'Sin comida · soporte vital deteriorándose':s.supplies<10?'Sin repuestos suficientes para reparar':'';
+   hud.querySelector('p').textContent=values.oxygen<=0?'Oxígeno agotado · soporte vital perdido':values.hull<=0?'Nave perdida':values.fuel<=0?'Sin combustible · a la deriva':'';
   };refresh();setInterval(refresh,300);
  });
  window.QuietFlight={update,activity};

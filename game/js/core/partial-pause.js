@@ -10,20 +10,28 @@
       this.dialog = document.getElementById('partial-pause-dialog');
       this.button = document.getElementById('partial-pause-button');
       this.resumeButton = document.getElementById('partial-pause-resume');
-      this.button.addEventListener('click', () => this.pause());
+      this.returnMenuButton = document.getElementById('pause-return-menu');
       this.resumeButton.addEventListener('click', () => this.resume());
+      this.returnMenuButton?.addEventListener('click', () => this.returnToMenu());
+      this.dialog.addEventListener('click', event => {
+        const opener = event.target.closest('[data-pause-modal-open]');
+        const closer = event.target.closest('[data-pause-modal-close]');
+        if (opener) document.getElementById(opener.dataset.pauseModalOpen)?.showModal();
+        if (closer) closer.closest('dialog')?.close();
+      });
       this.dialog.addEventListener('cancel', event => { event.preventDefault(); this.resume(); });
       this.dialog.addEventListener('close', () => { if (this.isPaused && !this.dialog.open) this.resume(); });
       window.addEventListener('keydown', event => {
         if (this.isPaused) {
           event.stopImmediatePropagation();
-          if (event.code === 'Escape') { event.preventDefault(); if (!event.repeat) this.resume(); }
-          return;
-        }
-        if (document.activeElement === this.button && ['Space', 'Enter'].includes(event.code)) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          if (!event.repeat) this.pause();
+          if (event.code === 'Escape') {
+            event.preventDefault();
+            if (!event.repeat) {
+              const sectionModal = this.dialog.querySelector('.pause-section-modal[open]');
+              if (sectionModal) sectionModal.close();
+              else this.resume();
+            }
+          }
           return;
         }
         if (event.code !== 'Escape' || event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
@@ -50,6 +58,14 @@
       });
       if (engine?.mouse) engine.mouse.isDown = false;
       if (engine) {
+        if (engine.dragPointerId != null && engine.renderer?.domElement?.hasPointerCapture?.(engine.dragPointerId)) {
+          engine.renderer.domElement.releasePointerCapture(engine.dragPointerId);
+        }
+        if (engine.isDirectDragging && document.body) document.body.style.cursor = '';
+        engine.isDirectDragging = false;
+        engine.dragPointerId = undefined;
+        engine.dragVelocityX = 0;
+        engine.dragVelocityY = 0;
         engine.isBrakingPedal = false;
         engine.isThrottlingPedal = false;
         engine.isWarpActive = false;
@@ -60,7 +76,11 @@
     }
 
     sync() {
-      this.button.hidden = this.isPaused || !this.getEngine() || !!document.querySelector('dialog[open]');
+      if (this.isPaused && this.getEngine() !== this.engine) this.reset();
+      if (this.isPaused && !this.dialog.open) this.resume();
+      this.button.hidden = true;
+      const diary = document.getElementById('crew-diary-button');
+      if (diary) diary.hidden = this.isPaused || !this.getEngine() || !!document.querySelector('dialog[open]');
     }
 
     pause() {
@@ -96,6 +116,23 @@
       this.onResume();
       this.sync();
       if (this.previouslyFocused?.isConnected && !this.previouslyFocused.hidden) this.previouslyFocused.focus();
+    }
+
+    returnToMenu() {
+      if (!this.isPaused) return;
+      this.isPaused = false;
+      try {
+        this.beforePause();
+      } catch (error) {
+        this.isPaused = true;
+        console.error('No se pudo guardar la expedición antes de volver al menú.', error);
+        return;
+      }
+      this.clearControls(this.engine);
+      this.engine = null;
+      this.isPaused = false;
+      if (this.dialog.open) this.dialog.close();
+      window.location.assign(window.location.pathname || '/');
     }
 
     reset() {

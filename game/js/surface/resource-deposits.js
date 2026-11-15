@@ -4,7 +4,7 @@
    Sin datos inventados: si un recurso no tiene "location" de superficie, no se dibuja.
    Expone window.ResourceDeposits = { build, dispose, nearest, list }. */
 (function () {
-  const COUNT_PER_RESOURCE = 5;
+  const COUNT_PER_RESOURCE = 12;
   const NEAR_M = 70;
 
   // Aspecto por tipo de material (colores de roca, sin brillos).
@@ -19,6 +19,13 @@
     'olivine': { color: 0x5d6a37, rough: 0.8, flat: 0.7, size: 5 },
     'sulfur': { color: 0x9d9157, rough: 0.9, flat: 0.3, size: 8 },
     'basalt': { color: 0x3a3632, rough: 0.9, flat: 0.8, size: 7 },
+    'plagioclase': { color: 0xb6b1a6, rough: 0.82, flat: 0.72, size: 6 },
+    'pyroxene': { color: 0x4e5949, rough: 0.84, flat: 0.7, size: 6 },
+    'olivine': { color: 0x788343, rough: 0.82, flat: 0.68, size: 6 },
+    'enstatite': { color: 0x686b69, rough: 0.8, flat: 0.7, size: 6 },
+    'oldhamite': { color: 0xb7a866, rough: 0.78, flat: 0.55, size: 6 },
+    'orthopyroxene': { color: 0x51594d, rough: 0.84, flat: 0.7, size: 6 },
+    'anorthite': { color: 0xc5c0b3, rough: 0.82, flat: 0.72, size: 6 },
   };
   const DEFAULT_LOOK = { color: 0x6f6a63, rough: 0.9, flat: 0.7, size: 6 };
 
@@ -30,25 +37,45 @@
   // Recursos que se pueden "ver tirados": tienen ubicación en el suelo (no atmósfera ni toda la superficie difusa).
   function surfaceResources(planet) {
     return (planet?.resources || []).filter((r) => {
-      const loc = (r.location || '').toLowerCase();
-      if (!loc) return false;
-      if (loc.includes('atmósfera') || loc.includes('atmosfera')) return false;
-      if (r.id === 'regolith-oxygen' || r.id === 'helium-3' || r.id === 'co2-atmosphere') return false; // difusos en todo el regolito o el aire
-      return true;
+      const loc = String(r.location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      if (!loc || r.id === 'no-surface') return false;
+      if (['regolith-oxygen', 'helium-3', 'co2-atmosphere'].includes(r.id)) return false;
+      return !/atmosfera|nubes|sin superficie solida/.test(loc);
     });
   }
-
   function sourceOf(r) {
     return r.abundance?.source_url || r.source_url || r.evidence?.source_url || '';
   }
 
-  // Posiciones deterministas alrededor de la plataforma, lejos de ella.
-  function positionsFor(index, total, padX, padZ) {
+  function seededRandom(seed) {
+    let state = seed >>> 0 || 0x6d2b79f5;
+    return () => {
+      state = (state + 0x6d2b79f5) >>> 0;
+      let value = state;
+      value = Math.imul(value ^ (value >>> 15), value | 1);
+      value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+      return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function seedFor(value) {
+    let seed = 2166136261;
+    for (const char of String(value)) seed = Math.imul(seed ^ char.charCodeAt(0), 16777619);
+    return seed >>> 0;
+  }
+
+  // Clusters aleatorios, reproducibles para que toda la sala vea el mismo terreno.
+  function positionsFor(padX, padZ, random, occupied) {
     const out = [];
     for (let i = 0; i < COUNT_PER_RESOURCE; i++) {
-      const angle = (index / Math.max(1, total)) * Math.PI * 2 + i * 0.37 + 0.6;
-      const dist = 260 + i * 210 + index * 45;
-      out.push([padX + Math.cos(angle) * dist, padZ + Math.sin(angle) * dist]);
+      let point = null;
+      for (let attempt = 0; attempt < 100 && !point; attempt++) {
+        const angle = random() * Math.PI * 2;
+        const dist = 280 + random() * 1050;
+        const x = padX + Math.cos(angle) * dist, z = padZ + Math.sin(angle) * dist;
+        if (occupied.every(([otherX, otherZ]) => Math.hypot(x - otherX, z - otherZ) >= 125)) point = [x, z];
+      }
+      if (point) { out.push(point); occupied.push(point); }
     }
     return out;
   }
@@ -63,11 +90,14 @@
     const pad = explorer.landingPad?.position || { x: 0, z: -650 };
     const resources = surfaceResources(planet);
     const deposits = [];
+    const roomCode = window.CooperativeMission?.session?.code || '';
+    const random = seededRandom(seedFor(`${key}:${roomCode || Date.now()}`));
+    const occupied = [];
     const geo = new THREE.IcosahedronGeometry(1, 1);
     resources.forEach((r, idx) => {
       const look = LOOK[r.id] || DEFAULT_LOOK;
       const mat = new THREE.MeshStandardMaterial({ color: look.color, roughness: look.rough, metalness: r.id === 'ilmenite' ? 0.35 : 0, flatShading: true });
-      for (const [x, z] of positionsFor(idx, resources.length, pad.x, pad.z)) {
+      for (const [x, z] of positionsFor(pad.x, pad.z, random, occupied)) {
         const y = heightAt(x, z, key);
         const cluster = new THREE.Group();
         cluster.position.set(x, y, z);
