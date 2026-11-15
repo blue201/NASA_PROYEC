@@ -20,7 +20,7 @@
       if (!record || record.version !== 1 || !Number.isSafeInteger(record.sequence)
         || record.sequence < 1 || !finite(record.savedAt, 0, Number.MAX_SAFE_INTEGER)) return false;
       const state = record.state;
-      if (!state || !['menu', 'flight', 'landing', 'exploration'].includes(state.phase)
+      if (!state || !['menu', 'flight', 'landing', 'exploration', 'surface'].includes(state.phase)
         || !this.planets.has(state.planet) || !Array.isArray(state.scanned)
         || state.scanned.length > this.planets.size || !state.scanned.every(id => this.planets.has(id))) return false;
       if (state.phase === 'flight') {
@@ -33,6 +33,16 @@
           && finite(f.speed, 0, 10000);
       }
       if (state.phase === 'landing') return finite(state.hull, Number.MIN_VALUE, 100);
+      if (state.phase === 'surface') {
+        const surface = state.surface;
+        return !!surface && ['earth', 'moon', 'mars', 'venus', 'mercury', 'uranus', 'saturn', 'jupiter', 'neptune'].includes(state.planet)
+          && vector(surface.position, 20000)
+          && finite(surface.yaw, -1e9, 1e9) && finite(surface.pitch, -1, 1)
+          && ['chase', 'cockpit', 'far'].includes(surface.camera)
+          && typeof surface.landed === 'boolean' && typeof surface.ancient === 'boolean'
+          && (!surface.ancient || state.planet === 'earth')
+          && finite(state.hull, Number.MIN_VALUE, 100);
+      }
       if (state.phase === 'exploration') {
         const e = state.exploration;
         return !!e && vector(e.position, 1e12) && finite(e.yaw, -1e9, 1e9)

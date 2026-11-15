@@ -22,7 +22,7 @@
   const retroMat=new THREE.MeshBasicMaterial({color:0x66e3ff,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide});
   const retroGeo=new THREE.ConeGeometry(2.4,7.5,20,1,true);retroGeo.rotateX(-Math.PI/2);
   const retroCone=new THREE.Mesh(retroGeo,retroMat);retroCone.position.set(0,-0.4,-7.8);group.add(retroCone);
-  const N=108,positions=new Float32Array(N*6),colors=new Float32Array(N*6),streaks=[];
+  const N=24,positions=new Float32Array(N*6),colors=new Float32Array(N*6),streaks=[];
   for(let i=0;i<N;i++){
    const type=i%4;let x,y,z;
    if(type===0){x=(Math.sin(i*3.7)*.5)*1.6;y=(Math.cos(i*2.3)*.5)*1.2;z=-7.2+(i%7)*.4;}
@@ -32,13 +32,12 @@
   }
   const lineGeo=new THREE.BufferGeometry();lineGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));lineGeo.setAttribute('color',new THREE.BufferAttribute(colors,3));
   const lines=new THREE.LineSegments(lineGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));lines.frustumCulled=false;group.add(lines);
-  const M=180,emberPos=new Float32Array(M*3),embers=[];for(let i=0;i<M;i++)embers.push({x:0,y:0,z:1e5,vx:0,vy:0,vz:0,life:1,max:1});
+  const M=48,emberPos=new Float32Array(M*3),embers=[];for(let i=0;i<M;i++)embers.push({x:0,y:0,z:1e5,vx:0,vy:0,vz:0,life:1,max:1});
   const emberGeo=new THREE.BufferGeometry();emberGeo.setAttribute('position',new THREE.BufferAttribute(emberPos,3));
   const emberPts=new THREE.Points(emberGeo,new THREE.PointsMaterial({color:0xffb86c,size:0.38,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));emberPts.frustumCulled=false;group.add(emberPts);
-  const light=new THREE.PointLight(0xff7a2a,0,120,2);light.position.set(0,0,-6.5);group.add(light);
   e.shipGroup.add(group);
   let overlay=null;if(typeof document!=='undefined'&&document.body&&document.createElement){overlay=document.getElementById('entry-fx-overlay');if(!overlay){overlay=document.createElement('div');overlay.id='entry-fx-overlay';overlay.setAttribute('aria-hidden','true');overlay.innerHTML='<i class="heat"></i><i class="flash"></i>';document.body.append(overlay);}}
-  return {group,sheath,shock,sheathMat,retroCone,retroMat,lines,positions,colors,streaks,embers,emberPts,emberPos,light,overlay,boom:false,clouds:false,ignite:false,time:0,baseFov:e.camera?.fov};
+  return {group,sheath,shock,sheathMat,retroCone,retroMat,lines,positions,colors,streaks,embers,emberPts,emberPos,overlay,boom:false,clouds:false,ignite:false,time:0,baseFov:e.camera?.fov};
  }
  function update(e,t,dt,opts={}){
   if(!e||!e.scene||!e.shipGroup||typeof THREE==='undefined')return;dt=Math.max(0,Math.min(.1,dt||0));
@@ -59,7 +58,6 @@
   s.sheathMat.uniforms.time.value=s.time;s.sheathMat.uniforms.intensity.value=p.heat;s.sheath.visible=s.shock.visible=p.heat>.01;
   s.shock.scale.set(8.8+p.heat*.5,3.2+p.heat*.3,11.2+p.heat*.8);
   if(s.retroCone){s.retroCone.visible=(p.retro||0)>.01;s.retroMat.opacity=(p.retro||0)*(.42+.18*Math.sin(s.time*38));s.retroCone.scale.set(1,1,.85+.35*Math.sin(s.time*32));}
-  s.light.intensity=(p.heat*3.6+(p.retro||0)*1.8)*(.85+.15*Math.sin(s.time*40));
   // Streaks flow tightly along the hull and wings towards the rear (+Z)
   const hot=new THREE.Color(0xff9240),cool=new THREE.Color(0xbce6ff),c=cool.clone().lerp(hot,Math.min(1,p.heat*1.4));
   s.streaks.forEach((q,i)=>{

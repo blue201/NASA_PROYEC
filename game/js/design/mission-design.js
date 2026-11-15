@@ -47,8 +47,9 @@
       !obj && 'Falta elegir el objetivo de la misión.',
       !lv && 'Falta elegir el lanzador.',
       !orb && 'Falta elegir la órbita.',
+      !byId(catalog.structures, design.structure) && 'Falta elegir una estructura válida.',
     ]
-      .concat(SUBSYSTEMS.filter((k) => !design[k]).map((k) => 'Falta elegir ' + catalog.subsystems[k].label.toLowerCase() + '.'))
+      .concat(SUBSYSTEMS.filter((k) => !pick(catalog, k, design[k])).map((k) => 'Falta elegir ' + catalog.subsystems[k].label.toLowerCase() + '.'))
       .concat([
         t.massKg > s.maxMassKg && 'Sobrepeso: ' + t.massKg.toFixed(1) + ' kg de ' + s.maxMassKg + ' kg permitidos en un ' + s.id + '.',
         t.volumeU > s.volumeU && 'No cabe: ' + t.volumeU + ' U de ' + s.volumeU + ' U disponibles.',

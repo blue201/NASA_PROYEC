@@ -50,6 +50,14 @@
       });
       if (engine?.mouse) engine.mouse.isDown = false;
       if (engine) {
+        if (engine.dragPointerId != null && engine.renderer?.domElement?.hasPointerCapture?.(engine.dragPointerId)) {
+          engine.renderer.domElement.releasePointerCapture(engine.dragPointerId);
+        }
+        if (engine.isDirectDragging && document.body) document.body.style.cursor = '';
+        engine.isDirectDragging = false;
+        engine.dragPointerId = undefined;
+        engine.dragVelocityX = 0;
+        engine.dragVelocityY = 0;
         engine.isBrakingPedal = false;
         engine.isThrottlingPedal = false;
         engine.isWarpActive = false;
@@ -60,7 +68,11 @@
     }
 
     sync() {
+      if (this.isPaused && this.getEngine() !== this.engine) this.reset();
+      if (this.isPaused && !this.dialog.open) this.resume();
       this.button.hidden = this.isPaused || !this.getEngine() || !!document.querySelector('dialog[open]');
+      const diary = document.getElementById('crew-diary-button');
+      if (diary) diary.hidden = this.button.hidden;
     }
 
     pause() {

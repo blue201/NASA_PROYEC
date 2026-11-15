@@ -11,6 +11,10 @@ assert(window.EntryFX.profile(0.8,false,false).retro>0,'airless descent fires re
 const engine={scene:new THREE.Scene(),shipGroup:new THREE.Group(),camera:new THREE.PerspectiveCamera(60,1.7,0.1,5000)};
 for(let i=0;i<=20;i++)window.EntryFX.update(engine,i/20,1/60,{departure:false,clouded:true});
 assert(engine.shipGroup.children.some(c=>c.name==='Efectos de entrada atmosférica'),'entry fx attached');
+const entryEffects=engine.shipGroup.children.find(c=>c.name==='Efectos de entrada atmosférica');
+assert(!entryEffects.children.some(c=>c.isPointLight),'entry effects do not introduce a light into every world material');
+assert.equal(entryEffects.children.find(c=>c.isLineSegments).geometry.attributes.position.count,48,'entry streaks have a bounded vertex budget');
+assert.equal(entryEffects.children.find(c=>c.isPoints).geometry.attributes.position.count,48,'embers have a bounded vertex budget');
 window.EntryFX.clear(engine);
 assert(!engine.shipGroup.children.some(c=>c.name==='Efectos de entrada atmosférica'),'entry fx cleaned up');
 assert.equal(engine.camera.fov,60,'camera FOV restored');

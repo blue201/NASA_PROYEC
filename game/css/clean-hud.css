@@ -211,7 +211,7 @@ body:has(#partial-pause-dialog[open]) .surface-toolbar,body:has(#jarvis-commands
 }
 
 /* The pause dialog owns all secondary controls; Escape remains the pause shortcut. */
-body #partial-pause-button{display:none!important}
+body #partial-pause-button[hidden]{display:none!important}
 body #partial-pause-dialog #flight-tools,body #partial-pause-dialog #flight-tools[open]{position:static!important;inset:auto!important;width:100%!important;max-width:none!important;display:block!important;visibility:visible!important;margin:12px 0!important}
 #partial-pause-dialog #flight-tools>summary{display:none!important}
 #partial-pause-dialog #flight-tools .topbar-right{max-height:none;overflow:visible;padding:12px;box-sizing:border-box;border-radius:12px}
@@ -261,3 +261,137 @@ body #star-map-toggle{top:16px!important}@media(max-width:600px){body #star-map-
 .challenge-option-btn:hover,.challenge-option-btn:focus-visible{background:#1f5068;border-color:#9ee9ff}
 #challenge-feedback{min-height:1.5em;font:13px/1.5 system-ui;color:#ffe6a3}
 @media(max-width:560px){.challenge-planet-facts-grid,.challenge-options{grid-template-columns:1fr}}
+
+/* Inicio y administración de tripulación. */
+.start-menu { inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; color: #edf7ff; background: linear-gradient(90deg, #020913f5 5%, #020913c9 48%, #02091330), url('../assets/cinematics/prologue-01-earth.jpg') center / cover; font-family: Inter, sans-serif; }
+.start-menu::backdrop { background: #020913; }
+.start-menu-content { display: flex; flex-direction: column; justify-content: center; width: min(420px, calc(100% - 48px)); min-height: calc(100% - 80px); padding: 40px clamp(24px, 7vw, 140px); }
+.start-menu-eyebrow { color: #93cddd; font-size: 12px; letter-spacing: .2em; }
+.start-menu h1 { margin: 8px 0 36px; font-size: clamp(56px, 8vw, 106px); font-weight: 600; letter-spacing: -.06em; }
+.start-menu h2 { font-size: 24px; }
+.start-menu-actions { display: grid; gap: 12px; }
+.start-menu button { width: 100%; min-height: 52px; padding: 14px 20px; margin: 0 0 10px; border: 1px solid #89b3ca66; border-radius: 10px; background: #102334b8; color: #edf7ff; font: 600 16px Inter, sans-serif; text-align: left; cursor: pointer; }
+.start-menu .start-primary { background: #a6edff; border-color: #a6edff; color: #071622; }
+.start-menu button:disabled { opacity: .4; cursor: default; }
+.start-menu button:hover:not(:disabled) { border-color: #a6edff; }
+.start-menu :focus-visible { outline: 3px solid #a6edff; outline-offset: 4px; }
+#start-menu-status { color: #b7cbd8; font-size: 13px; line-height: 1.6; }
+.audio-mixer label { display: grid; grid-template-columns: 70px minmax(70px, 1fr) 44px; align-items: center; gap: 10px; padding: 10px 0; text-align: left; }
+.audio-mixer input { width: 100%; accent-color: #a6edff; }
+#start-menu-options[hidden], #start-menu-confirmation[hidden], #start-menu-actions[hidden] { display: none; }
+#crew-diary-button { position: fixed; top: 16px; right: 160px; z-index: 12500; min-height: 44px; padding: 10px 16px; border: 1px solid #8edfff; border-radius: 8px; color: #edf7ff; background: #091928ee; font: 600 13px Inter, sans-serif; cursor: pointer; }
+#crew-diary-button[hidden] { display: none; }
+#partial-pause-dialog .crew-diary { margin: 20px 0; text-align: left; }
+.crew-diary summary { padding: 12px 0; color: #a6edff; font-weight: 600; cursor: pointer; }
+.crew-member { padding: 16px; margin: 12px 0; border: 1px solid #ffffff20; border-radius: 12px; background: #07152280; }
+.crew-member h3 { margin: 0 0 10px; color: #edf7ff; font-size: 16px; }
+.crew-member p, .crew-diary > p { color: #c1d1dd; font-size: 13px; line-height: 1.6; }
+.crew-member .crew-condition { color: #ffce82; }
+.crew-member progress { width: 100%; height: 9px; accent-color: #79d1ac; }
+.crew-member .crew-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+#partial-pause-dialog .crew-actions button { width: auto; margin: 0; min-height: 42px; }
+@media (max-width: 600px) { .start-menu-content { min-height: calc(100% - 48px); padding: 24px; } #crew-diary-button { right: 150px; } }
+
+.audio-mixer input { grid-column: 2; grid-row: 1; }
+.audio-mixer output { grid-column: 3; grid-row: 1; }
+@media (max-width: 600px) { #crew-diary-button { display: none; } }
+
+/* Inicio: portada de misión y controles de banda sonora. */
+.start-menu { box-sizing:border-box; isolation:isolate; background:linear-gradient(90deg,#030812f5 0%,#061322e8 37%,#0717287a 76%,#06101d40),linear-gradient(0deg,#030812a8,transparent 45%),url('../assets/cinematics/prologue-01-earth.jpg') center/cover; }
+.start-menu::backdrop { background:#02060cf2; }
+.start-menu-content { box-sizing:border-box; width:min(610px,100%); min-height:100dvh; padding:clamp(32px,8vh,96px) clamp(26px,8vw,112px); background:linear-gradient(90deg,#050b14c7,#08121e80 78%,transparent); backdrop-filter:blur(4px); }
+.start-menu-eyebrow { display:flex; align-items:center; gap:12px; color:#bbd8e5; font-size:11px; font-weight:700; letter-spacing:.24em; }
+.start-menu-eyebrow::before { content:''; width:28px; height:1px; background:#a6edff; box-shadow:0 0 12px #a6edff; }
+.start-menu h1 { margin:8px 0 0; font-family:Orbitron,Inter,sans-serif; font-size:clamp(48px,7vw,78px); font-weight:500; letter-spacing:.025em; text-shadow:0 4px 32px #7bd9ff55; }
+.start-menu-tagline { margin:4px 0 30px; color:#c4d5df; font:400 14px/1.7 Inter,sans-serif; letter-spacing:.06em; }
+.start-menu-actions { gap:8px; }
+.start-menu button { box-sizing:border-box; min-height:50px; margin:0; border-color:#bfd9e533; border-radius:5px; background:linear-gradient(105deg,#12283bd9,#0a1928cc); box-shadow:inset 0 1px #ffffff0d; transition:background .18s ease,border-color .18s ease,transform .18s ease; }
+.start-menu button:hover:not(:disabled) { transform:translateX(4px); background:#17374ddd; }
+.start-menu .start-primary { background:linear-gradient(105deg,#b5edfa,#d7f4f9); box-shadow:0 8px 28px #6edcff26,inset 0 1px #fff; }
+.start-menu .start-primary:hover:not(:disabled) { background:#e4fbff; }
+.start-menu .start-menu-music { width:auto; min-height:40px; margin-top:18px; padding:9px 14px; border-color:#a6edff55; border-radius:4px; color:#d9f4ff; background:#07121bbf; font-size:12px; letter-spacing:.035em; }
+.start-menu .start-menu-music.is-playing { color:#b8f0d1; border-color:#8ce1b877; }
+#start-menu-status { min-height:1.5em; margin-top:14px; color:#aebfcb; }
+.start-menu :focus-visible { outline-color:#d8f8ff; }
+@media(max-width:600px){.start-menu-content{width:100%;padding:34px 25px;justify-content:center;background:linear-gradient(90deg,#050b14ed,#08121eb0 90%)}.start-menu h1{font-size:52px}.start-menu-actions{max-width:420px}}
+@media(prefers-reduced-motion:reduce){.start-menu button{transition:none}.start-menu button:hover:not(:disabled){transform:none}}
+
+/* El diario es una pieza independiente con cubierta de cuero envejecido. */
+body #crew-diary-button { position:fixed; top:auto; right:auto; left:22px; bottom:24px; z-index:12500; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; width:94px; height:112px; padding:12px 9px 10px 15px; overflow:visible; transform:rotate(-4deg); border:2px solid #69452b; border-radius:5px 11px 9px 4px; color:#ecd9b6; background:repeating-linear-gradient(4deg,#5d3c28 0 3px,#704a30 3px 6px,#553722 6px 8px); box-shadow:inset 5px 0 0 #2c1c14,inset 8px 0 0 #9b7049,inset 0 0 12px #21140fc9,3px 8px 16px #0009; font:700 12px/1.2 Georgia,serif; letter-spacing:.09em; text-shadow:0 1px 2px #170f09; cursor:pointer; }
+body #crew-diary-button::before { content:''; position:absolute; inset:5px 5px 5px 13px; border:1px solid #cfaa6a55; border-radius:2px 5px 5px 2px; background:radial-gradient(ellipse at 25% 20%,#b78c5c33,transparent 55%); pointer-events:none; }
+body #crew-diary-button::after { content:''; position:absolute; top:9px; right:12px; width:8px; height:22px; background:linear-gradient(90deg,#9e2621,#d46a43,#70201d); box-shadow:0 1px 3px #1d100b; }
+body #crew-diary-button span { position:relative; z-index:1; }
+body #crew-diary-button span:first-child { font-size:33px; filter:sepia(.65) saturate(.7) drop-shadow(1px 2px 1px #180f09); }
+body #crew-diary-button:hover { transform:rotate(0deg) translateY(-3px); filter:brightness(1.12); }
+body #crew-diary-button[hidden]{display:none!important}
+body #crew-diary-dialog { box-sizing:border-box; width:min(820px,calc(100vw - 28px)); max-width:none; max-height:min(88dvh,900px); margin:auto; padding:0; overflow:hidden; border:8px ridge #714c2e; border-radius:8px 18px 14px 7px; color:#f2eadb; background:radial-gradient(ellipse at 20% 0%,#665037,#382b20 56%,#261e18); box-shadow:0 26px 90px #000b,inset 0 0 30px #130e0acc; }
+#crew-diary-dialog::backdrop { background:#040607b8; backdrop-filter:blur(4px); }
+.crew-diary-header { position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 24px; border-bottom:1px solid #d0b17a55; background:linear-gradient(120deg,#3d2d21f5,#57432cf2); }
+.crew-diary-header small { color:#d5b57a; font:700 10px/1.4 ui-monospace,monospace; letter-spacing:.16em; }
+.crew-diary-header h2 { margin:5px 0 0; color:#f0e3ca; font:600 24px/1.15 Georgia,serif; }
+.crew-diary-header button { width:38px; height:38px; border:1px solid #d3b78366; border-radius:50%; color:#f0e3ca; background:#241b15; font-size:25px; cursor:pointer; }
+.crew-diary-content { max-height:calc(88dvh - 100px); overflow:auto; padding:10px clamp(14px,3vw,28px) 24px; background:repeating-linear-gradient(0deg,#e8d7b512 0 1px,transparent 1px 33px); }
+.crew-diary-content .crew-diary { margin:0; color:#eddfc4; }
+.crew-diary-content .crew-diary summary { display:none; }
+.crew-diary-content .crew-member { border:1px solid #c5a4705c; border-radius:4px; background:linear-gradient(125deg,#241e18cc,#4a3825a8); box-shadow:inset 0 1px #f5deb51c; }
+.crew-diary-content .crew-member h3 { color:#f0dfbd; font-family:Georgia,serif; }
+.crew-diary-content .crew-member p,.crew-diary-content .crew-diary>p { color:#d9cbb1; }
+.crew-diary-content .crew-member .crew-condition { color:#ffd287; }
+.crew-diary-content .crew-actions button { min-height:40px; border:1px solid #c6a66a77; border-radius:4px; color:#f1e1c0; background:linear-gradient(#55412a,#33271b); font:600 12px Inter,sans-serif; cursor:pointer; }
+.crew-diary-content .crew-actions button:hover:not(:disabled) { border-color:#f1d89f; background:#694e2e; }
+.crew-diary-content .crew-actions button:disabled { opacity:.45; }
+@media(max-width:600px){body #crew-diary-button{left:12px;bottom:14px;width:76px;height:92px;padding-left:12px}body #crew-diary-button span:first-child{font-size:28px}#crew-diary-dialog{width:calc(100vw - 16px);max-height:92dvh}.crew-diary-content{max-height:calc(92dvh - 92px)}}
+
+/* Portada orbital: nave en deriva libre y cuaderno ilustrado de la tripulación. */
+#start-menu { position:fixed; overflow:hidden; background:radial-gradient(ellipse at 76% 46%,#123b6070,transparent 46%),linear-gradient(90deg,#030914f2 0%,#061322d9 38%,#0613223d 78%),url('../assets/cinematics/prologue-01-earth.jpg') center/cover; }
+#start-menu .start-menu-flight { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; background:radial-gradient(ellipse at 76% 50%,#245c7844,transparent 47%); }
+#start-menu .start-menu-stars { position:absolute; inset:-45%; opacity:.65; background-image:radial-gradient(1px 1px at 13% 24%,#fff 99%,transparent),radial-gradient(2px 2px at 72% 28%,#d9f4ff 99%,transparent),radial-gradient(1px 1px at 62% 72%,#fff 99%,transparent),radial-gradient(1px 1px at 34% 81%,#a8dfff 99%,transparent); background-size:170px 140px,260px 210px,220px 190px,310px 230px; animation:menu-star-drift 42s linear infinite; }
+#start-menu .start-menu-ship { position:absolute; top:47%; right:12%; width:min(35vw,440px); min-width:230px; filter:drop-shadow(0 0 22px #69dfff80); animation:menu-ship-drift 9s ease-in-out infinite; }
+#start-menu .start-menu-orbit { position:absolute; width:min(40vw,520px); aspect-ratio:1; top:50%; right:8%; border:1px solid #a7eaff24; border-radius:50%; transform:translateY(-50%) rotate(-22deg) scaleY(.26); box-shadow:0 0 35px #48b8e51c; }
+#start-menu .start-menu-content { position:relative; z-index:1; }
+@keyframes menu-ship-drift { 0%,100%{transform:translate3d(0,-50%,0) rotate(-3deg)}50%{transform:translate3d(20px,calc(-50% - 14px),0) rotate(2deg)} }
+@keyframes menu-star-drift { to{transform:translate3d(8%,5%,0)} }
+@media(max-width:700px){#start-menu .start-menu-ship{top:22%;right:-5%;width:54vw;min-width:190px;opacity:.62}#start-menu .start-menu-orbit{top:25%;right:-10%;width:62vw}#start-menu .start-menu-content{background:linear-gradient(0deg,#06101de8 0%,#06101d99 75%,transparent)}}
+@media(prefers-reduced-motion:reduce){#start-menu .start-menu-ship,#start-menu .start-menu-stars{animation:none}}
+#crew-diary-dialog { background:linear-gradient(90deg,#302319 0 28px,#705033 28px 34px,#d8c397 34px,#f0e5cb 52%,#d4bd91 100%); }
+.crew-diary-header { margin-left:26px; padding:20px 24px 14px; background:linear-gradient(100deg,#d8c397,#eee3c9 48%,#d0b98d); border-bottom:2px solid #9e835a; }
+.crew-diary-header small { color:#715537; }
+.crew-diary-header h2 { color:#37291c; }
+.crew-diary-header button { color:#4a3422; background:#d2bc91; border-color:#8b6a42; }
+.crew-diary-content { position:relative; margin-left:26px; color:#3f3428; background:repeating-linear-gradient(0deg,transparent 0 31px,#7b9ab52d 32px,#7b9ab52d 33px),linear-gradient(90deg,#b9483530 0 1px,transparent 1px 100%),linear-gradient(110deg,#f4ebd6,#e6d7b8); }
+.crew-diary-content .crew-diary { color:#443729; }
+.crew-diary-content .crew-member { position:relative; border:1px solid #9d81586e; border-radius:3px; background:linear-gradient(110deg,#fbf3dfde,#e8d9b8dd); box-shadow:2px 3px 8px #503a2117; }
+.crew-diary-content .crew-member::after { content:'✎'; position:absolute; right:12px; top:8px; color:#9983688c; font:italic 18px Georgia,serif; transform:rotate(-12deg); }
+.crew-diary-content .crew-member h3 { color:#4a3826; }
+.crew-diary-content .crew-member p,.crew-diary-content .crew-diary>p { color:#5b4b37; }
+.crew-diary-content .crew-member .crew-condition { color:#77532a; }
+.crew-diary-content .crew-actions button { border-color:#93764d; color:#4c3925; background:linear-gradient(#eee1c3,#d4be91); }
+.crew-diary-content .crew-actions button:hover:not(:disabled) { background:#f5e8ca; }
+.pause-music-controls { display:flex; flex-wrap:wrap; gap:8px; }
+.pause-music-controls button { width:auto!important; min-height:38px!important; margin:0!important; padding:8px 12px!important; font-size:13px!important; }
+.pause-music-style { display:grid!important; grid-template-columns:1fr!important; gap:6px!important; }
+.pause-music-style select { width:100%; min-height:40px; padding:8px; border:1px solid #ffffff38; border-radius:6px; color:#edf7ff; background:#102334; }
+.pause-music-hint { margin:8px 0 0; color:#b9cbd7; font:12px/1.5 Inter,sans-serif; }
+
+/* Selección de componentes del hangar: tarjetas grandes, claras y navegables. */
+.hg-choice { position:relative; min-height:72px; align-content:center; padding:13px 46px 13px 15px; border:1px solid #ffffff1c; border-radius:12px; background:linear-gradient(110deg,#ffffff0b,#ffffff04); transition:border-color .16s ease,background .16s ease,transform .16s ease,box-shadow .16s ease; }
+.hg-choice:hover { transform:translateY(-1px); border-color:#8edfff77; background:#8edfff0d; }
+.hg-choice.on { border-color:#8edfff; background:linear-gradient(110deg,#8edfff21,#40b6cf0c); box-shadow:inset 3px 0 #8edfff,0 0 18px #55c9eb18; }
+.hg-choice.on::after { content:'✓ ELEGIDO'; position:absolute; top:10px; right:12px; color:#aaf0ff; font:700 9px/1 ui-monospace,monospace; letter-spacing:.07em; }
+.hg-choice input { width:20px; height:20px; margin:0; accent-color:#8edfff; cursor:pointer; }
+.hg-choice strong { color:#f1f8fb; font-size:14px; }
+.hg-choice small { margin-top:4px; font-size:12px; }
+.hg-choice:has(input:focus-visible) { outline:3px solid #8edfff; outline-offset:3px; }
+.hg-group legend { color:#eaf7fb; }
+@media(prefers-reduced-motion:reduce){.hg-choice{transition:none}.hg-choice:hover{transform:none}}
+
+.calc-player-instructions { margin:10px 0 16px; color:#c5d8e5; font:13px/1.55 Inter,sans-serif; }
+.manual-orbital-form { display:grid; gap:8px; margin-top:14px; padding:13px; border:1px solid #79d6f655; border-radius:10px; background:linear-gradient(120deg,#081b2ade,#102a3bbd); }
+.manual-orbital-form label { color:#bdeeff; font:700 12px/1.4 ui-monospace,monospace; }
+.manual-orbital-form input { box-sizing:border-box; width:100%; min-height:44px; padding:9px 12px; border:1px solid #72b6cd77; border-radius:6px; color:#f1fbff; background:#030c15; font:600 16px ui-monospace,monospace; }
+.manual-orbital-form input:focus-visible { outline:2px solid #a6edff; outline-offset:2px; }
+.manual-orbital-form small { color:#c6d8e2; font:12px/1.6 Inter,sans-serif; }
+.manual-orbital-form button { justify-self:start; min-height:38px; padding:8px 13px; border:1px solid #66c9e8; border-radius:6px; color:#071520; background:#a6edff; font:700 12px Inter,sans-serif; cursor:pointer; }
+.manual-orbital-form button:disabled,.manual-orbital-form input:disabled { opacity:.5; cursor:not-allowed; }
+.manual-orbital-feedback { min-height:1.2em; margin:0; color:#9ee8bd; font:12px/1.4 Inter,sans-serif; }
+.manual-orbital-feedback.incorrect { color:#ffd38a; }

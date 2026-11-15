@@ -2,6 +2,8 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 
 const common=s.water;assert.equal(d.distribute('leo','water',Infinity),0);assert.equal(s.water,common);
 const beforeDay=d.day;d.tick(s,NaN);assert.equal(d.day,beforeDay);
+assert.match(d.condition({ health: 30, thirstDays: 1, hungerDays: 3, reserveWater: 0, reserveFood: 0 }), /Deshidratación.*Inanición/);
+assert.match(d.condition({ health: 0, thirstDays: 1, hungerDays: 3, reserveWater: 0, reserveFood: 0 }), /Incapacitado/);
 s.water=NaN;assert.equal(d.distribute('leo','water',1),0);s.water=common;
 const integrationWindow = {};
 const integrationDocument = { hidden: false, addEventListener() {}, getElementById() { return null; } };

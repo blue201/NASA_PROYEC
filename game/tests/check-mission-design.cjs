@@ -27,4 +27,9 @@ assert.ok(t.problems.some((p) => p.startsWith('Presupuesto excedido')), 'combo p
 const c = MD.cockpitStart(MD.totals(catalog, base));
 assert.ok(c.budgetLeftUsd >= 0 && c.fuelPct > 0 && c.massKg > 0, 'valores iniciales de cabina');
 
+for (const key of ['objective', 'launcher', 'orbit', 'structure', ...MD.SUBSYSTEMS]) {
+  const saved = MD.load({ getItem: () => JSON.stringify({ ...base, [key]: 'pieza-retirada' }) });
+  assert.ok(!MD.totals(catalog, saved).ok, 'una selección guardada inexistente bloquea el despegue: ' + key);
+}
+
 console.log('PASS: hangar de diseño valida objetivo, lanzador, órbita, masa, volumen, presupuesto y Δv.');

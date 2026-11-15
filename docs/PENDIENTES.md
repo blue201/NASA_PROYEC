@@ -17,6 +17,20 @@
 
 Entrega: **domingo 15 de noviembre de 2026, 17:00** (hora de Honduras).
 
+### Hangar y prólogo de 15 escenas · 15 de noviembre de 2026
+
+- Revisar visualmente el hangar y el prólogo recuperado en escritorio y móvil. El control de Edge bloqueó la comprobación automática al no poder verificar la URL.
+- Documentar la licencia de las ilustraciones recuperadas del prólogo y la autorización de redistribución de `prologue-theme.mp3` (pista identificada por el usuario como «The Last Of Us - Theme song»). Procedencia detallada en `game/assets/CREDITS.md`.
+
+### Transiciones planetarias · 15 de noviembre de 2026
+
+- Verificar visualmente y medir FPS reales al entrar y salir de los planetas tras optimizar el terreno, limitar temporalmente la resolución y ocultar detalles lejanos durante el ascenso. Las pruebas de trayectoria y restauración pasan. El acceso al navegador no está disponible para completar la medición con GPU.
+- Verificar visualmente la reproducción de «Dizzying space travel» al entrar al Cretácico, el retorno al descenso y los límites de consumo gráfico actualizados. El visor externo requiere internet. Para una futura integración totalmente local, obtener el archivo del modelo mediante una sesión autorizada de Sketchfab.
+
+### Inicio, pausa y tripulación · 15 de noviembre de 2026
+
+- Revisar visualmente el menú inicial con su canción, la cubierta desgastada del diario, las respuestas manuales del ordenador orbital y las selecciones del hangar en escritorio y móvil. Las pruebas automatizadas cubren la música del menú, la separación del diario y la exigencia de respuestas; falta aceptación visual en navegador.
+
 ## Pendientes anotados por RamiPosadas
 
 ### Agua y comida diarias (PR #3)

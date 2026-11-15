@@ -8,6 +8,36 @@
 
   const amplitude={earth:90,mars:145,moon:120,mercury:100,venus:75,uranus:150,saturn:130,jupiter:180,neptune:170};
 
+  const craters = Array.from({ length: 36 }, (_, index) => ({
+    x: Math.sin(index * 8.9) * 5500,
+    z: Math.cos(index * 4.7) * 5500,
+    radius: 140 + (index % 8) * 65
+  }));
+
+  let sketchfabScript;
+  function loadSketchfabViewer() {
+    if (window.Sketchfab) return Promise.resolve(window.Sketchfab);
+    if (sketchfabScript) return sketchfabScript;
+    sketchfabScript = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      const timeout = setTimeout(() => {
+        script.remove();
+        sketchfabScript = null;
+        reject(new Error('No se pudo cargar el visor'));
+      }, 10000);
+      script.src = 'https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js';
+      script.onload = () => { clearTimeout(timeout); resolve(window.Sketchfab); };
+      script.onerror = () => {
+        clearTimeout(timeout);
+        script.remove();
+        sketchfabScript = null;
+        reject(new Error('Visor sin conexión'));
+      };
+      document.head.appendChild(script);
+    });
+    return sketchfabScript;
+  }
+
 
 
   // Continuous ridged terrain: the same height field drives rendering and clearance.
@@ -70,7 +100,12 @@
 
 
 
-    if(key==='moon'||key==='mercury')for(let i=0;i<36;i++){const cx=Math.sin(i*8.9)*5500,cz=Math.cos(i*4.7)*5500,d=Math.hypot(x-cx,z-cz)/(140+(i%8)*65);h+=-120*Math.exp(-d*d*2)+65*Math.exp(-Math.pow((d-1)*5,2));}
+    if (key === 'moon' || key === 'mercury') {
+      for (const crater of craters) {
+        const distance = Math.hypot(x - crater.x, z - crater.z) / crater.radius;
+        h += -120 * Math.exp(-distance * distance * 2) + 65 * Math.exp(-Math.pow((distance - 1) * 5, 2));
+      }
+    }
 
 
 
@@ -255,7 +290,17 @@
 
 
 
-      for(let i=0;i<positions.count;i++){const x=positions.getX(i),z=positions.getZ(i);positions.setY(i,heightAt(x,z,key));const color=new THREE.Color(window.PlanetEcology?.terrainColor(key,x,z,heightAt(x,z,key))||base).multiplyScalar(.65+noise(x*.004,z*.004)*.38+Math.min(.18,Math.max(0,heightAt(x,z,key))/5000));colors[i*3]=color.r;colors[i*3+1]=color.g;colors[i*3+2]=color.b;}
+      const color = new THREE.Color();
+      for (let i = 0; i < positions.count; i++) {
+        const x = positions.getX(i), z = positions.getZ(i);
+        const height = heightAt(x, z, key);
+        positions.setY(i, height);
+        color.set(window.PlanetEcology?.terrainColor(key, x, z, height) || base);
+        color.multiplyScalar(.65 + noise(x * .004, z * .004) * .38 + Math.min(.18, Math.max(0, height) / 5000));
+        colors[i * 3] = color.r;
+        colors[i * 3 + 1] = color.g;
+        colors[i * 3 + 2] = color.b;
+      }
 
 
 
@@ -780,12 +825,36 @@
         if(this.returnToSelection){s.fuel=Math.max(s.fuel||0,depCost);s.operational=true;}
         else{this.landingGuide.textContent=`Despegue requiere ${depCost}% de combustible, oxígeno y casco operativo.`;return;}
       }
-      if(s){s.fuel-=depCost;s.save();}this.beginArrival();window.EntryFX?.clear(this);if(this.arrivalGlobe){this.arrivalGlobe.visible=false;this.arrivalGlobe.material.opacity=0;}this.arrival.end.copy(this.shipGroup.position);this.arrival.departure=true;this.arrival.yaw=this.cameraYaw||0;this.arrival.cameraStart=this.camera.position.clone();this.arrival.sky=this.scene.background.clone();document.getElementById('surface-exit').hidden=true;document.getElementById('surface-land').hidden=true;document.getElementById('surface-success')?.remove?.();
+      if(s){s.fuel-=depCost;s.save();}this.beginArrival({departure:true});window.EntryFX?.clear(this);if(this.arrivalGlobe){this.arrivalGlobe.visible=false;this.arrivalGlobe.material.opacity=0;}this.arrival.end.copy(this.shipGroup.position);this.arrival.departure=true;this.arrival.yaw=this.cameraYaw||0;this.arrival.cameraStart=this.camera.position.clone();this.arrival.sky=this.scene.background.clone();document.getElementById('surface-exit').hidden=true;document.getElementById('surface-land').hidden=true;document.getElementById('surface-success')?.remove?.();
     }
 
 
 
-    clearArrivalGlobe(){window.EntryFX?.clear(this);if(this.arrivalGlobe){this.scene.remove(this.arrivalGlobe);this.arrivalGlobe.geometry.dispose();this.arrivalGlobe.material.map?.dispose();this.arrivalGlobe.material.dispose();this.arrivalGlobe=null;}if(this.terrain)this.terrain.visible=true;if(this.ecosystem)this.ecosystem.visible=true;if(this.livingEarth)this.livingEarth.group.visible=true;if(this.worldDetails)this.worldDetails.group.visible=true;if(this.environment?.clouds)this.environment.clouds.forEach(c=>c.visible=true);}
+    clearArrivalGlobe() {
+      this.closeCretaceousTravel();
+      window.EntryFX?.clear(this);
+      if (this.transitionShadowAutoUpdate != null) {
+        this.renderer.shadowMap.autoUpdate = this.transitionShadowAutoUpdate;
+        this.renderer.shadowMap.needsUpdate = true;
+        this.transitionShadowAutoUpdate = null;
+      }
+      if (this.transitionPixelRatio != null) {
+        this.renderer.setPixelRatio(this.transitionPixelRatio);
+        this.transitionPixelRatio = null;
+      }
+      if (this.arrivalGlobe) {
+        this.scene.remove(this.arrivalGlobe);
+        this.arrivalGlobe.geometry.dispose();
+        this.arrivalGlobe.material.map?.dispose();
+        this.arrivalGlobe.material.dispose();
+        this.arrivalGlobe = null;
+      }
+      if (this.terrain) this.terrain.visible = true;
+      if (this.ecosystem) this.ecosystem.visible = true;
+      if (this.livingEarth) this.livingEarth.group.visible = true;
+      if (this.worldDetails) this.worldDetails.group.visible = true;
+      if (this.environment?.clouds) this.environment.clouds.forEach(cloud => { cloud.visible = true; });
+    }
 
     completeSurfaceMission(){
       if(this.landingComplete)return;
@@ -829,13 +898,96 @@
       if(t===1){this.surfaceLift=null;this.landingComplete=false;this.cameraMount=this.camera.position.clone().sub(this.shipGroup.position).applyAxisAngle(new THREE.Vector3(0,1,0),-(this.cameraYaw||0));this.cameraPitch=0;this.pendingYaw=0;this.pendingPitch=0;this.turnRate=0;this.linearVelocity={x:0,y:0,z:0};this.clock.getDelta();}
     }
 
-    beginArrival(){
+    showCretaceousTravel() {
+      if (window.navigator?.onLine === false) return;
+      const dialog = document.createElement('dialog');
+      dialog.setAttribute('aria-label', 'Viaje al planeta cretácico');
+      dialog.style.cssText = 'width:min(960px,94vw);padding:16px;border:1px solid #38617a;border-radius:16px;background:#030916;color:#edf7ff;';
+      const frame = document.createElement('iframe');
+      frame.title = 'Dizzying space travel · Canary Games';
+      frame.allow = 'autoplay; fullscreen';
+      frame.style.cssText = 'display:block;width:100%;height:min(65vh,540px);border:0;';
+      const credits = document.createElement('a');
+      credits.textContent = 'Dizzying space travel · Canary Games · CC BY 4.0';
+      credits.href = 'https://sketchfab.com/3d-models/24-dizzying-space-travel-inktober2019-08ee5e4cabee421ebf0b2cc927d4d6fc';
+      credits.target = '_blank';
+      credits.rel = 'noopener';
+      credits.style.cssText = 'display:inline-block;margin:12px 0;color:#8edfff;';
+      const skip = document.createElement('button');
+      skip.type = 'button';
+      skip.textContent = 'Continuar descenso';
+      skip.style.cssText = 'display:block;padding:10px 16px;border:0;border-radius:8px;background:#8edfff;color:#04101f;cursor:pointer;';
+      dialog.append(frame, credits, skip);
+      document.body.appendChild(dialog);
+      const travel = { dialog, frame, timeout: null };
+      this.cretaceousTravel = travel;
+      const finish = () => {
+        if (this.cretaceousTravel === travel) this.closeCretaceousTravel();
+      };
+      skip.addEventListener('click', finish);
+      dialog.addEventListener('cancel', event => { event.preventDefault(); finish(); });
+      dialog.addEventListener('close', finish);
+      dialog.showModal();
+      skip.focus();
+      travel.timeout = setTimeout(finish, 20000);
+      loadSketchfabViewer().then(Sketchfab => {
+        if (this.cretaceousTravel !== travel) return;
+        const client = new Sketchfab('1.12.1', frame);
+        client.init('08ee5e4cabee421ebf0b2cc927d4d6fc', {
+          autostart: 1, animation_autoplay: 1, camera: 0, dnt: 1,
+          success: api => {
+            if (this.cretaceousTravel !== travel) { api.stop(); return; }
+            travel.api = api;
+            api.addEventListener('animationEnded', finish);
+            api.addEventListener('viewerready', () => {
+              if (this.cretaceousTravel !== travel) return;
+              api.setCycleMode('one');
+              api.seekTo(0);
+              api.play();
+              api.getAnimations((error, animations) => {
+                if (this.cretaceousTravel !== travel) return;
+                clearTimeout(travel.timeout);
+                const duration = Number(animations?.[0]?.[2]);
+                const seconds = !error && Number.isFinite(duration) && duration > 0 ? duration : 10;
+                travel.timeout = setTimeout(finish, (seconds + 5) * 1000);
+              });
+            });
+            api.start();
+          },
+          error: finish
+        });
+      }).catch(finish);
+    }
+
+    closeCretaceousTravel() {
+      const travel = this.cretaceousTravel;
+      if (!travel) return;
+      this.cretaceousTravel = null;
+      clearTimeout(travel.timeout);
+      travel.api?.stop();
+      travel.frame.src = 'about:blank';
+      travel.dialog.close();
+      travel.dialog.remove();
+      this.clock.getDelta();
+    }
+
+    beginArrival({ departure = false } = {}){
 
 
 
       this.clearArrivalGlobe();const textureKey=this.planetKey==='earth'?'earth_daymap':this.planetKey==='venus'?'venus_atmosphere':this.planetKey;const globeMat=new THREE.MeshStandardMaterial({color:this.planetKey==='uranus'?0x9ed9ed:0xffffff,roughness:.9,transparent:true,fog:false});this.arrivalGlobe=new THREE.Mesh(new THREE.SphereGeometry(3500,64,48),globeMat);this.arrivalGlobe.position.set(0,-3500,0);this.scene.add(this.arrivalGlobe);const globe=this.arrivalGlobe;new THREE.TextureLoader().load('assets/2k_'+textureKey+'.jpg',map=>{if(this.arrivalGlobe!==globe){map.dispose();return;}map.encoding=THREE.sRGBEncoding;globeMat.map=map;globeMat.needsUpdate=true;},undefined,()=>{});this.arrival={time:0,end:this.shipGroup.position.clone()};this.arrival.end.y=Math.max(this.arrival.end.y,180);this.currentCameraMode='chase';this.keys={};
       const clouded=['earth','venus','uranus','saturn','jupiter','neptune'].includes(this.planetKey);this.arrival.clouded=clouded;
-      if(clouded){const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d'),g=ctx.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,.72)');g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(0,0,128,128);for(let i=0;i<14;i++){const x=24+(i*31)%80,y=32+(i*17)%60,r=16+i%4*4, puff=ctx.createRadialGradient(x,y,0,x,y,r);puff.addColorStop(0,'rgba(238,246,255,.38)');puff.addColorStop(1,'rgba(200,220,240,0)');ctx.fillStyle=puff;ctx.fillRect(x-r,y-r,r*2,r*2);}const map=new THREE.CanvasTexture(canvas);this.arrivalClouds=new THREE.Group();for(let i=0;i<44;i++){const cloud=new THREE.Sprite(new THREE.SpriteMaterial({map,transparent:true,opacity:0,depthWrite:false}));cloud.position.set(Math.sin(i*7)*185,0,Math.cos(i*11)*205);cloud.scale.set(170+i%5*34,95+i%4*22,1);this.arrivalClouds.add(cloud);}this.scene.add(this.arrivalClouds);}
+      if (this.renderer.getPixelRatio && this.renderer.setPixelRatio) {
+        this.transitionPixelRatio = this.renderer.getPixelRatio();
+        this.renderer.setPixelRatio(Math.min(this.transitionPixelRatio, 1, 1280 / Math.max(1, window.innerWidth || 1280)));
+      }
+      if (this.renderer.shadowMap) {
+        this.transitionShadowAutoUpdate = this.renderer.shadowMap.autoUpdate;
+        this.renderer.shadowMap.autoUpdate = false;
+        this.renderer.shadowMap.needsUpdate = false;
+      }
+      if(clouded){const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d'),g=ctx.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,.72)');g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(0,0,128,128);for(let i=0;i<14;i++){const x=24+(i*31)%80,y=32+(i*17)%60,r=16+i%4*4, puff=ctx.createRadialGradient(x,y,0,x,y,r);puff.addColorStop(0,'rgba(238,246,255,.38)');puff.addColorStop(1,'rgba(200,220,240,0)');ctx.fillStyle=puff;ctx.fillRect(x-r,y-r,r*2,r*2);}const map=new THREE.CanvasTexture(canvas);this.arrivalClouds=new THREE.Group();for(let i=0;i<10;i++){const cloud=new THREE.Sprite(new THREE.SpriteMaterial({map,transparent:true,opacity:0,depthWrite:false}));cloud.position.set(Math.sin(i*7)*185,0,Math.cos(i*11)*205);cloud.scale.set(170+i%5*34,95+i%4*22,1);this.arrivalClouds.add(cloud);}this.scene.add(this.arrivalClouds);}
+      if (this.ancientEarth && !departure) this.showCretaceousTravel();
     }
 
     updateArrival(dt){
@@ -846,11 +998,11 @@
 const heat=Math.max(0,1-t/.45);
 if(heat>0){const sh=heat*heat;this.camera.position.x+=Math.sin(a.time*23)*sh*2.6;this.camera.position.y+=Math.cos(a.time*31)*sh*1.9;this.camera.position.z+=Math.sin(a.time*27+1)*sh*2.2;}
 this.camera.fov=64+heat*14-(t>.78?(t-.78)/.22*5:0);this.camera.updateProjectionMatrix();
-this.shipSpeed=Math.round(250*(1-level*.78));this.ship.update(dt,60+190*(1-level),{roll:roll*4,pitch:-pitch*1.4,brake:t>.52&&t<.9,boost:t<.38,gear:false,rcs:t>.42});this.keys={};this.airlessLandscape?.update();if(this.arrivalGlobe){this.arrivalGlobe.position.set(this.shipGroup.position.x*(1-ease),-3500-1100*Math.pow(1-ease,1.35),this.shipGroup.position.z*(1-ease)-900*(1-ease));const gFade=Math.max(0,Math.min(1,(t-.32)/.38));this.arrivalGlobe.material.opacity=1-gFade*gFade*(3-2*gFade);this.arrivalGlobe.visible=t<.72;this.terrain.visible=t>.25;this.ecosystem.visible=t>.32;if(this.livingEarth)this.livingEarth.group.visible=t>.42;if(this.worldDetails)this.worldDetails.group.visible=t>.42;if(this.environment?.clouds)this.environment.clouds.forEach(c=>c.visible=t>.25);if(t<.2){this.scene.background.set(0x01030a);this.scene.fog.density=0;if(this.environment?.sky)this.environment.sky.visible=false;this.stars.visible=true;}else if(this.environment?.sky)this.environment.sky.visible=true;}
+this.shipSpeed=Math.round(250*(1-level*.78));this.ship.update(dt,60+190*(1-level),{roll:roll*4,pitch:-pitch*1.4,brake:t>.52&&t<.9,boost:t<.38,gear:false,rcs:t>.42});this.keys={};this.airlessLandscape?.update();if(this.arrivalGlobe){this.arrivalGlobe.position.set(this.shipGroup.position.x*(1-ease),-3500-1100*Math.pow(1-ease,1.35),this.shipGroup.position.z*(1-ease)-900*(1-ease));const gFade=Math.max(0,Math.min(1,(t-.32)/.38));this.arrivalGlobe.material.opacity=1-gFade*gFade*(3-2*gFade);this.arrivalGlobe.visible=t<.72;this.terrain.visible=t>.25;this.ecosystem.visible=t>.32;if(this.livingEarth)this.livingEarth.group.visible=false;if(this.worldDetails)this.worldDetails.group.visible=false;if(this.environment?.clouds)this.environment.clouds.forEach(c=>c.visible=false);if(t<.2){this.scene.background.set(0x01030a);this.scene.fog.density=0;if(this.environment?.sky)this.environment.sky.visible=false;this.stars.visible=true;}else if(this.environment?.sky)this.environment.sky.visible=true;}
       if(a.clouded&&this.environment?.sky){const space=Math.max(0,1-t/.4);const u=this.environment.sky.material.uniforms;u.zenith.value.lerp(new THREE.Color(0x010511),space);u.horizon.value.lerp(new THREE.Color(0x143351),space*.7);this.stars.visible=t<.3;this.stars.material.opacity=space;}
       if(this.arrivalClouds){this.arrivalClouds.position.copy(this.shipGroup.position);this.arrivalClouds.children.forEach((c,i)=>{c.position.y=((a.time*235+i*37)%640)-320;c.position.x=Math.sin(i*7+a.time*.18)*(135+(i%3)*25);c.rotation.z=Math.sin(i)*.3+a.time*.025;const layer=Math.max(0,1-Math.abs(t-.55)/.34);c.material.opacity=layer*layer*.92;});}
       window.EntryFX?.update(this,t,dt,{departure:false,clouded:a.clouded});
-      window.ReactiveFlight?.update(this,dt,{entry:true});
+      // EntryFX ya representa la estela durante el descenso.
       const stageLabel=this.ancientEarth?(t<.28?'🦖 ENTRADA ORBITAL 360° · PLANETA CRETÁCICO':t<.68?'🌋 VISTA PANORÁMICA 360° · DINOSAURIOS Y CALDERAS ACTIVAS':'🦕 SOBREVUELO RASANTE 360° · ATERRIZAJE EN LA TIERRA PRIMITIVA'):a.clouded?(t<.22?'🔥 Entrada orbital hipersónica · Ionización Mach 25':t<.52?'⚡ Escudo de plasma térmico · Casco a 1,800 °C':t<.78?'☁️ Perforando manto de nubes · Aerofrenos activos':'🧭 Nivelando planeo de aproximación sobre el terreno'):(t<.45?'🚀 Descenso orbital balístico de precisión':t<.82?'🔥 Retropropulsión iónica de frenado':'🧭 Nivelando aproximación sobre la superficie');
       document.getElementById('surface-telemetry').textContent=stageLabel+' · '+this.shipSpeed+' m/s · '+Math.round(this.shipGroup.position.y-heightAt(this.shipGroup.position.x,this.shipGroup.position.z,this.planetKey))+' m sobre el terreno';this.renderer.render(this.scene,this.camera);
       if(t===1){window.EntryFX?.clear?.(this);this.camera.fov=64;this.camera.updateProjectionMatrix();this.clearArrivalGlobe();if(this.arrivalClouds){const map=this.arrivalClouds.children[0]?.material.map;this.arrivalClouds.children.forEach(c=>c.material.dispose());map?.dispose();this.scene.remove(this.arrivalClouds);this.arrivalClouds=null;}this.arrival=null;this.cameraMount=this.camera.position.clone().sub(this.shipGroup.position);this.cameraYaw=0;this.cameraPitch=0;this.pendingYaw=0;this.pendingPitch=0;this.turnRate=0;this.shipSpeed=0;this.verticalSpeed=0;this.linearVelocity={x:0,y:0,z:0};this.clock.getDelta();}
@@ -863,6 +1015,11 @@ this.shipSpeed=Math.round(250*(1-level*.78));this.ship.update(dt,60+190*(1-level
 
 
       const a=this.arrival;a.time+=dt;const t=Math.min(1,a.time/10),rise=t*t*(3-2*t),lift=Math.max(0,1-t/.34);this.keys={};
+      const surfaceDetailsVisible = t < .15;
+      if (this.environment?.clouds) this.environment.clouds.forEach(cloud => { cloud.visible = false; });
+      if (this.ecosystem) this.ecosystem.visible = surfaceDetailsVisible;
+      if (this.livingEarth) this.livingEarth.group.visible = surfaceDetailsVisible;
+      if (this.worldDetails) this.worldDetails.group.visible = surfaceDetailsVisible;
 
 
 
@@ -903,8 +1060,16 @@ this.shipSpeed=Math.round(250*(1-level*.78));this.ship.update(dt,60+190*(1-level
 
 
     update(){
-      if(!this.isActive)return;const dt=Math.min(this.clock.getDelta(),.1);window.Fluidity?.frame(this.renderer,dt);this.impactCooldown=Math.max(0,(this.impactCooldown||0)-dt);
-      if(this.arrival){this.updateArrival(dt);return;}
+      if (!this.isActive) return;
+      if (document.hidden || this.cretaceousTravel) { this.clock.getDelta(); return; }
+      const now = Date.now();
+      if (this.arrival && this.lastTransitionFrame != null && now - this.lastTransitionFrame < 1000 / 30 - 1) return;
+      this.lastTransitionFrame = this.arrival ? now : null;
+      const elapsed = this.clock.getDelta();
+      const dt = Math.min(elapsed, .1);
+      this.impactCooldown = Math.max(0, (this.impactCooldown || 0) - dt);
+      if(this.arrival){this.updateArrival(Math.min(elapsed, .5));return;}
+      window.Fluidity?.frame(this.renderer,dt);
       if(window.ExplorationUpgrades?.open||document.querySelector('dialog#stellar-map[open]')){this.keys={};this.renderer.render(this.scene,this.camera);return;}
       window.ExplorationUpgrades?.update(this,dt);
       if(window.NatureJournal?.open){this.keys={};this.renderer.render(this.scene,this.camera);return;}

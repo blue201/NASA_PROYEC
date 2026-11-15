@@ -40,9 +40,9 @@
 
 
 
-   if(profiles[this.key].air){const mat=new THREE.SpriteMaterial({map:this.texture,color:this.key==='venus'?0xc9af75:0xe4eef5,transparent:true,opacity:.6,depthWrite:false});for(let i=0;i<110;i++){const cloud=new THREE.Sprite(mat);cloud.position.set(Math.sin(i*7.7)*6500,1100+(i%7)*110,Math.cos(i*4.1)*6500);cloud.scale.set(1100+(i%4)*230,400+(i%3)*120,1);if(this.key==='uranus'){cloud.position.x*=.22;cloud.position.z*=.22;cloud.position.y=700+(i%7)*120;cloud.scale.multiplyScalar(.7);mat.color.setHex(0x7a9dad);}cloud.scale.multiplyScalar(1.45);this.clouds.push(cloud);this.group.add(cloud);}}
+   if(profiles[this.key].air){const mat=new THREE.SpriteMaterial({map:this.texture,color:this.key==='venus'?0xc9af75:0xe4eef5,transparent:true,opacity:.6,depthWrite:false});for(let i=0;i<32;i++){const cloud=new THREE.Sprite(mat);cloud.position.set(Math.sin(i*7.7)*6500,1100+(i%7)*110,Math.cos(i*4.1)*6500);cloud.scale.set(1100+(i%4)*230,400+(i%3)*120,1);if(this.key==='uranus'){cloud.position.x*=.22;cloud.position.z*=.22;cloud.position.y=700+(i%7)*120;cloud.scale.multiplyScalar(.7);mat.color.setHex(0x7a9dad);}cloud.scale.multiplyScalar(1.45);this.clouds.push(cloud);this.group.add(cloud);}}
 
-   const vertices=new Float32Array(1200*6);this.precip=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xbadcec,transparent:true,opacity:.55}));this.precip.geometry.setAttribute('position',new THREE.BufferAttribute(vertices,3));this.group.add(this.precip);
+   const vertices=new Float32Array(400*6);this.precip=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xbadcec,transparent:true,opacity:.55}));this.precip.geometry.setAttribute('position',new THREE.BufferAttribute(vertices,3));this.group.add(this.precip);
 
    this.splashes=new THREE.InstancedMesh(new THREE.RingGeometry(.15,1,12),new THREE.MeshBasicMaterial({color:0xcce3ed,side:THREE.DoubleSide,transparent:true,opacity:.3,depthWrite:false}),80);this.group.add(this.splashes);this.splashDummy=new THREE.Object3D();
 
@@ -67,7 +67,7 @@
    if(this.key==='mercury'){e.scene.background.set(0x24100b);e.scene.fog.color.set(0xb85222);e.scene.fog.density=.000045;e.sunLight.color.set(0xffb16b);e.stars.visible=true;}else{e.sunLight.color.set(0xffffff);}if(this.key==='uranus'){e.scene.background.set(0x91bbec);e.scene.fog.color.set(0x91bbec);e.scene.fog.density=.0016+c.storm*.0018;}
    for(const cloud of this.clouds){if(this.key==='earth')cloud.material.color.setScalar(.22+c.daylight*.78);cloud.position.x+=dt*(3+c.storm*20);if(cloud.position.x>7500)cloud.position.x=-7500;cloud.material.opacity=this.key==='mars'?.16:this.key==='uranus'?.75:.6+c.storm*.2;}
 
-   this.precip.material.opacity=.12+c.storm*.35;this.precip.geometry.setDrawRange(0,Math.floor(c.storm*1200)*2);
+   this.precip.material.opacity=.12+c.storm*.35;this.precip.geometry.setDrawRange(0,Math.floor(c.storm*400)*2);
 
    const snow=b==='Glaciar',rain=this.key==='earth'&&!snow;this.precip.visible=c.storm>.08&&c.air&&this.key!=='venus';this.precip.position.copy(p);const a=this.precip.geometry.attributes.position;for(let i=0;i<a.count;i+=2){const n=i/2,x=((Math.sin(n*32.7)*230+this.t*c.wind*.8)%460+460)%460-230,z=Math.cos(n*78.1)*230,y=((n*17-this.t*(rain?65:snow?8:32))%350+350)%350-80;a.setXYZ(i,x,y,z);a.setXYZ(i+1,x-c.wind*.06,y+(rain?3.5:snow?.5:2),z);}a.needsUpdate=true;this.precip.material.color.setHex(this.key==='mars'?0xc88d57:snow?0xffffff:0x9dcde7);
 

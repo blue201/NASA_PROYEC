@@ -28,6 +28,33 @@
 </head>
 <body>
 
+  <dialog id="start-menu" class="start-menu" aria-labelledby="start-title" aria-describedby="start-menu-status">
+    <div class="start-menu-flight" aria-hidden="true"><span class="start-menu-stars"></span><svg class="start-menu-ship" viewBox="0 0 260 150"><defs><linearGradient id="menu-ship-hull" x2="0" y2="1"><stop stop-color="#f4fbff"/><stop offset=".55" stop-color="#90b5c9"/><stop offset="1" stop-color="#375268"/></linearGradient><radialGradient id="menu-engine-glow"><stop stop-color="#fff"/><stop offset=".35" stop-color="#8be7ff"/><stop offset="1" stop-color="#1387ff" stop-opacity="0"/></radialGradient></defs><ellipse cx="51" cy="79" rx="44" ry="38" fill="url(#menu-engine-glow)"/><path d="M31 75 104 56 216 70 245 79 216 88 104 101 31 83 10 79Z" fill="url(#menu-ship-hull)" stroke="#e5f8ff" stroke-width="2"/><path d="m102 59 36-45 19 51m-57 34 36 45 19-50" fill="#567c95" stroke="#d7f1ff" stroke-width="2"/><path d="m117 70 57 8-57 9-28-8Z" fill="#64d9f5" stroke="#e8fcff" stroke-width="2"/><path d="m34 75-30-11v11m30 8L4 95V83" fill="#ffbd73" opacity=".9"/></svg><span class="start-menu-orbit"></span></div>
+    <div class="start-menu-content">
+      <p class="start-menu-eyebrow">TEAM ROCKET HN</p>
+      <h1 id="start-title">Génesis</h1>
+      <p class="start-menu-tagline">Una misión para volver a empezar.</p>
+      <div id="start-menu-actions" class="start-menu-actions">
+        <button id="start-new" type="button" class="start-primary">Nueva misión</button>
+        <button id="start-load" type="button">Cargar misión</button>
+        <button id="start-options" type="button">Opciones</button>
+      </div>
+      <button id="start-menu-music" class="start-menu-music" type="button" aria-pressed="false">▶ Escuchar tema del prólogo</button>
+      <section id="start-menu-options" hidden>
+        <h2>Opciones</h2>
+        <div id="start-audio-controls"></div>
+        <button id="start-options-back" type="button">Volver</button>
+      </section>
+      <section id="start-menu-confirmation" hidden>
+        <h2>Nueva misión</h2>
+        <p>Se reemplazará el progreso de la misión guardada.</p>
+        <button id="start-confirm-new" type="button">Empezar de nuevo</button>
+        <button id="start-cancel-new" type="button">Cancelar</button>
+      </section>
+      <p id="start-menu-status" role="status"></p>
+    </div>
+  </dialog>
+
   <!-- Fondo Fotorrealista de Escenas de Deriva (Detrás del Canvas 3D) -->
   <div class="stranded-backdrop-layer" id="stranded-backdrop-layer"></div>
 
@@ -269,15 +296,15 @@
             </div>
             <div class="math-step-item">
               <span class="step-num">2. IMPULSO ORBITAL Δv (HOHMANN):</span>
-              <span class="step-eq">Δv = √(μ/r₁)·[√(2r₂/(r₁+r₂)) - 1] = <strong class="text-cyan" id="math-step-deltav">5.7 km/s</strong></span>
+              <span class="step-eq">Δv = √(μ/r₁)·[√(2r₂/(r₁+r₂)) - 1] = <strong class="text-cyan" id="math-step-deltav">Pendiente de cálculo manual</strong></span>
             </div>
             <div class="math-step-item">
-              <span class="step-num">3. TIEMPO DE TRÁNSITO CRUCERO (T):</span>
-              <span class="step-eq">T = D / V(1,000 km/s) = <strong class="text-warning" id="math-step-time">62.5 horas de vuelo</strong></span>
+              <span class="step-num">3. TIEMPO DE TRANSFERENCIA HOHMANN (T):</span>
+              <span class="step-eq">T = π√(a³/μ) = <strong class="text-warning" id="math-step-time">Pendiente de cálculo manual</strong></span>
             </div>
             <div class="math-step-item">
               <span class="step-num">4. REQUERIMIENTO DE COMBUSTIBLE:</span>
-              <span class="step-eq">Req: <strong class="text-danger" id="math-step-fuel">146.25%</strong> (Déficit: -46.25%)</span>
+              <span class="step-eq">Req: <strong class="text-danger" id="math-step-fuel">Pendiente de cálculo manual</strong></span>
             </div>
             <div class="math-step-item">
               <span class="step-num">5. CONSUMO DE OXÍGENO VITAL:</span>
@@ -285,9 +312,7 @@
             </div>
           </div>
 
-          <div class="math-risk-notice" id="math-risk-notice">
-            🚨 <strong>ADVERTENCIA MATEMÁTICA:</strong> Los suministros base no alcanzan para el vuelo continuo. <strong>Debes realizar mínimo 2 acoples de reabastecimiento (QTE)</strong> con satélites en ruta. Si fallas los acoples, ¡la nave quedará varada y desolada a la deriva en el vacío!
-          </div>
+          <div class="math-risk-notice" id="math-risk-notice">Resuelve la transferencia y revisa las necesidades de combustible antes del despegue.</div>
 
           <button type="button" id="open-math-modal-btn" class="calc-open-modal-btn glow-effect">
             <span class="btn-flare"></span>
@@ -1215,13 +1240,14 @@
       <!-- Barra de Progreso y Escaneo Matemático en Tiempo Real -->
       <div class="calc-progress-section">
         <div class="calc-progress-label-row">
-          <span class="calc-status-text" id="calc-status-indicator">PROCESANDO INTEGRACIÓN ORBITAL KEPLERIANA...</span>
+          <span class="calc-status-text" id="calc-status-indicator">El piloto resolverá cada etapa antes del despegue.</span>
           <span class="calc-pct-text text-cyan" id="calc-progress-pct">0%</span>
         </div>
         <div class="calc-progress-track">
           <div class="calc-progress-fill" id="calc-progress-fill" style="width: 0%;"></div>
         </div>
       </div>
+      <p class="calc-player-instructions">Resuelve a mano las cinco etapas. Introduce el resultado con su unidad y compruébalo para desbloquear la siguiente.</p>
 
       <!-- Grid de Tarjetas de Pasos Matemáticos con Fórmulas Auténticas -->
       <div class="calc-steps-grid" id="calc-steps-grid">
@@ -1370,7 +1396,7 @@
             </div>
             <div class="step-stat-item">
               <span class="stat-lbl">Solución de Trayectoria:</span>
-              <span class="stat-val text-success" id="cstat-trajectory-status">BLOQUEO EXITOSO</span>
+              <span class="stat-val text-warning" id="cstat-trajectory-status">CÁLCULOS DEL PILOTO PENDIENTES</span>
             </div>
           </div>
         </div>
@@ -1383,7 +1409,7 @@
         </button>
         <button type="button" id="execute-flight-plan-btn" class="launch-btn glow-effect calc-execute-btn" disabled>
           <span class="btn-flare"></span>
-          <span class="btn-text">🚀 INICIAR VIAJE CON TRAYECTORIA CALCULADA</span>
+          <span class="btn-text">🚀 INICIAR VIAJE CON CÁLCULOS VERIFICADOS</span>
         </button>
       </div>
     </div>
@@ -1618,10 +1644,15 @@
   </aside>
 
   <button id="partial-pause-button" class="partial-pause-button" type="button" aria-haspopup="dialog" aria-controls="partial-pause-dialog" hidden>Ⅱ Pausa <kbd>Esc</kbd></button>
+  <button id="crew-diary-button" type="button" aria-haspopup="dialog" aria-controls="crew-diary-dialog" aria-label="Abrir diario de tripulación" hidden><span aria-hidden="true">📖</span><span>Diario</span></button>
+  <dialog id="crew-diary-dialog" class="crew-diary-dialog" aria-labelledby="crew-diary-title">
+    <header class="crew-diary-header"><div><small>ODYSSEY · BITÁCORA DE A BORDO</small><h2 id="crew-diary-title">Diario de tripulación</h2></div><button id="crew-diary-close" type="button" aria-label="Cerrar diario">×</button></header>
+    <div id="crew-diary-content" class="crew-diary-content"></div>
+  </dialog>
   <dialog id="partial-pause-dialog" class="mission-dialog pause-dialog" aria-labelledby="pause-title" aria-describedby="pause-description">
     <p class="mission-eyebrow">EXPEDICIÓN EN PAUSA</p>
-    <h1 id="pause-title">Configuración</h1>
-    <p id="pause-description">Juego en pausa. Ajusta el sonido a tu gusto.</p>
+    <h1 id="pause-title">Misión en pausa</h1>
+    <p id="pause-description">La misión está detenida. Ajusta las opciones o continúa la expedición.</p>
     <button id="partial-pause-resume" type="button" autofocus>Continuar expedición</button>
     <button type="button" id="pause-prologue-btn" hidden style="display:none;" aria-hidden="true"></button>
     <button type="button" id="pause-epilogue-btn" hidden style="display:none;" aria-hidden="true"></button>
@@ -1729,6 +1760,8 @@
   <script src="js/jarvis/jarvis-live.js"></script>
   <script src="js/jarvis/jarvis-chat.js"></script>
 <script src="js/jarvis/jarvis-planets.js"></script>
+  <!-- El menú publica su estado antes de que main decida cargar o iniciar la misión. -->
+  <script src="js/ui/start-menu.js"></script>
   <script src="js/core/main.js"></script>
   <script src="js/design/campaign-lock.js"></script>
 

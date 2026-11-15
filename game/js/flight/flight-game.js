@@ -267,6 +267,8 @@ class FlightGameEngine {
     this.isDragging = false;
     this.dragPrevX = 0;
     this.dragPrevY = 0;
+    this.idleCinematicActive = false;
+    this.idleCinematicElapsed = 0;
 
     // Drones y Trayectoria de Hohmann en Vuelo Integrado
     this.flightActiveDrones = [];
@@ -278,6 +280,7 @@ class FlightGameEngine {
 
     window.addEventListener('keydown', (e) => {
       const code = e.code;
+      if (!e.repeat) this.cancelIdleCinematic();
       if ((code === 'KeyV' || code === 'KeyC') && !e.repeat) {
         this.cycleCameraMode();
         return;
@@ -299,6 +302,7 @@ class FlightGameEngine {
     window.addEventListener('mousedown', (e) => {
       if (!this.isFlying || this.isStrandedCinematic) return;
       if (e.target.closest('button, a, input, select, .modal, .glass-panel, #flight-approach-bar')) return;
+      this.cancelIdleCinematic();
       this.isDragging = true;
       this.dragPrevX = e.clientX;
       this.dragPrevY = e.clientY;
@@ -323,6 +327,7 @@ class FlightGameEngine {
     window.addEventListener('touchstart', (e) => {
       if (!this.isFlying || this.isStrandedCinematic || !e.touches[0]) return;
       if (e.target.closest('button, a, input, select, .modal, .glass-panel, #flight-approach-bar')) return;
+      this.cancelIdleCinematic();
       this.isDragging = true;
       this.dragPrevX = e.touches[0].clientX;
       this.dragPrevY = e.touches[0].clientY;
@@ -401,6 +406,12 @@ class FlightGameEngine {
     }
 
     window.addEventListener('resize', () => this.onWindowResize());
+  }
+
+  cancelIdleCinematic() {
+    this.idleTime = 0;
+    this.idleCinematicActive = false;
+    this.idleCinematicElapsed = 0;
   }
 
   toggleCosmicVastnessMode() {
@@ -1643,6 +1654,32 @@ class FlightGameEngine {
           this.camera.position.x += (Math.random() - 0.5) * rumble;
           this.camera.position.y += (Math.random() - 0.5) * rumble * 0.7;
         }
+
+      // Una toma orbital ligera tras un minuto sin controles. La simulación sigue
+      // activa y cualquier tecla o arrastre devuelve la cámara al modo elegido.
+      const idleCameraAllowed = this.idleTime >= 60 && !this.isLaunching &&
+        this.currentCameraMode !== 'cockpit' && !this.isQTEActive &&
+        !window.partialPause?.isPaused && !document.hidden;
+      if (idleCameraAllowed) {
+        this.idleCinematicActive = true;
+        this.idleCinematicElapsed += delta;
+      } else if (this.idleTime < 60) {
+        this.idleCinematicActive = false;
+        this.idleCinematicElapsed = 0;
+      }
+      if (this.idleCinematicActive) {
+        const shotTime = this.idleCinematicElapsed;
+        const angle = shotTime * (Math.PI * 2 / 48);
+        const radius = 25 + 5 * Math.sin(shotTime * 0.12);
+        const height = 5 + 9 * (0.5 + 0.5 * Math.sin(shotTime * 0.09 - 0.8));
+        const cinematicPosition = new THREE.Vector3(
+          this.ship.position.x + Math.sin(angle) * radius,
+          this.ship.position.y + height,
+          this.ship.position.z + Math.cos(angle) * radius
+        );
+        this.camera.position.lerp(cinematicPosition, 1 - Math.exp(-delta * 2.2));
+        this.camera.lookAt(this.ship.position);
+      }
       }
 
       // ======================================================================

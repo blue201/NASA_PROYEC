@@ -4,7 +4,71 @@ function save(){try{localStorage.setItem(key,JSON.stringify({automatic,day,membe
 // Full communal tanks: 120 L water, 60,000 kcal food. A simulated day = 20 min of active play.
 function distribute(id,type,amount,s=window.ExpeditionSystems?.state){const m=members.find(m=>m.id===id);if(!m||!s||!['water','food'].includes(type)||!Number.isFinite(s[type])||!Number.isFinite(amount)||amount<=0)return 0;const field=type==='water'?'reserveWater':'reserveFood',units=type==='water'?1.2:600,n=Math.max(0,Math.min(amount,s[type]*units,m[type]*2-m[field]));s[type]=Math.max(0,s[type]-n/units);m[field]+=n;s.save?.();save();return n;}
 function tick(s,dt){if(!Number.isFinite(dt)||document.hidden||window.partialPause?.isPaused)return;dt=Math.max(0,Math.min(.1,dt));const days=dt*(s.resourceFactor??1)/1200;day+=days;for(const m of members){let lacking=0;for(const type of ['water','food']){const field=type==='water'?'reserveWater':'reserveFood',used=type==='water'?'waterUsed':'foodUsed',units=type==='water'?1.2:600,need=m[type]*days;const served=Math.min(m[field],need);m[field]-=served;m[used]+=served;const deficit=type==='water'?'thirstDays':'hungerDays';if(need>0){const fraction=1-served/need;m[deficit]=Math.max(0,m[deficit]+days*(fraction>.01?fraction:-2));}lacking+=(type==='water'?Math.max(0,m.thirstDays-.5)*25:Math.max(0,m.hungerDays-2)*10);}m.health=Math.max(0,Math.min(100,m.health+days*(lacking? -Math.min(90,lacking):m.thirstDays===0&&m.hungerDays===0?8:0)));}if(members.some(m=>m.health<=0))s.hull=Math.max(0,s.hull-dt*.15);saveClock+=dt;if(saveClock>=10){saveClock=0;s.save?.();save();}}
-function render(){if(!panel)return;const s=window.ExpeditionSystems?.state;panel.replaceChildren();const summary=document.createElement('summary');summary.textContent='Mi diario · Tripulación y suministros';panel.append(summary);const guide=document.createElement('p');guide.textContent='Agua común: '+((s?.water||0)*1.2).toFixed(1)+' L · Comida común: '+Math.round((s?.food||0)*600)+' kcal. Día de misión: '+day.toFixed(2)+'. Un día equivale a 20 min de juego activo (más lento en modo relajado).';panel.append(guide);for(const m of members){const section=document.createElement('section'),h=document.createElement('h3'),p=document.createElement('p');h.textContent=m.name+' · '+m.role;p.textContent='Necesita '+m.water+' L y '+m.food+' kcal/día. Reserva personal: '+m.reserveWater.toFixed(2)+' L / '+Math.round(m.reserveFood)+' kcal. Bienestar: '+Math.round(m.health)+'%. Agua insuficiente: '+m.thirstDays.toFixed(2)+' días; comida insuficiente: '+m.hungerDays.toFixed(2)+' días. '+(m.health<=0?'INCAPACITADO · requiere asistencia. ':m.thirstDays>.5?'DESHIDRATACIÓN · suministra agua. ':m.hungerDays>2?'INANICIÓN · suministra comida. ':'')+'Consumido: '+m.waterUsed.toFixed(2)+' L / '+Math.round(m.foodUsed)+' kcal.';section.append(h,p);for(const [type,amount,text]of [['water',.5,'Dar 0,5 L'],['food',600,'Dar 600 kcal']]){const b=document.createElement('button');b.type='button';b.textContent=text;b.disabled=!s||s[type]<=0||m[type==='water'?'reserveWater':'reserveFood']>=m[type]*2;b.onclick=()=>{distribute(m.id,type,amount);render();};section.append(b);}panel.append(section);}const help=document.createElement('p');help.textContent='Solo tú repartes las raciones. El reparto mueve recursos del almacén a cada persona; no duplica provisiones. Cada persona consume su reserva con el paso del tiempo. Sin alimento o agua baja su bienestar; el agua es más urgente. Las estaciones reponen el almacén. JARVIS es una IA y Houston permanece en la Tierra: no consumen raciones. Penalizaciones: Leo debilitado aumenta el consumo de combustible; Sofia debilitada aumenta el daño recibido; La incapacitación prolongada compromete el soporte vital y el casco. Los umbrales son reglas de juego, no plazos médicos reales.';panel.append(help);}
-window.CrewDiary={members,profiles,tick,distribute,save,get automatic(){return automatic;},modifier(id){const m=members.find(x=>x.id===id);return m?1+Math.max(0,50-m.health)/100:1;},get day(){return day;}};
-document.addEventListener('DOMContentLoaded',()=>{const pause=document.getElementById('partial-pause-dialog');if(!pause)return;panel=document.createElement('details');panel.className='genesis-inventory crew-diary';panel.id='my-diary';pause.insertBefore(panel,document.getElementById('partial-pause-resume'));render();new MutationObserver(()=>{if(pause.open)render();}).observe(pause,{attributes:true,attributeFilter:['open']});});
+function condition(member) {
+  const states = [];
+  if (member.health <= 0) states.push('Incapacitado');
+  if (member.thirstDays > .5) states.push('Deshidratación');
+  else if (member.reserveWater <= 0) states.push('Sin agua asignada');
+  if (member.hungerDays > 2) states.push('Inanición');
+  else if (member.reserveFood <= 0) states.push('Sin comida asignada');
+  return states.length ? states.join(' · ') : 'Bien alimentado e hidratado';
+}
+
+function render() {
+  if (!panel) return;
+  const state = window.ExpeditionSystems?.state;
+  const focusedId = document.activeElement?.id;
+  panel.replaceChildren();
+  const summary = document.createElement('summary');
+  summary.id = 'crew-diary-summary';
+  summary.textContent = 'Diario de tripulación';
+  panel.append(summary);
+  const guide = document.createElement('p');
+  guide.textContent = 'Almacén común · ' + ((state?.water || 0) * 1.2).toFixed(1) + ' L de agua · ' + Math.round((state?.food || 0) * 600) + ' kcal. Día de misión ' + day.toFixed(2) + '.';
+  panel.append(guide);
+  for (const member of members) {
+    const section = document.createElement('section');
+    section.className = 'crew-member';
+    const title = document.createElement('h3');
+    title.textContent = member.name + ' · ' + member.role;
+    const status = document.createElement('p');
+    status.className = 'crew-condition';
+    status.textContent = condition(member);
+    const healthLabel = document.createElement('p');
+    healthLabel.textContent = 'Bienestar ' + Math.round(member.health) + '%';
+    const health = document.createElement('progress');
+    health.max = 100;
+    health.value = member.health;
+    health.setAttribute('aria-label', 'Bienestar de ' + member.name);
+    const reserves = document.createElement('p');
+    reserves.textContent = 'Reserva personal · ' + member.reserveWater.toFixed(2) + ' L / ' + Math.round(member.reserveFood) + ' kcal. Necesita ' + member.water + ' L y ' + member.food + ' kcal por día.';
+    const actions = document.createElement('div');
+    actions.className = 'crew-actions';
+    for (const [type, amount, text] of [['water', .5, 'Dar 0,5 L de agua'], ['food', 600, 'Dar 600 kcal de comida']]) {
+      const button = document.createElement('button');
+      button.id = 'crew-' + member.id + '-' + type;
+      button.type = 'button';
+      button.textContent = text;
+      button.disabled = !state || state[type] <= 0 || member[type === 'water' ? 'reserveWater' : 'reserveFood'] >= member[type] * 2;
+      button.onclick = () => { distribute(member.id, type, amount); render(); };
+      actions.append(button);
+    }
+    section.append(title, status, healthLabel, health, reserves, actions);
+    panel.append(section);
+  }
+  const help = document.createElement('p');
+  help.textContent = 'Reparte las raciones manualmente. Se consumen durante el juego activo y se conservan al pausar. Un día simulado equivale a 20 minutos activos, más lento en modo relajado. La falta prolongada de agua o comida reduce el bienestar y perjudica la misión. Las estaciones reponen el almacén común. Los umbrales son reglas ficticias del juego.';
+  panel.append(help);
+  if (focusedId) document.getElementById(focusedId)?.focus({ preventScroll: true });
+}
+
+function openDiary() {
+  const dialog = document.getElementById('crew-diary-dialog');
+  if (!dialog || !panel) return;
+  if (!dialog.open) dialog.showModal();
+  render();
+  document.getElementById('crew-diary-close')?.focus();
+}
+window.CrewDiary={members,profiles,tick,distribute,save,condition,open:openDiary,get automatic(){return automatic;},modifier(id){const m=members.find(x=>x.id===id);return m?1+Math.max(0,50-m.health)/100:1;},get day(){return day;}};
+document.addEventListener('DOMContentLoaded',()=>{const dialog=document.getElementById('crew-diary-dialog'),content=document.getElementById('crew-diary-content');if(!dialog||!content)return;panel=document.createElement('details');panel.className='genesis-inventory crew-diary';panel.id='my-diary';panel.open=true;content.append(panel);document.getElementById('crew-diary-button')?.addEventListener('click',openDiary);document.getElementById('crew-diary-close')?.addEventListener('click',()=>dialog.close());dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});dialog.addEventListener('close',()=>document.getElementById('crew-diary-button')?.focus());render();setInterval(()=>{if(dialog.open)render();},1000);});
 })();

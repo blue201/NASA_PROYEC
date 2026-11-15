@@ -101,6 +101,35 @@ context.spaceExplorationEngine.shipGroup.position.fromArray([4,5,3500]);
 now += 14999; api.saveExpedition(); assert.equal(sequence(), explorationSequence);
 now += 1; api.saveExpedition(); assert.equal(sequence(), explorationSequence + 1);
 assert.deepEqual(Array.from(new window.MissionCheckpointStore(['mars','earth']).read().exploration.position), [4,5,3500]);
+// Surface checkpoints restore through the same entry point without replaying entry.
+const THREE = require('../assets/vendor/three-r128.min.js');
+context.THREE = THREE;
+window.ExpeditionSystems = { state: { hull: 82, save() {} } };
+window.SurfaceNavigation = { constrain: position => position };
+let restoredSurface = false;
+context.openSurface = (planet, _landing, _hull, ancient, restoring) => {
+  restoredSurface = restoring;
+  window.surfaceExplorer = { isActive: true, planetKey: planet, ancientEarth: ancient,
+    shipGroup: new THREE.Group(), landingPad: { position: new THREE.Vector3(5, 10, -10) },
+    camera: new THREE.PerspectiveCamera(), clock: { getDelta() {} },
+    cameraYaw: 0, cameraPitch: 0, currentCameraMode: 'chase',
+    stop() { this.isActive = false; } };
+};
+context.openSurface('earth', true, 82, true, false);
+window.surfaceExplorer.shipGroup.position.set(80, 200, -600);
+api.saveExpedition(true);
+const surfaceSave = new window.MissionCheckpointStore(['mars','earth']).read();
+assert.equal(surfaceSave.phase, 'surface');
+window.surfaceExplorer.arrival = {};
+assert.equal(api.captureExpedition(), null, 'a transitional frame cannot overwrite a stable save');
+api.restoreExpedition(surfaceSave);
+assert.equal(restoredSurface, true);
+assert.equal(window.surfaceExplorer.ancientEarth, true);
+assert.deepEqual(window.surfaceExplorer.shipGroup.position.toArray(), [80,200,-600]);
+surfaceSave.surface.landed = true;
+api.restoreExpedition(surfaceSave);
+assert.equal(window.surfaceExplorer.landingComplete, true);
+assert.deepEqual(window.surfaceExplorer.shipGroup.position.toArray(), [5,29,-10]);
 // Leave a persisted landing record for the graphics recovery assertions below.
 api.restoreExpedition({ phase:'landing', planet:'mars', scanned:['earth'], hull:65 });
 api.saveExpedition(true);
@@ -117,3 +146,15 @@ api.recoverExpedition(Error('repeat again'));
 assert.equal(api.paused, true);
 const preserved = sequence(); api.saveExpedition(true); assert.equal(sequence(), preserved);
 console.log('PASS: automatic resume, restored flight values, 15-second schedule, QTE exclusion, acople and phase saves, phase restoration, context loss and bounded recovery preserving checkpoints.');
+
+let startOptions;
+const menuWindow = new EventTarget();
+menuWindow.MissionCheckpointStore = window.MissionCheckpointStore;
+menuWindow.StartMenu = { awaitingChoice: true, initialize(options) { startOptions = options; } };
+const menuContext = { ...context, window: menuWindow, selectedPlanetKey: 'earth' };
+vm.createContext(menuContext);
+vm.runInContext(main.slice(start, end), menuContext);
+assert.equal(menuContext.selectedPlanetKey, 'earth', 'the start menu defers restoration until the user chooses Load');
+assert.equal(startOptions.hasSave, true);
+startOptions.onLoad();
+assert.equal(menuContext.selectedPlanetKey, 'mars');

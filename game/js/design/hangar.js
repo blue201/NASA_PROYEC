@@ -6,12 +6,25 @@
   const CATALOG_URL = 'js/design/catalog.json';
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-  const state = { catalog: null, design: MD.load(window.localStorage), opts: null, root: null };
+  let storage;
+  try { storage = window.localStorage; } catch (e) { /* El diseño funciona sin almacenamiento. */ }
+  const state = { catalog: null, design: MD.load(storage), opts: null, root: null, previouslyFocused: null };
 
-  const ready = fetch(CATALOG_URL)
-    .then((r) => r.json())
+  let catalogRequest;
+  function loadCatalog() {
+    if (state.catalog) return Promise.resolve(state.catalog);
+    if (catalogRequest) return catalogRequest;
+    catalogRequest = fetch(CATALOG_URL)
+    .then((r) => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then((c) => { state.catalog = c; return c; })
-    .catch((e) => { console.error('Hangar: no se pudo leer el catálogo', e); });
+    .catch((e) => { console.error('Hangar: no se pudo leer el catálogo', e); })
+    .finally(() => { catalogRequest = null; });
+    return catalogRequest;
+  }
+  const ready = loadCatalog();
 
   function meter(label, value, max, unit, fmt) {
     fmt = fmt || ((v) => v.toFixed(1));
@@ -44,13 +57,20 @@
   }
 
   function render() {
+    const focused = state.root.contains(document.activeElement) ? document.activeElement : null;
+    const focusedName = focused && focused.name;
+    const focusedValue = focused && focused.value;
+    const scrollPositions = ['.hg-body', '.hg-choices', '.hg-summary'].map((selector) => {
+      const element = state.root.querySelector(selector);
+      return [selector, element ? element.scrollTop : 0];
+    });
     const c = state.catalog, d = state.design, t = MD.totals(c, d);
     const lv = (o) => o.blurb + ' Hasta ' + o.maxVolumeU + 'U y ' + o.maxMassKg + ' kg · ' + MD.usd(o.costUsd);
     const orb = (o) => o.blurb + ' Necesita ' + o.requiredDeltaVms + ' m/s · contacto ' + o.contactMin + ' min por pase';
     const st = (o) => 'hasta ' + o.maxMassKg + ' kg · ' + o.volumeU + ' U · ' + MD.usd(o.costUsd);
     const subs = MD.SUBSYSTEMS.map((k, i) => group(i + 5, c.subsystems[k].label, k, c.subsystems[k].options, (o) => stats(o, t.objective, k))).join('');
     state.root.innerHTML =
-      '<div class="hg-panel" role="dialog" aria-modal="true" aria-labelledby="hg-title">' +
+      '<div class="hg-panel">' +
       '<header class="hg-head"><div><p class="hg-eyebrow">HANGAR DE DISEÑO · ANTES DEL DESPEGUE</p><h1 id="hg-title">Diseña tu misión lunar</h1>' +
       '<p class="hg-sub">Cada decisión cambia la masa, la energía y el presupuesto. No hay una única respuesta correcta.</p></div>' +
       '<button type="button" class="hg-close" data-hg="close" aria-label="Cerrar hangar">✕</button></header>' +
@@ -72,6 +92,14 @@
       '<p class="hg-source">Masas y tamaños: CubeSat 101 (NASA CSLI). Costos y potencias: balance de juego.</p>' +
       moonCard() +
       '</aside></div></div>';
+    if (focusedName) {
+      const replacement = Array.from(state.root.querySelectorAll('input')).find((input) =>
+        input.name === focusedName && input.value === focusedValue);
+      if (replacement) replacement.focus({ preventScroll: true });
+    }
+    scrollPositions.forEach(([selector, scrollTop]) => {
+      state.root.querySelector(selector).scrollTop = scrollTop;
+    });
   }
 
   // Ficha del destino con datos reales (window.MoonData, paso d). Cada dato enlaza a su fuente.
@@ -97,20 +125,22 @@
   }
 
   // Si los datos llegan con el hangar abierto, se redibuja la ficha.
-  document.addEventListener('moondata:ready', () => { if (state.root) render(); });
+  document.addEventListener('moondata:ready', () => {
+    const card = state.root && state.root.querySelector('.hg-moon');
+    if (card) card.outerHTML = moonCard();
+  });
 
   function onChange(e) {
     if (e.target.type !== 'radio') return;
     state.design[e.target.name] = e.target.value;
-    MD.save(window.localStorage, state.design);
-    const scroll = state.root.querySelector('.hg-choices').scrollTop;
+    MD.save(storage, state.design);
     render();
-    state.root.querySelector('.hg-choices').scrollTop = scroll;
   }
 
   function onClick(e) {
     const action = e.target.closest('[data-hg]') && e.target.closest('[data-hg]').dataset.hg;
     if (action === 'close') close(false);
+    if (action === 'retry') loadAndRender(state.root);
     if (action === 'launch') {
       const t = MD.totals(state.catalog, state.design);
       if (!t.ok) return;
@@ -120,33 +150,53 @@
 
   function onKey(e) {
     e.stopPropagation(); // que las teclas no muevan la nave mientras se diseña
-    if (e.key === 'Escape') close(false);
   }
 
   function close(launched) {
     if (!state.root) return;
+    state.root.close();
     state.root.remove();
     state.root = null;
     const opts = state.opts;
     state.opts = null;
+    if (state.previouslyFocused && state.previouslyFocused.isConnected) state.previouslyFocused.focus();
+    state.previouslyFocused = null;
     if (launched && opts && opts.onLaunch) opts.onLaunch(MD.totals(state.catalog, state.design));
     if (!launched && opts && opts.onCancel) opts.onCancel();
   }
 
+  async function loadAndRender(root) {
+    root.innerHTML = '<div class="hg-panel"><header class="hg-head"><h1 id="hg-title">Cargando hangar…</h1>' +
+      '<button type="button" class="hg-close" data-hg="close">Cerrar</button></header></div>';
+    root.querySelector('button').focus();
+    await loadCatalog();
+    if (state.root !== root) return;
+    if (state.catalog) render();
+    else root.innerHTML = '<div class="hg-panel"><header class="hg-head"><h1 id="hg-title">No se pudo cargar el hangar</h1>' +
+      '<button type="button" class="hg-close" data-hg="close">Cerrar</button></header>' +
+      '<p class="hg-hint" role="alert">Comprueba la conexión y vuelve a intentarlo.</p>' +
+      '<button type="button" class="hg-launch" data-hg="retry">Reintentar</button></div>';
+    root.querySelector('input,button').focus();
+  }
+
   async function open(opts) {
-    await ready;
-    if (!state.catalog) return;
-    if (state.root) close(false);
+    if (state.root) {
+      state.root.querySelector('input:checked,button').focus();
+      return;
+    }
     state.opts = opts || null;
-    state.root = document.createElement('div');
+    state.previouslyFocused = document.activeElement;
+    state.root = document.createElement('dialog');
     state.root.className = 'hg-overlay';
+    state.root.setAttribute('aria-labelledby', 'hg-title');
+    state.root.addEventListener('cancel', (e) => { e.preventDefault(); close(false); });
     state.root.addEventListener('change', onChange);
     state.root.addEventListener('click', onClick);
     state.root.addEventListener('keydown', onKey);
     state.root.addEventListener('keyup', (e) => e.stopPropagation());
     document.body.appendChild(state.root);
-    render();
-    state.root.querySelector('input,button').focus();
+    state.root.showModal();
+    await loadAndRender(state.root);
   }
 
   // Botón fijo para abrir el hangar en cualquier momento.
@@ -175,8 +225,7 @@
           window.Hangar.lastLaunch = { totals: t, design: Object.assign({}, state.design), at: Date.now() };
           document.dispatchEvent(new CustomEvent('hangar:launch', { detail: window.Hangar.lastLaunch }));
           bypass = true;
-          btn.disabled = false;
-          btn.click();
+          try { btn.click(); } finally { bypass = false; }
         },
       });
     }, true);
