@@ -33,6 +33,11 @@ Entrega: **domingo 15 de noviembre de 2026, 17:00** (hora de Honduras).
 
 ## Pendientes anotados por RamiPosadas
 
+### Minerales de proyectos cooperativos - 15 de noviembre de 2026
+
+- Validar con el rol Datos las inferencias mineralogicas agregadas para Mercurio y Venus. Las entradas quedan con `verified: false` y abundancia desconocida; no presentarlas como yacimientos confirmados.
+- Revisar las abstracciones visuales de los nuevos depositos con el rol Modelado. Sus posiciones y cantidades son de juego, no mapas geologicos.
+
 ### Agua y comida diarias (PR #3)
 - Blue debe revisar el balance de raciones: 120 L y 60 000 kcal comunes; perfiles ficticios individuales, día de 20 minutos activos (más lento en relajado), máximo dos días asignados. No son recomendaciones médicas.
 - Conservar el fallo previo de check-jarvis-chat.cjs como incidencia separada.

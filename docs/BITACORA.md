@@ -4,6 +4,80 @@ Registro por fecha de lo hecho y lo decidido. Lo más nuevo va arriba dentro de 
 
 ## 2026-11-15
 
+### Disponibilidad por planeta y sala de espera con retratos
+El selector muestra los materiales recolectables segun el planeta configurado. La validacion del servidor consulta la API planetaria si los JSON no estan montados en el contenedor de juego. Al guardar la receta, el lobby cambia a una sala de espera con miniaturas oficiales de la tripulacion, sus minerales asignados y el inicio reservado al anfitrion.
+
+Se modifican `game/js/multiplayer/cooperative-mission.js`, `game/server/multiplayer/rooms.cjs`, el README multijugador y esta bitacora.
+
+### Reservas visibles, colisiones y mas depositos
+El selector de la sala identifica al personaje que reservo cada mineral y deshabilita ese material para el resto. En superficie, cada participante ve los drones remotos; las posiciones se interpolan y las trayectorias producen un rebote cuando los drones se encuentran. Los recursos del catalogo generan doce depositos por tipo en posiciones pseudoaleatorias separadas, con una semilla compartida por sala para que el equipo vea el mismo terreno.
+
+Se modifican `game/js/multiplayer/cooperative-mission.js`, `game/server/multiplayer/rooms.cjs`, `game/js/surface/resource-deposits.js`, los README de multijugador y esta bitacora. El ajuste en superficie queda sujeto a revision del rol de Modelado y Superficie.
+
+### Lobby cooperativo: sala de espera y asignaciones
+La sala de espera usa la imagen del dia con opacidad del 20 % y queda centrada. El sondeo solo redibuja cuando cambia el estado compartido, evitando que cierre los desplegables. Crear/unirse usa personajes canonicos de la tripulacion; el servidor impide duplicarlos y publica sus roles. Tras guardar la receta, todos ven los minerales y pueden reservar uno distinto; la reserva se sincroniza y bloquea para los demas. Solo el anfitrion validado puede guardar/iniciar, y la partida exige que cada participante seleccione un mineral. Las solicitudes de unirse ya no reutilizan credenciales antiguas de otra sala.
+
+Se modifican `game/js/multiplayer/cooperative-mission.js`, `game/server/multiplayer/rooms.cjs`, los README de multijugador y esta bitacora.
+
+### Partidas cooperativas de recolección mineral
+La sala del menu principal permite de 2 a 4 jugadores y exige dos para iniciar. El anfitrion elige una unidad medica para una condicion ficticia seleccionable, equipo especializado de navegacion o robot asistente para personas mayores; tambien define el planeta y una receta de cuatro materiales distintos. Los jugadores pueden hacer varios despliegues: un material queda bloqueado mientras otro dron lo recolecta y se registra al depositarlo. El proyecto se construye cuando el equipo entrega los cuatro tipos. Se agregan minerales documentados para la Luna, Mercurio y Venus. En Mercurio, la mineralogia se infiere de MESSENGER; en Venus, los minerales se infieren de calculos normativos sobre analisis XRF, por lo que quedan marcados como inferidos y con abundancias pendientes. Depositos y cantidades recolectables son balance de juego, no cartografia ni reservas reales.
+
+Se modifican `game/js/multiplayer/cooperative-mission.js`, `game/server/multiplayer/rooms.cjs`, `game/js/surface/resource-deposits.js`, `data/planets/moon.json`, `mercury.json`, `venus.json`, los README de multijugador, `docs/PENDIENTES.md` y esta bitacora. La carga del script y la ruta API ya estaban conectadas en la rama; los cambios en superficie requieren revision de Modelado y Datos.
+
+### Tecla Espacio y señal CRT del prólogo
+
+La tecla Espacio avanza una diapositiva del prólogo y queda aislada de los controles de vuelo; no permite retroceder ni omitirlo. Se refuerza la textura de televisor antiguo durante el prólogo y se mantiene el destello de distorsión al cambiar de escena, con versión estática para movimiento reducido.
+
+Se modifican `game/js/cinematic/cinematic-slides.js`, `game/css/styles.css` y esta bitácora.
+
+### Pausa solo con Escape y secciones en ventanas superpuestas
+
+Se oculta y desactiva el botón visible de pausa para conservar Escape como único acceso. Las secciones de controles, audio, video y configuraciones se abren en ventanas modales sobre el menú de pausa; Escape cierra primero la sección y luego reanuda la misión.
+
+Se modifican `game/index.html`, `game/js/core/partial-pause.js`, `game/css/clean-hud.css`, `game/css/player-experience.css` y esta bitácora.
+
+### Respuestas inmediatas en cálculos y diagnóstico de voz de Laica
+
+Los tres cálculos de la misión validan la opción al seleccionarla: una respuesta correcta se marca en verde y desbloquea la siguiente pregunta; una incorrecta se marca en rojo y permite reintentar sin botón de confirmación. La interfaz de Laica informa si el navegador carece de reconocimiento de voz y muestra mensajes distintos para permisos, conexión y errores de escucha.
+
+Se modifican `game/js/core/main.js`, `game/js/jarvis/jarvis-planets.js`, `game/css/clean-hud.css` y esta bitácora.
+
+### Navegación, voz Laica y diario por dificultad planetaria
+
+El mapa estelar queda sobre el estado de la nave y el botón visible de pausa se oculta durante la navegación; Escape conserva la pausa. El panel de estado muestra casco, combustible y oxígeno. El asistente visible se llama Laica y acepta comandos de voz para abrir mapa y diario, pausar/reanudar, consultar estado y viajar a destinos. El diario presenta los totales de repuestos, agua, comida y energía; la necesidad y entrega de raciones de agua/comida escalan por planeta con multiplicadores ficticios de dificultad.
+
+Se modifican `game/js/ui/player-experience.js`, `game/js/ui/crew-diary.js`, `game/js/jarvis/jarvis-planets.js`, `game/js/jarvis/jarvis-copilot.js`, `game/js/jarvis/planet-narrator.js`, `game/css/clean-hud.css` y esta bitácora.
+
+### Hangar de tres componentes y durabilidad base del dron
+
+El hangar deja tres selecciones: energía, peso del dron y resistencia. Sus valores calculan una durabilidad base de juego (55% resistencia, 25% energía y 20% peso), que viaja con los datos de lanzamiento. El peso y el blindaje se suman a masa, volumen y presupuesto, conservando las validaciones de despliegue.
+
+Se modifican `game/js/design/hangar.js`, `game/css/hangar.css` y esta bitácora. La durabilidad se entrega como dato del lanzamiento; su uso para aplicar daño al dron queda pendiente porque este cambio se limitó al hangar.
+
+### Verificaciones breves antes del despliegue
+
+El inicio de expedición requiere tres cálculos de selección múltiple: impulso total de la trayectoria, tiempo de transferencia y propelente. El hangar resume las verificaciones previas en masa/capacidad, presupuesto y energía/propulsión; se mantienen los bloqueos de diseño existentes.
+
+Se modifican `game/js/core/main.js`, `game/js/design/hangar.js`, `game/css/hangar.css` y esta bitácora.
+
+### Lanzamiento sin preguntas de autorización
+
+Se elimina el cuestionario de autorización que aparecía al salir del hangar y antes del lanzamiento. Los retos de escaneo, aterrizaje y recompensas opcionales se conservan.
+
+Se modifica `game/js/core/main.js` y se registra en esta bitácora.
+
+### Pausa organizada y retorno al menú
+
+Se amplía el diálogo de pausa con diseño rectangular y secciones plegables de controles, audio, video y configuraciones. Continuar queda como acción principal; volver al menú guarda la expedición antes de regresar a la portada. Al completar un escaneo orbital, el botón deja de mostrarse y se conserva para destinos pendientes.
+
+Se modifican `game/index.html`, `game/js/ui/clean-hud.js`, `game/js/core/audio-mixer.js`, `game/js/core/partial-pause.js`, `game/js/core/main.js`, `game/css/player-experience.css` y `docs/BITACORA.md`, con aprobación del alcance en zona común.
+
+### Cálculos breves, nave del menú y prólogo manual
+
+El ordenador orbital presenta seis preguntas de selección múltiple con opciones a dos decimales y conserva el desbloqueo por etapas. La portada reutiliza el mismo modelo Arwing que vuela durante la exploración. El prólogo ocupa toda la pantalla y solo avanza al pulsar «Siguiente»; se quitaron los controles visibles de retroceso y omisión y se desactivó el avance por teclado y temporizador.
+
+Se modifican `game/index.html`, `game/js/core/main.js`, `game/js/ui/start-menu.js`, `game/js/cinematic/cinematic-slides.js`, `game/css/clean-hud.css`, `game/css/styles.css` y `docs/BITACORA.md`, con aprobación del alcance en zona común.
+
 ### Portada orbital, diario y controles de música
 
 Se anima la nave de la portada sobre un campo estelar y se acerca el diario a una página de cuaderno ilustrado. El tema del prólogo intenta iniciarse al abrir el menú y vuelve a intentarlo con la primera interacción si el navegador bloquea el autoplay. Pausa ahora ofrece pista anterior/siguiente y pausar/reanudar; el volumen se mantiene en los controles existentes.

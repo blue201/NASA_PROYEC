@@ -52,8 +52,9 @@
     const menu = document.getElementById('partial-pause-dialog');
     if (!menu) return;
     const section = document.createElement('section');
+    section.className = 'pause-audio-mixer';
     const title = document.createElement('h2');
-    title.textContent = 'Sonido';
+    title.textContent = 'Niveles y música';
     const styleLabel = document.createElement('label');
     styleLabel.className = 'pause-music-style';
     styleLabel.append('Estilo de música');
@@ -87,6 +88,8 @@
     section.append(title, styleLabel, transport, status);
     syncToggle();
     attach(section);
-    menu.insertBefore(section, document.getElementById('partial-pause-resume'));
+    const audioContent = document.getElementById('pause-audio-content');
+    if (audioContent) audioContent.append(section);
+    else menu.insertBefore(section, document.getElementById('partial-pause-resume'));
   });
 })();

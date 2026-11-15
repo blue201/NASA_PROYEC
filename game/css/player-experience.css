@@ -11,3 +11,49 @@ body.cinematic-shot #supply-bars,body.cinematic-shot #mission-navigation,body.qu
 #forgotten-earth[hidden]{display:none!important}#forgotten-earth{border:1px solid #a9d68b;color:#d7f6c6;background:#183527;border-radius:8px;padding:12px}#discovery-progress{font-size:12px;color:#bcc9cf}#supply-bars meter::-moz-meter-bar{background:white}#sf-sys-panel{display:none!important}
 
 #expedition-approach{top:140px!important}
+
+#partial-pause-dialog {
+  box-sizing: border-box;
+  width: min(560px, calc(100vw - 32px));
+  max-width: none !important;
+  max-height: min(88vh, 860px);
+  overflow: auto;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid #718c9d;
+  border-radius: 12px !important;
+  text-align: left;
+}
+#partial-pause-dialog h1 { margin: 6px 0 8px; }
+#partial-pause-dialog #partial-pause-resume {
+  min-height: 50px;
+  margin: 14px 0 4px;
+  border: 1px solid #a6edff;
+  border-radius: 7px;
+  color: #071622;
+  background: #a6edff;
+  font-weight: 700;
+}
+.pause-settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
+.pause-section-trigger { min-height: 54px; border: 1px solid #7893a566; border-radius: 8px; color: #dceaf1; background: #071a28; font-weight: 700; cursor: pointer; }
+.pause-section-trigger:hover,.pause-section-trigger:focus-visible { border-color: #8edfff; background: #123247; }
+.pause-section-modal { box-sizing: border-box; width: min(620px, calc(100vw - 28px)); max-width: none; max-height: min(78vh, 680px); overflow: auto; margin: auto; padding: 20px; border: 1px solid #8edfff88; border-radius: 12px; color: #edf7ff; background: #071522f7; box-shadow: 0 20px 80px #000a; }
+.pause-section-modal::backdrop { background: #02060cc9; backdrop-filter: blur(6px); }
+.pause-section-modal > header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.pause-section-modal h2 { margin: 0; font-size: 18px; }
+.pause-section-modal [data-pause-modal-close] { min-width: 40px; min-height: 40px; border: 1px solid #7893a566; border-radius: 6px; color: #edf7ff; background: #102334; font-size: 22px; cursor: pointer; }
+.pause-section-content { display: grid; gap: 8px; padding: 0; }
+#pause-audio-content > .audio-controls { display: flex; flex-direction: column; align-items: stretch; gap: 8px; width: 100%; margin: 0; }
+#pause-audio-content > .audio-controls #toggle-audio-btn { width: 100%; min-height: 42px; border: 1px solid #7893a566; border-radius: 6px; color: #edf7ff; background: #102334; text-align: left; }
+.pause-section-content > button, #pause-nasa-btn { box-sizing: border-box; width: 100%; min-height: 42px; padding: 10px 12px; border: 1px solid #7893a566; border-radius: 6px; color: #edf7ff; background: #102334; text-align: left; cursor: pointer; }
+.pause-section-content > button:hover, #pause-nasa-btn:hover { border-color: #8edfff; background: #163449; }
+.pause-section-content > small { color: #bacdd7; line-height: 1.6; }
+.pause-audio-mixer h2 { margin: 4px 0; font-size: 15px; }
+.pause-audio-mixer .pause-music-hint { margin: 4px 0 0; }
+.pause-return-menu { display: block; width: auto; min-height: 42px; margin: 12px 0 0 auto; padding: 9px 14px; border: 1px solid #a87878; border-radius: 6px; color: #f1dede; background: #351d27; cursor: pointer; }
+.pause-return-menu:hover { border-color: #efaaaa; background: #49232d; }
+#scan-planet-btn[hidden] { display: none !important; }
+@media(max-width:620px) {
+  #partial-pause-dialog { width: calc(100vw - 20px); max-height: 92vh; padding: 18px; }
+  .pause-settings-grid { grid-template-columns: 1fr; }
+  .pause-section-modal { max-height: 84vh; padding: 14px; }
+}

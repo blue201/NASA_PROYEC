@@ -457,18 +457,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (calcProgressFill) calcProgressFill.style.width = '0%';
     if (calcProgressPct) calcProgressPct.textContent = '0%';
-    if (calcStatusIndicator) calcStatusIndicator.textContent = 'Resuelve cada ecuación y comprueba tu respuesta para desbloquear la siguiente etapa.';
+    if (calcStatusIndicator) calcStatusIndicator.textContent = 'Elige una respuesta en cada etapa para desbloquear la siguiente.';
     const transferDays = Math.PI * Math.sqrt(Math.pow(telemetry.a_km, 3) / 132712440018) / 86400;
     const exhaustVelocityKm = (4850 * 9.81) / 1000;
     const fuelKg = 12500 * (1 - Math.exp(-Number(telemetry.dv_total) / exhaustVelocityKm));
     const exercises = [
-      { title: '1. Semieje mayor a (km)', prompt: 'Usa a = (r1 + r2) / 2. r1 = ' + telemetry.r1_km.toLocaleString('es-HN') + ' km; r2 = ' + telemetry.r2_km.toLocaleString('es-HN') + ' km.', expected: telemetry.a_km, tolerance: Math.max(1000, telemetry.a_km * 0.001), reveal: () => { if (cstatA) cstatA.textContent = (telemetry.a_km / 1e6).toFixed(2) + ' x 10^6 km'; } },
-      { title: '2. Impulso Hohmann de salida (km/s)', prompt: 'Calcula el valor absoluto de dv1 = sqrt(mu/r1) * (sqrt(2*r2/(r1+r2)) - 1). mu = 132712440018 km^3/s^2.', expected: Number(telemetry.dv1), tolerance: 0.03, reveal: () => { if (cstatDv1) cstatDv1.textContent = '+' + telemetry.dv1 + ' km/s'; } },
-      { title: '3. Impulso Hohmann de llegada (km/s)', prompt: 'Calcula el valor absoluto de dv2 = sqrt(mu/r2) * (1 - sqrt(2*r1/(r1+r2))). Usa el mismo mu y radios.', expected: Number(telemetry.dv2), tolerance: 0.03, reveal: () => { if (cstatDv2) cstatDv2.textContent = '+' + telemetry.dv2 + ' km/s'; if (cstatDvTotal) cstatDvTotal.textContent = telemetry.dv_total + ' km/s'; if (mathStepDeltav) mathStepDeltav.textContent = telemetry.dv_total + ' km/s'; } },
-      { title: '4. Tiempo de transferencia (días)', prompt: 'Usa t = pi * sqrt(a^3/mu) y divide los segundos entre 86400. Emplea el semieje de la etapa 1.', expected: transferDays, tolerance: Math.max(0.1, transferDays * 0.002), reveal: () => { if (cstatTimeKepler) cstatTimeKepler.textContent = transferDays.toFixed(1) + ' días'; if (mathStepTime) mathStepTime.textContent = transferDays.toFixed(1) + ' días (Hohmann)'; } },
-      { title: '5. Propelente requerido (kg)', prompt: 'Usa mprop = m0 * (1 - exp(-dv/ve)); m0 = 12500 kg, Isp = 4850 s, g0 = 9.81 m/s^2 y ve = Isp*g0. Calcula dv con los resultados de las etapas 2 y 3.', expected: fuelKg, tolerance: Math.max(5, fuelKg * 0.005), reveal: () => { if (cstatFuelMass) cstatFuelMass.textContent = Math.round(fuelKg).toLocaleString('es-HN') + ' kg de plasma'; if (cstatFuelStatus) { cstatFuelStatus.textContent = telemetry.fuel_status_pct + '% de capacidad (' + (telemetry.fuel_status_pct > 100 ? 'déficit' : 'suficiente') + ')'; cstatFuelStatus.className = telemetry.fuel_status_pct > 100 ? 'stat-val text-danger font-bold' : 'stat-val text-success font-bold'; } if (mathStepFuel) mathStepFuel.textContent = telemetry.fuel_status_pct + '% de capacidad'; } },
-      { title: '6. Oxígeno necesario (%)', prompt: 'Tiempo de crucero: ' + telemetry.time_odyssey + '. Calcula O2 = horas de vuelo x 1.8%. El resultado máximo mostrado es 999%.', expected: telemetry.oxygen_status_pct, tolerance: 0.5, reveal: () => { if (cstatO2Status) { cstatO2Status.textContent = telemetry.oxygen_status_pct + '% del suministro'; cstatO2Status.className = telemetry.oxygen_status_pct > 100 ? 'stat-val text-danger font-bold' : 'stat-val text-success font-bold'; } if (mathStepOxygen) mathStepOxygen.textContent = telemetry.oxygen_status_pct + '% del suministro'; } }
+      { title: '1. Impulso total de la trayectoria (km/s)', prompt: 'Suma los impulsos de salida y llegada: Δv total = ' + Number(telemetry.dv1).toFixed(2) + ' + ' + Number(telemetry.dv2).toFixed(2) + ' km/s.', expected: Number(telemetry.dv_total), choiceStep: 0.15, reveal: () => { if (cstatA) cstatA.textContent = (telemetry.a_km / 1e6).toFixed(2) + ' x 10^6 km'; if (cstatDv1) cstatDv1.textContent = '+' + Number(telemetry.dv1).toFixed(2) + ' km/s'; if (cstatDv2) cstatDv2.textContent = '+' + Number(telemetry.dv2).toFixed(2) + ' km/s'; if (cstatDvTotal) cstatDvTotal.textContent = Number(telemetry.dv_total).toFixed(2) + ' km/s'; if (mathStepDeltav) mathStepDeltav.textContent = Number(telemetry.dv_total).toFixed(2) + ' km/s'; } },
+      { title: '2. Tiempo de transferencia (días)', prompt: 'Usa t = π × √(a³/μ) y convierte el resultado de segundos a días.', expected: transferDays, choiceStep: 0.5, reveal: () => { if (cstatTimeKepler) cstatTimeKepler.textContent = transferDays.toFixed(2) + ' días'; if (mathStepTime) mathStepTime.textContent = transferDays.toFixed(2) + ' días (Hohmann)'; } },
+      { title: '3. Propelente requerido (toneladas)', prompt: 'Aplica mprop = m0 × (1 − exp(−Δv/ve)) / 1000; m0 = 12500 kg e Isp = 4850 s.', expected: fuelKg / 1000, choiceStep: 0.5, reveal: () => { if (cstatFuelMass) cstatFuelMass.textContent = Math.round(fuelKg).toLocaleString('es-HN') + ' kg de plasma'; if (cstatFuelStatus) { cstatFuelStatus.textContent = telemetry.fuel_status_pct + '% de capacidad (' + (telemetry.fuel_status_pct > 100 ? 'déficit' : 'suficiente') + ')'; cstatFuelStatus.className = telemetry.fuel_status_pct > 100 ? 'stat-val text-danger font-bold' : 'stat-val text-success font-bold'; } if (mathStepFuel) mathStepFuel.textContent = telemetry.fuel_status_pct + '% de capacidad'; if (cstatO2Status) { cstatO2Status.textContent = Number(telemetry.oxygen_status_pct).toFixed(2) + '% del suministro'; cstatO2Status.className = telemetry.oxygen_status_pct > 100 ? 'stat-val text-danger font-bold' : 'stat-val text-success font-bold'; } if (mathStepOxygen) mathStepOxygen.textContent = Number(telemetry.oxygen_status_pct).toFixed(2) + '% del suministro'; } }
     ];
+    const makeChoices = exercise => {
+      const correct = Number(Number(exercise.expected).toFixed(2));
+      const values = new Set([correct.toFixed(2)]);
+      for (const offset of [-4, -2, 2, 4, 6, 8]) {
+        values.add(Math.max(0, Number((correct + exercise.choiceStep * offset).toFixed(2))).toFixed(2));
+        if (values.size === 4) break;
+      }
+      const choices = [...values].map(value => ({ value, correct: value === correct.toFixed(2) }));
+      for (let index = choices.length - 1; index > 0; index--) {
+        const swap = Math.floor(Math.random() * (index + 1));
+        [choices[index], choices[swap]] = [choices[swap], choices[index]];
+      }
+      return choices;
+    };
     const exerciseForms = [];
     exercises.forEach((exercise, index) => {
       const cardIndex = Math.min(index, calcStepCards.length - 1);
@@ -479,42 +490,50 @@ document.addEventListener('DOMContentLoaded', () => {
       exerciseForms[index] = form;
       const label = document.createElement('label');
       label.textContent = exercise.title;
-      label.htmlFor = 'orbital-answer-' + index;
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.id = 'orbital-answer-' + index;
-      input.step = 'any';
-      input.required = true;
-      input.autocomplete = 'off';
-      input.setAttribute('aria-label', exercise.title);
       const prompt = document.createElement('small');
       prompt.textContent = exercise.prompt;
-      const submit = document.createElement('button');
-      submit.type = 'submit';
-      submit.textContent = 'Comprobar respuesta';
+      const choices = document.createElement('fieldset');
+      choices.className = 'orbital-choice-grid';
+      choices.disabled = index !== 0;
+      choices.setAttribute('aria-label', exercise.title);
+      makeChoices(exercise).forEach((choice, choiceIndex) => {
+        const option = document.createElement('label');
+        option.className = 'orbital-choice';
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'orbital-answer-' + index;
+        input.value = choice.value;
+        input.dataset.correct = String(choice.correct);
+        input.required = true;
+        input.id = 'orbital-answer-' + index + '-' + choiceIndex;
+        const value = document.createElement('span');
+        value.textContent = choice.value;
+        option.htmlFor = input.id;
+        option.append(input, value);
+        choices.append(option);
+      });
       const feedback = document.createElement('p');
       feedback.className = 'manual-orbital-feedback';
       feedback.setAttribute('role', 'status');
-      form.append(label, input, prompt, submit, feedback);
+      form.append(label, prompt, choices, feedback);
       card.append(form);
-      input.disabled = index !== 0;
-      submit.disabled = index !== 0;
-      form.addEventListener('submit', event => {
-        event.preventDefault();
-        if (input.disabled) return;
-        const answer = Number(input.value);
-        if (!Number.isFinite(answer)) return;
-        if (Math.abs(answer - exercise.expected) > exercise.tolerance) {
-          feedback.textContent = 'No coincide. Revisa la fórmula y las unidades; inténtalo de nuevo.';
+      form.addEventListener('change', event => {
+        if (!event.target.matches('input[type="radio"]')) return;
+        if (choices.disabled) return;
+        const answer = choices.querySelector('input:checked');
+        if (!answer) return;
+        choices.querySelectorAll('.orbital-choice').forEach(option => option.classList.remove('is-correct', 'is-incorrect'));
+        if (answer.dataset.correct !== 'true') {
+          answer.closest('.orbital-choice')?.classList.add('is-incorrect');
+          feedback.textContent = 'Respuesta incorrecta. Prueba otra opción.';
           feedback.classList.add('incorrect');
-          input.focus();
           return;
         }
+        answer.closest('.orbital-choice')?.classList.add('is-correct');
         exercise.reveal();
-        feedback.textContent = 'Correcto. Etapa validada.';
+        feedback.textContent = 'Correcto. Pasando a la siguiente pregunta…';
         feedback.classList.remove('incorrect');
-        input.disabled = true;
-        submit.disabled = true;
+        choices.disabled = true;
         const next = exercises[index + 1];
         const nextCardIndex = Math.min(index + 1, calcStepCards.length - 1);
         if (next && nextCardIndex === cardIndex) {
@@ -534,12 +553,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const nextCard = calcStepCards[nextCardIndex];
           const nextForm = exerciseForms[index + 1];
           const nextInput = nextForm?.querySelector('input');
-          const nextSubmit = nextForm?.querySelector('button');
-          if (nextInput) nextInput.disabled = false;
-          if (nextSubmit) nextSubmit.disabled = false;
+          const nextChoices = nextForm?.querySelector('fieldset');
+          if (nextChoices) nextChoices.disabled = false;
           nextCard?.classList.add('active-calculating');
           if (nextCardIndex !== cardIndex && stepLockTags[nextCardIndex]) stepLockTags[nextCardIndex].textContent = 'TU TURNO';
-          if (calcStatusIndicator) calcStatusIndicator.textContent = next.title + ' listo. Resuelve y confirma el resultado.';
+          if (calcStatusIndicator) calcStatusIndicator.textContent = next.title + ' listo. Selecciona la respuesta correcta.';
           nextInput?.focus();
         } else {
           if (cstatTrajectoryStatus) {
@@ -608,6 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!pData) return;
 
     const isScanned = !!scannedPlanets[planetKey];
+    if (scanPlanetBtn) scanPlanetBtn.hidden = isScanned;
     document.getElementById('planet-conditions-box')?.classList.toggle('scan-pending', !isScanned);
 
     if (!isScanned) {
@@ -1227,12 +1246,6 @@ document.addEventListener('DOMContentLoaded', () => {
     executeFlightPlanBtn.addEventListener('click', async () => {
       if (executeFlightPlanBtn.disabled) return;
       const missionPlanetKey = selectedPlanetKey;
-      if (window.missionChallenges?.requestProgressive) {
-        executeFlightPlanBtn.disabled = true;
-        const authorized = await window.missionChallenges.requestProgressive('mission', missionPlanetKey);
-        executeFlightPlanBtn.disabled = false;
-        if (!authorized) return;
-      }
       landingEngine?.stop();
       window.surfaceExplorer?.stop();
       document.getElementById('landing-simulation-screen')?.classList.remove('active');

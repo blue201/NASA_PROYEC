@@ -23,6 +23,75 @@
     }
   }
 
+  function renderMenuShip(dialog) {
+    const canvas = document.getElementById('start-menu-ship');
+    if (!canvas || !window.THREE || typeof ArwingShip === 'undefined') return;
+    let renderer;
+    let frameId = 0;
+    let disposed = false;
+    let lastFrame = 0;
+    let resizeObserver;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+      camera.position.set(0, 2.1, 8.5);
+      camera.lookAt(0, 0, 0);
+      scene.add(new THREE.HemisphereLight(0xd9f2ff, 0x223348, 1.4));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2);
+      keyLight.position.set(3, 5, 4);
+      scene.add(keyLight);
+      const fillLight = new THREE.PointLight(0x54cfff, 1.2, 20);
+      fillLight.position.set(-4, 1, -3);
+      scene.add(fillLight);
+
+      const ship = new ArwingShip({ rotationY: Math.PI });
+      const box = new THREE.Box3().setFromObject(ship.mesh);
+      const size = box.getSize(new THREE.Vector3());
+      ship.mesh.position.sub(box.getCenter(new THREE.Vector3()));
+      ship.mesh.scale.setScalar(3.8 / Math.max(size.x, size.y, size.z));
+      scene.add(ship.mesh);
+
+      const render = now => {
+        if (disposed) return;
+        frameId = requestAnimationFrame(render);
+        if (!dialog.open || document.hidden) return;
+        const dt = Math.min(0.05, (now - lastFrame) / 1000 || 0);
+        lastFrame = now;
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) ship.mesh.rotation.y += dt * 0.16;
+        ship.update?.(dt, 120, { boost: true, rcs: false, brake: false, roll: 0, pitch: 0 });
+        const bounds = canvas.getBoundingClientRect();
+        const width = Math.max(1, Math.round(bounds.width));
+        const height = Math.max(1, Math.round(bounds.height));
+        if (canvas.width !== Math.round(width * renderer.getPixelRatio()) || canvas.height !== Math.round(height * renderer.getPixelRatio())) {
+          renderer.setSize(width, height, false);
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+        }
+        renderer.render(scene, camera);
+      };
+      resizeObserver = new ResizeObserver(() => { lastFrame = 0; });
+      resizeObserver.observe(canvas);
+      frameId = requestAnimationFrame(render);
+      dialog.addEventListener('close', () => {
+        disposed = true;
+        cancelAnimationFrame(frameId);
+        resizeObserver?.disconnect();
+        ship.mesh.traverse(object => {
+          if (object.geometry) object.geometry.dispose();
+          if (Array.isArray(object.material)) object.material.forEach(material => material.dispose());
+          else object.material?.dispose();
+        });
+        renderer.dispose();
+      }, { once: true });
+    } catch (error) {
+      renderer?.dispose();
+      console.warn('Vista de nave del menú no disponible.', error);
+    }
+  }
+
   const menu = {
     awaitingChoice: true,
     get isOpen() { return !!this.dialog?.open; },
@@ -42,6 +111,7 @@
         return;
       }
       this.dialog = document.getElementById('start-menu');
+      renderMenuShip(this.dialog);
       const actions = document.getElementById('start-menu-actions');
       const options = document.getElementById('start-menu-options');
       const confirmation = document.getElementById('start-menu-confirmation');

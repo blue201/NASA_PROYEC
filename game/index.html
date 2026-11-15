@@ -29,7 +29,7 @@
 <body>
 
   <dialog id="start-menu" class="start-menu" aria-labelledby="start-title" aria-describedby="start-menu-status">
-    <div class="start-menu-flight" aria-hidden="true"><span class="start-menu-stars"></span><svg class="start-menu-ship" viewBox="0 0 260 150"><defs><linearGradient id="menu-ship-hull" x2="0" y2="1"><stop stop-color="#f4fbff"/><stop offset=".55" stop-color="#90b5c9"/><stop offset="1" stop-color="#375268"/></linearGradient><radialGradient id="menu-engine-glow"><stop stop-color="#fff"/><stop offset=".35" stop-color="#8be7ff"/><stop offset="1" stop-color="#1387ff" stop-opacity="0"/></radialGradient></defs><ellipse cx="51" cy="79" rx="44" ry="38" fill="url(#menu-engine-glow)"/><path d="M31 75 104 56 216 70 245 79 216 88 104 101 31 83 10 79Z" fill="url(#menu-ship-hull)" stroke="#e5f8ff" stroke-width="2"/><path d="m102 59 36-45 19 51m-57 34 36 45 19-50" fill="#567c95" stroke="#d7f1ff" stroke-width="2"/><path d="m117 70 57 8-57 9-28-8Z" fill="#64d9f5" stroke="#e8fcff" stroke-width="2"/><path d="m34 75-30-11v11m30 8L4 95V83" fill="#ffbd73" opacity=".9"/></svg><span class="start-menu-orbit"></span></div>
+    <div class="start-menu-flight" aria-hidden="true"><span class="start-menu-stars"></span><canvas id="start-menu-ship" class="start-menu-ship" role="img" aria-label="Nave Odyssey"></canvas><span class="start-menu-orbit"></span></div>
     <div class="start-menu-content">
       <p class="start-menu-eyebrow">TEAM ROCKET HN</p>
       <h1 id="start-title">Génesis</h1>
@@ -1247,7 +1247,7 @@
           <div class="calc-progress-fill" id="calc-progress-fill" style="width: 0%;"></div>
         </div>
       </div>
-      <p class="calc-player-instructions">Resuelve a mano las cinco etapas. Introduce el resultado con su unidad y compruébalo para desbloquear la siguiente.</p>
+      <p class="calc-player-instructions">Elige la respuesta correcta en cada etapa. Los resultados se muestran con dos decimales.</p>
 
       <!-- Grid de Tarjetas de Pasos Matemáticos con Fórmulas Auténticas -->
       <div class="calc-steps-grid" id="calc-steps-grid">
@@ -1656,10 +1656,12 @@
     <button id="partial-pause-resume" type="button" autofocus>Continuar expedición</button>
     <button type="button" id="pause-prologue-btn" hidden style="display:none;" aria-hidden="true"></button>
     <button type="button" id="pause-epilogue-btn" hidden style="display:none;" aria-hidden="true"></button>
-    <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;">
-
-      <button type="button" id="pause-nasa-btn" style="background:#0c4a6e;border:1px solid #00f3ff;color:#e0f2fe;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;">🛰️ Consola NASA en Vivo [N]</button>
-    </div>
+    <div class="pause-settings-grid" aria-label="Opciones de expedicion">
+      <button type="button" class="pause-section-trigger" data-pause-modal-open="pause-controls-modal">Controles</button>
+      <button type="button" class="pause-section-trigger" data-pause-modal-open="pause-audio-modal">Audio</button>
+      <button type="button" class="pause-section-trigger" data-pause-modal-open="pause-video-modal">Video</button>
+      <button type="button" class="pause-section-trigger" data-pause-modal-open="pause-config-modal">Configuraciones</button>
+    </div>    <button id="pause-return-menu" class="pause-return-menu" type="button">Volver al menú principal</button>
     <p class="hangar-hint">También puedes continuar con Escape.</p>
     <details id="performance-report" class="performance-report">
       <summary>Rendimiento · referencia Full HD</summary>
@@ -1667,7 +1669,24 @@
       <p>Se excluyen la pausa, las pestañas ocultas y los primeros 2 segundos tras cada interrupción o cambio de actividad. Las muestras se separan por actividad y resolución.</p>
       <div id="performance-report-body"></div>
     </details>
-  </dialog>
+    <dialog class="pause-section-modal" id="pause-controls-modal" aria-labelledby="pause-controls-title">
+      <header><h2 id="pause-controls-title">Controles</h2><button type="button" data-pause-modal-close aria-label="Cerrar">×</button></header>
+      <div class="pause-section-content" id="pause-controls-content"></div>
+    </dialog>
+    <dialog class="pause-section-modal" id="pause-audio-modal" aria-labelledby="pause-audio-title">
+      <header><h2 id="pause-audio-title">Audio</h2><button type="button" data-pause-modal-close aria-label="Cerrar">×</button></header>
+      <div class="pause-section-content" id="pause-audio-content"></div>
+    </dialog>
+    <dialog class="pause-section-modal" id="pause-video-modal" aria-labelledby="pause-video-title">
+      <header><h2 id="pause-video-title">Video</h2><button type="button" data-pause-modal-close aria-label="Cerrar">×</button></header>
+      <div class="pause-section-content" id="pause-video-content"></div>
+    </dialog>
+    <dialog class="pause-section-modal" id="pause-config-modal" aria-labelledby="pause-config-title">
+      <header><h2 id="pause-config-title">Configuraciones</h2><button type="button" data-pause-modal-close aria-label="Cerrar">×</button></header>
+      <div class="pause-section-content" id="pause-config-content">
+        <button type="button" id="pause-nasa-btn">Consola NASA en Vivo [N]</button>
+      </div>
+    </dialog>  </dialog>
 
   <p id="recovery-status" class="recovery-status" role="status" aria-live="polite" hidden></p>
 
@@ -1815,7 +1834,7 @@
 <script src="js/world/stellar-map.js"></script><link rel="stylesheet" href="css/stellar-map.css">
 <script src="js/ui/nasa-hud-console.js"></script>
 <script src="js/cinematic/cinematic-slides.js"></script>
+<script src="js/multiplayer/cooperative-mission.js"></script>
 <div id="vertical-flight-controls" aria-label="Altura"><button id="explorer-up" aria-label="Subir">↑ Q</button><button id="explorer-down" aria-label="Bajar">↓ E</button></div>
 </body>
 </html>
-

@@ -108,6 +108,75 @@
       },
       "use": "Fuente de oxígeno (reducción con hidrógeno) y de hierro y titanio",
       "extraction": "excavar regolito de mare y procesarlo a alta temperatura (mucha energía)"
+    },
+    {
+      "id": "plagioclase",
+      "name": "Plagioclasa",
+      "location": "Highlands anorthosite and sampled lunar crust",
+      "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+      "verified": true,
+      "evidence": {
+        "value": "presencia identificada",
+        "unit": "presencia",
+        "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+        "verified": true,
+        "note": "NASA describes plagioclase feldspar as a major component of lunar anorthosite."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
+    },
+    {
+      "id": "pyroxene",
+      "name": "Piroxeno",
+      "location": "Iron-bearing minerals in lunar mare basalts",
+      "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+      "verified": true,
+      "evidence": {
+        "value": "presencia identificada",
+        "unit": "presencia",
+        "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+        "verified": true,
+        "note": "NASA identifies pyroxene in lunar basalt; this is mineral presence, not a measured mine or local abundance."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
+    },
+    {
+      "id": "olivine",
+      "name": "Olivino",
+      "location": "Iron-bearing minerals in lunar mare basalts",
+      "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+      "verified": true,
+      "evidence": {
+        "value": "presencia identificada",
+        "unit": "presencia",
+        "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+        "verified": true,
+        "note": "NASA identifies olivine in lunar basalt; this is mineral presence, not a measured mine or local abundance."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://science.nasa.gov/mission/lro/science-and-data/",
+        "verified": false,
+        "note": "Sin estimacion de abundancia local ni rendimiento de extraccion; no se inventa un valor."
+      },
+      "use": "Material de muestra para fabricar proyectos cooperativos de juego; no representa una reserva industrial comprobada.",
+      "extraction": "Deposito de juego generado para recoleccion; sus coordenadas y cantidad no son una cartografia geologica real."
     }
   ],
   "hazards": [

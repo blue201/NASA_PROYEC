@@ -10,8 +10,26 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelectorAll('#jarvis-command').forEach(input=>input.addEventListener('keydown',e=>e.stopPropagation()));
 });
 
-// Keep the existing control nodes and their handlers, but place them inside pause.
+// Reuse the existing flight controls and handlers inside the pause accordions.
 document.addEventListener('DOMContentLoaded',()=>{
- const tools=document.getElementById('flight-tools'),pause=document.getElementById('partial-pause-dialog');
- if(tools&&pause){tools.open=true;pause.insertBefore(tools,document.getElementById('partial-pause-resume'));}
+ const tools=document.getElementById('flight-tools');
+ if(!tools)return;
+ const destinations={
+  controls:document.getElementById('pause-controls-content'),
+  audio:document.getElementById('pause-audio-content'),
+  video:document.getElementById('pause-video-content'),
+  config:document.getElementById('pause-config-content')
+ };
+ const move=(id,target)=>{const element=document.getElementById(id);if(element&&target)target.append(element);};
+ const hint=tools.querySelector('.topbar-right>small');
+ if(hint)destinations.controls?.append(hint);
+ ['orbital-drone-scan','expedition-mission','surface-menu-toggle','exploration-map-toggle','exploration-guide-toggle'].forEach(id=>move(id,destinations.controls));
+ ['exploration-music-toggle','toggle-exploration-voice-btn'].forEach(id=>move(id,destinations.audio));
+ const masterAudio=document.querySelector('#ship-controls-drawer .audio-controls');
+ if(masterAudio)destinations.audio?.prepend(masterAudio);
+ ['exploration-camera-toggle','toggle-skybox-btn'].forEach(id=>move(id,destinations.video));
+ const expeditionSettings=document.querySelector('#expedition-console>details');
+ if(expeditionSettings&&destinations.config)destinations.config.prepend(expeditionSettings);
+ tools.open=true;
+ destinations.controls?.append(tools);
 });

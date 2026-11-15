@@ -218,6 +218,13 @@ body #partial-pause-dialog #flight-tools,body #partial-pause-dialog #flight-tool
 #partial-pause-dialog #flight-tools small{font:12px/1.6 system-ui;color:#bacdd7}
 #partial-pause-dialog #flight-tools button{min-height:38px}
 body:has(#partial-pause-dialog[open]) #star-map-toggle{visibility:visible;top:16px!important;right:16px!important}
+
+/* Navigation controls stay beside the ship telemetry. Escape still pauses the expedition. */
+body.exploring-space #partial-pause-button{display:none!important}
+body #partial-pause-button{display:none!important;visibility:hidden!important;pointer-events:none!important}
+body #supply-bars #star-map-toggle{position:absolute!important;top:auto!important;right:0!important;bottom:calc(100% + 10px)!important;left:auto!important;display:flex!important;visibility:visible!important;z-index:305;width:auto;max-width:min(280px,calc(100vw - 32px));min-height:44px;height:auto;box-sizing:border-box;white-space:normal;pointer-events:auto}
+body:has(#partial-pause-dialog[open]) #supply-bars #star-map-toggle{top:auto!important;right:0!important;bottom:calc(100% + 10px)!important}
+@media(max-width:600px){body #supply-bars #star-map-toggle{right:0!important;bottom:calc(100% + 8px)!important;max-width:calc(100vw - 24px)}}
 body:has(#partial-pause-dialog[open]) .surface-toolbar{visibility:visible}
 body #jarvis-commands:not([open]){max-width:calc(100vw - 220px)}
 body #star-map-toggle{max-width:calc(100vw - 190px);font-size:12px}
@@ -286,6 +293,9 @@ body #star-map-toggle{top:16px!important}@media(max-width:600px){body #star-map-
 .crew-member { padding: 16px; margin: 12px 0; border: 1px solid #ffffff20; border-radius: 12px; background: #07152280; }
 .crew-member h3 { margin: 0 0 10px; color: #edf7ff; font-size: 16px; }
 .crew-member p, .crew-diary > p { color: #c1d1dd; font-size: 13px; line-height: 1.6; }
+.crew-diary-totals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0;padding:12px;border:1px solid #8edfff44;border-radius:8px;background:#081722}
+.crew-diary-totals>div{display:grid;gap:5px;min-width:0}.crew-diary-totals strong{color:#a6edff;font-size:11px}.crew-diary-totals output{color:#f2f7fa;font-size:14px;font-weight:700;overflow-wrap:anywhere}
+@media(max-width:700px){.crew-diary-totals{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .crew-member .crew-condition { color: #ffce82; }
 .crew-member progress { width: 100%; height: 9px; accent-color: #79d1ac; }
 .crew-member .crew-actions { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -346,7 +356,7 @@ body #crew-diary-dialog { box-sizing:border-box; width:min(820px,calc(100vw - 28
 #start-menu { position:fixed; overflow:hidden; background:radial-gradient(ellipse at 76% 46%,#123b6070,transparent 46%),linear-gradient(90deg,#030914f2 0%,#061322d9 38%,#0613223d 78%),url('../assets/cinematics/prologue-01-earth.jpg') center/cover; }
 #start-menu .start-menu-flight { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; background:radial-gradient(ellipse at 76% 50%,#245c7844,transparent 47%); }
 #start-menu .start-menu-stars { position:absolute; inset:-45%; opacity:.65; background-image:radial-gradient(1px 1px at 13% 24%,#fff 99%,transparent),radial-gradient(2px 2px at 72% 28%,#d9f4ff 99%,transparent),radial-gradient(1px 1px at 62% 72%,#fff 99%,transparent),radial-gradient(1px 1px at 34% 81%,#a8dfff 99%,transparent); background-size:170px 140px,260px 210px,220px 190px,310px 230px; animation:menu-star-drift 42s linear infinite; }
-#start-menu .start-menu-ship { position:absolute; top:47%; right:12%; width:min(35vw,440px); min-width:230px; filter:drop-shadow(0 0 22px #69dfff80); animation:menu-ship-drift 9s ease-in-out infinite; }
+#start-menu .start-menu-ship { display:block; position:absolute; top:47%; right:12%; width:min(35vw,440px); height:min(30vw,250px); min-width:230px; background:transparent; filter:drop-shadow(0 0 22px #69dfff80); animation:menu-ship-drift 9s ease-in-out infinite; }
 #start-menu .start-menu-orbit { position:absolute; width:min(40vw,520px); aspect-ratio:1; top:50%; right:8%; border:1px solid #a7eaff24; border-radius:50%; transform:translateY(-50%) rotate(-22deg) scaleY(.26); box-shadow:0 0 35px #48b8e51c; }
 #start-menu .start-menu-content { position:relative; z-index:1; }
 @keyframes menu-ship-drift { 0%,100%{transform:translate3d(0,-50%,0) rotate(-3deg)}50%{transform:translate3d(20px,calc(-50% - 14px),0) rotate(2deg)} }
@@ -390,8 +400,17 @@ body #crew-diary-dialog { box-sizing:border-box; width:min(820px,calc(100vw - 28
 .manual-orbital-form label { color:#bdeeff; font:700 12px/1.4 ui-monospace,monospace; }
 .manual-orbital-form input { box-sizing:border-box; width:100%; min-height:44px; padding:9px 12px; border:1px solid #72b6cd77; border-radius:6px; color:#f1fbff; background:#030c15; font:600 16px ui-monospace,monospace; }
 .manual-orbital-form input:focus-visible { outline:2px solid #a6edff; outline-offset:2px; }
+.manual-orbital-form .orbital-choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0; padding:0; border:0; }
+.manual-orbital-form .orbital-choice { display:flex; align-items:center; gap:9px; min-height:40px; padding:8px 10px; border:1px solid #72b6cd55; border-radius:6px; background:#030c15aa; color:#e6f5fb; font:600 14px ui-monospace,monospace; cursor:pointer; }
+.manual-orbital-form .orbital-choice:has(input:checked) { border-color:#8edfff; background:#123247; box-shadow:0 0 12px #68d9ff22; }
+.manual-orbital-form .orbital-choice.is-correct { border-color:#53e39a; background:#123b30; box-shadow:0 0 14px #53e39a33; }
+.manual-orbital-form .orbital-choice.is-incorrect { border-color:#ff6d70; background:#401e28; box-shadow:0 0 14px #ff6d7033; }
+.manual-orbital-feedback.incorrect { color:#ff9294; }
+.manual-orbital-form .orbital-choice input[type="radio"] { width:16px; min-width:16px; min-height:16px; height:16px; margin:0; padding:0; accent-color:#8edfff; background:transparent; }
+.manual-orbital-form .orbital-choice-grid:disabled .orbital-choice { opacity:.55; cursor:not-allowed; }
 .manual-orbital-form small { color:#c6d8e2; font:12px/1.6 Inter,sans-serif; }
 .manual-orbital-form button { justify-self:start; min-height:38px; padding:8px 13px; border:1px solid #66c9e8; border-radius:6px; color:#071520; background:#a6edff; font:700 12px Inter,sans-serif; cursor:pointer; }
 .manual-orbital-form button:disabled,.manual-orbital-form input:disabled { opacity:.5; cursor:not-allowed; }
 .manual-orbital-feedback { min-height:1.2em; margin:0; color:#9ee8bd; font:12px/1.4 Inter,sans-serif; }
-.manual-orbital-feedback.incorrect { color:#ffd38a; }
+.manual-orbital-feedback.incorrect { color:#ff9294; }
+@media(max-width:520px){.manual-orbital-form .orbital-choice-grid{grid-template-columns:1fr}}

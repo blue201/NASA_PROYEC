@@ -5,6 +5,16 @@
   const MD = window.MissionDesign;
   const CATALOG_URL = 'js/design/catalog.json';
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const DRONE_WEIGHTS = [
+    { id: 'light', name: 'Ligero', massKg: 1.2, volumeU: 0.7, costUsd: 150000, score: 100 },
+    { id: 'balanced', name: 'Equilibrado', massKg: 2.2, volumeU: 1.1, costUsd: 260000, score: 82 },
+    { id: 'heavy', name: 'Pesado', massKg: 3.6, volumeU: 1.6, costUsd: 390000, score: 62 },
+  ];
+  const DRONE_RESISTANCE = [
+    { id: 'coating', name: 'Recubrimiento térmico', massKg: 0.4, volumeU: 0.2, costUsd: 100000, score: 62 },
+    { id: 'composite', name: 'Blindaje compuesto', massKg: 0.8, volumeU: 0.4, costUsd: 250000, score: 80 },
+    { id: 'reinforced', name: 'Aleación reforzada', massKg: 1.4, volumeU: 0.6, costUsd: 550000, score: 95 },
+  ];
 
   let storage;
   try { storage = window.localStorage; } catch (e) { /* El diseño funciona sin almacenamiento. */ }
@@ -26,12 +36,9 @@
   }
   const ready = loadCatalog();
 
-  function meter(label, value, max, unit, fmt) {
-    fmt = fmt || ((v) => v.toFixed(1));
-    const pct = Math.min(100, (value / Math.max(max, 1e-9)) * 100);
-    const over = value > max;
-    return '<div class="hg-meter' + (over ? ' over' : '') + '"><div class="hg-meter-label"><span>' + label + '</span><span>' +
-      fmt(value) + ' / ' + fmt(max) + (unit ? ' ' + unit : '') + '</span></div><div class="hg-track"><div class="hg-fill" style="width:' + pct + '%"></div></div></div>';
+  function verification(label, ok, detail) {
+    return '<li class="hg-verification ' + (ok ? 'is-ready' : 'needs-review') + '"><span class="hg-verification-state">' +
+      (ok ? 'Verificado' : 'Revisar') + '</span><strong>' + label + '</strong><small>' + esc(detail) + '</small></li>';
   }
 
   function stats(o, obj, key) {
@@ -56,6 +63,40 @@
       ).join('') + '</fieldset>';
   }
 
+  function ensureDefaults(catalog) {
+    Object.assign(state.design, {
+      objective: 'ice', launcher: 'dedicated', orbit: 'elliptic-polar', structure: '12U',
+      comms: 'uhf', instrument: 'ir', propulsion: 'cold-gas',
+    });
+    if (!catalog.subsystems.power.options.some((option) => option.id === state.design.power)) state.design.power = catalog.subsystems.power.options[0].id;
+    if (!DRONE_WEIGHTS.some((option) => option.id === state.design.droneWeight)) state.design.droneWeight = 'balanced';
+    if (!DRONE_RESISTANCE.some((option) => option.id === state.design.resistance)) state.design.resistance = 'composite';
+    MD.save(storage, state.design);
+  }
+
+  function designTotals(catalog, design) {
+    const t = MD.totals(catalog, design);
+    const weight = DRONE_WEIGHTS.find((option) => option.id === design.droneWeight) || DRONE_WEIGHTS[1];
+    const resistance = DRONE_RESISTANCE.find((option) => option.id === design.resistance) || DRONE_RESISTANCE[1];
+    t.droneWeight = weight;
+    t.droneResistance = resistance;
+    t.massKg += weight.massKg + resistance.massKg;
+    t.volumeU += weight.volumeU + resistance.volumeU;
+    t.costUsd += weight.costUsd + resistance.costUsd;
+    t.problems = t.problems.filter((problem) => !/^(Sobrepeso:|No cabe:|El .* solo acepta naves de hasta|El lanzador solo lleva|Presupuesto excedido)/.test(problem));
+    if (t.massKg > t.structure.maxMassKg && !t.problems.some((problem) => problem.startsWith('Sobrepeso:'))) t.problems.push('Sobrepeso: ' + t.massKg.toFixed(1) + ' kg de ' + t.structure.maxMassKg + ' kg permitidos en un ' + t.structure.id + '.');
+    if (t.volumeU > t.structure.volumeU && !t.problems.some((problem) => problem.startsWith('No cabe:'))) t.problems.push('No cabe: ' + t.volumeU.toFixed(1) + ' U de ' + t.structure.volumeU + ' U disponibles.');
+    if (t.launcher && t.structure.volumeU > t.launcher.maxVolumeU) t.problems.push('El ' + t.launcher.name.toLowerCase() + ' solo acepta naves de hasta ' + t.launcher.maxVolumeU + 'U.');
+    if (t.launcher && t.volumeU > t.launcher.maxVolumeU) t.problems.push('La carga ocupa ' + t.volumeU.toFixed(1) + ' U y el lanzador admite ' + t.launcher.maxVolumeU + ' U.');
+    if (t.launcher && t.massKg > t.launcher.maxMassKg && !t.problems.some((problem) => problem.startsWith('El lanzador solo lleva'))) t.problems.push('El lanzador solo lleva ' + t.launcher.maxMassKg + ' kg.');
+    if (t.costUsd > t.budgetUsd && !t.problems.some((problem) => problem.startsWith('Presupuesto excedido'))) t.problems.push('Presupuesto excedido por ' + MD.usd(t.costUsd - t.budgetUsd) + '.');
+    t.droneEnergyScore = Math.max(0, Math.min(100, Math.round((t.generationW / Math.max(t.drawW, 1)) * 100)));
+    t.droneWeightScore = weight.score;
+    t.droneDurabilityPct = Math.max(1, Math.min(100, Math.round(resistance.score * 0.55 + t.droneEnergyScore * 0.25 + weight.score * 0.20)));
+    t.ok = t.problems.length === 0;
+    return t;
+  }
+
   function render() {
     const focused = state.root.contains(document.activeElement) ? document.activeElement : null;
     const focusedName = focused && focused.name;
@@ -64,32 +105,31 @@
       const element = state.root.querySelector(selector);
       return [selector, element ? element.scrollTop : 0];
     });
-    const c = state.catalog, d = state.design, t = MD.totals(c, d);
-    const lv = (o) => o.blurb + ' Hasta ' + o.maxVolumeU + 'U y ' + o.maxMassKg + ' kg · ' + MD.usd(o.costUsd);
-    const orb = (o) => o.blurb + ' Necesita ' + o.requiredDeltaVms + ' m/s · contacto ' + o.contactMin + ' min por pase';
-    const st = (o) => 'hasta ' + o.maxMassKg + ' kg · ' + o.volumeU + ' U · ' + MD.usd(o.costUsd);
-    const subs = MD.SUBSYSTEMS.map((k, i) => group(i + 5, c.subsystems[k].label, k, c.subsystems[k].options, (o) => stats(o, t.objective, k))).join('');
+    const c = state.catalog, d = state.design, t = designTotals(c, d);
+    const structureProblems = t.problems.filter((p) => /Sobrepeso|No cabe|solo acepta naves|El lanzador solo lleva|La carga ocupa|Falta elegir (el lanzador|una estructura)/i.test(p));
+    const energyProblems = t.problems.filter((p) => /La propulsión da|Falta elegir (la propulsión|energía)/i.test(p));
+    const energyWarning = t.warnings.length > 0;
+    const checks = '<section class="hg-checks" aria-label="Verificaciones previas al despliegue"><h3>Verificaciones del dron</h3><ul>' +
+      verification('Energía', energyProblems.length === 0 && !energyWarning, energyProblems[0] || t.warnings[0] || (t.generationW + ' W generados · ' + t.drawW + ' W consumidos · aporte ' + t.droneEnergyScore + '/100')) +
+      verification('Peso', structureProblems.length === 0, structureProblems[0] || ('Dron ' + t.droneWeight.massKg.toFixed(1) + ' kg · carga total ' + t.massKg.toFixed(1) + ' kg · ' + t.volumeU.toFixed(1) + ' U')) +
+      verification('Resistencia', true, t.droneResistance.name + ' · ' + t.droneResistance.score + '/100 · durabilidad base ' + t.droneDurabilityPct + '%') +
+      '</ul></section>';
     state.root.innerHTML =
       '<div class="hg-panel">' +
       '<header class="hg-head"><div><p class="hg-eyebrow">HANGAR DE DISEÑO · ANTES DEL DESPEGUE</p><h1 id="hg-title">Diseña tu misión lunar</h1>' +
       '<p class="hg-sub">Cada decisión cambia la masa, la energía y el presupuesto. No hay una única respuesta correcta.</p></div>' +
       '<button type="button" class="hg-close" data-hg="close" aria-label="Cerrar hangar">✕</button></header>' +
       '<div class="hg-body"><div class="hg-choices">' +
-      group(1, 'Objetivo de la misión', 'objective', c.objectives, (o) => o.blurb) +
-      group(2, 'Lanzador', 'launcher', c.launchers, lv) +
-      group(3, 'Órbita lunar', 'orbit', c.orbits, orb) +
-      group(4, 'Estructura', 'structure', c.structures, st) + subs +
-      '</div><aside class="hg-summary"><h2>Tu nave ' + esc(t.structure.id) + '</h2>' +
-      meter('Masa', t.massKg, t.structure.maxMassKg, 'kg') +
-      meter('Volumen', t.volumeU, t.structure.volumeU, 'U') +
-      meter('Presupuesto', t.costUsd, t.budgetUsd, '', MD.usd) +
-      meter('Energía: consumo vs generación', t.drawW, Math.max(t.generationW, 1), 'W', (v) => v.toFixed(0)) +
-      '<p class="hg-hint">Δv: ' + t.deltaVms + ' m/s' + (t.requiredDeltaVms ? ' (tu órbita necesita ' + t.requiredDeltaVms + ')' : '') + '</p>' +
-      t.warnings.map((w) => '<p class="hg-warn">' + esc(w) + '</p>').join('') +
+      group(1, 'Energía', 'power', c.subsystems.power.options, (o) => stats(o, t.objective, 'power')) +
+      group(2, 'Peso del dron', 'droneWeight', DRONE_WEIGHTS, (o) => o.massKg.toFixed(1) + ' kg · ' + o.volumeU.toFixed(1) + ' U · ' + MD.usd(o.costUsd)) +
+      group(3, 'Resistencia del dron', 'resistance', DRONE_RESISTANCE, (o) => o.score + '/100 · ' + o.massKg.toFixed(1) + ' kg · ' + MD.usd(o.costUsd)) +
+      '</div><aside class="hg-summary"><h2>Configuración del dron</h2>' +
+      checks +
+      '<p class="hg-hint">Durabilidad = 55% resistencia + 25% energía + 20% peso. Presupuesto: ' + MD.usd(t.costUsd) + ' / ' + MD.usd(t.budgetUsd) + '.</p>' +
       (t.ok ? '<p class="hg-ok">Diseño válido. Lista para despegar.</p>' : '<ul class="hg-problems">' + t.problems.map((p) => '<li>' + esc(p) + '</li>').join('') + '</ul>') +
       '<button type="button" class="hg-launch" data-hg="launch"' + (t.ok ? '' : ' disabled') + '>' +
       (state.opts && state.opts.onLaunch ? 'Despegar' : 'Guardar diseño') + '</button>' +
-      '<p class="hg-source">Masas y tamaños: CubeSat 101 (NASA CSLI). Costos y potencias: balance de juego.</p>' +
+      '<p class="hg-source">La durabilidad, resistencia, masas y costos del dron son valores de balance de juego. Límites de la plataforma: CubeSat 101 (NASA CSLI).</p>' +
       moonCard() +
       '</aside></div></div>';
     if (focusedName) {
@@ -142,7 +182,7 @@
     if (action === 'close') close(false);
     if (action === 'retry') loadAndRender(state.root);
     if (action === 'launch') {
-      const t = MD.totals(state.catalog, state.design);
+      const t = designTotals(state.catalog, state.design);
       if (!t.ok) return;
       close(true);
     }
@@ -161,7 +201,7 @@
     state.opts = null;
     if (state.previouslyFocused && state.previouslyFocused.isConnected) state.previouslyFocused.focus();
     state.previouslyFocused = null;
-    if (launched && opts && opts.onLaunch) opts.onLaunch(MD.totals(state.catalog, state.design));
+    if (launched && opts && opts.onLaunch) opts.onLaunch(designTotals(state.catalog, state.design));
     if (!launched && opts && opts.onCancel) opts.onCancel();
   }
 
@@ -171,7 +211,7 @@
     root.querySelector('button').focus();
     await loadCatalog();
     if (state.root !== root) return;
-    if (state.catalog) render();
+    if (state.catalog) { ensureDefaults(state.catalog); render(); }
     else root.innerHTML = '<div class="hg-panel"><header class="hg-head"><h1 id="hg-title">No se pudo cargar el hangar</h1>' +
       '<button type="button" class="hg-close" data-hg="close">Cerrar</button></header>' +
       '<p class="hg-hint" role="alert">Comprueba la conexión y vuelve a intentarlo.</p>' +
@@ -222,7 +262,7 @@
       e.stopImmediatePropagation();
       open({
         onLaunch: (t) => {
-          window.Hangar.lastLaunch = { totals: t, design: Object.assign({}, state.design), at: Date.now() };
+          window.Hangar.lastLaunch = { totals: t, design: Object.assign({}, state.design), droneDurabilityPct: t.droneDurabilityPct, at: Date.now() };
           document.dispatchEvent(new CustomEvent('hangar:launch', { detail: window.Hangar.lastLaunch }));
           bypass = true;
           try { btn.click(); } finally { bypass = false; }
@@ -239,6 +279,6 @@
     open, close: () => close(false), ready, lastLaunch: null,
     get catalog() { return state.catalog; },
     get design() { return state.design; },
-    totals: () => (state.catalog ? MD.totals(state.catalog, state.design) : null),
+    totals: () => (state.catalog ? designTotals(state.catalog, state.design) : null),
   };
 })();

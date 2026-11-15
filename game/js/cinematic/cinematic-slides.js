@@ -309,7 +309,7 @@
                 <span class="cine-counter" id="cine-counter">1 / 15</span>
               </div>
               <p class="cine-dialogue" id="cine-dialogue"></p>
-              <div class="cine-reading-hint" id="cine-reading-hint">Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar</div>
+              <div class="cine-reading-hint" id="cine-reading-hint">Pulsa Siguiente cuando quieras continuar.</div>
             </div>
           </div>
 
@@ -320,7 +320,7 @@
           <footer class="cine-controls">
             <button type="button" id="cine-btn-prev" class="cine-btn">◀ Anterior</button>
             <button type="button" id="cine-btn-skip" class="cine-btn cine-btn-ghost">Omitir [Esc]</button>
-            <button type="button" id="cine-btn-next" class="cine-btn cine-btn-primary">Siguiente [Espacio] ▶</button>
+            <button type="button" id="cine-btn-next" class="cine-btn cine-btn-primary">Siguiente</button>
           </footer>
         </div>
       `;
@@ -342,7 +342,23 @@
       });
 
       window.addEventListener('keydown', (e) => {
+        if (!this.isPlaying || this.slides !== PROLOGUE_SLIDES) return;
+        if (!['Space', 'ArrowRight', 'ArrowLeft', 'Enter', 'Escape'].includes(e.code)) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (e.code === 'Space' && !e.repeat) {
+          this.syncPrologueMusic();
+          if (this.prologueAudio?.paused) this.prologueAudio.play().catch(() => {});
+          this.next();
+        }
+      }, true);
+
+      window.addEventListener('keydown', (e) => {
         if (!this.isPlaying) return;
+        if (this.slides === PROLOGUE_SLIDES) {
+          if (['Space', 'ArrowRight', 'ArrowLeft', 'Enter', 'Escape'].includes(e.code)) e.preventDefault();
+          return;
+        }
         if (e.code === 'Space' || e.code === 'ArrowRight' || e.code === 'Enter') {
           e.preventDefault();
           this.next();
@@ -381,7 +397,12 @@
       this.isPlaying = true;
       this.isPaused = false;
       if (!this.modal) this.setupDOM();
-      if (this.modal) this.modal.style.display = 'flex';
+      if (this.modal) {
+        this.modal.style.display = 'flex';
+        this.modal.classList.toggle('is-prologue', this.slides === PROLOGUE_SLIDES);
+        this.modal.querySelector('#cine-btn-prev').hidden = this.slides === PROLOGUE_SLIDES;
+        this.modal.querySelector('#cine-btn-skip').hidden = this.slides === PROLOGUE_SLIDES;
+      }
       // Encendido de televisor: la pantalla "arranca" como un tubo catódico
       const viewport = this.modal?.querySelector('.cine-viewport');
       if (viewport && !this.reducedMotion) {
@@ -550,7 +571,9 @@
       }
 
       const hint = document.getElementById('cine-reading-hint');
-      if (hint) hint.textContent = 'Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar';
+      if (hint) hint.textContent = this.slides === PROLOGUE_SLIDES
+        ? 'Pulsa Siguiente cuando quieras continuar.'
+        : 'Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar';
 
       this.timer = setTimeout(() => {
         if (!this.isPlaying || this.isPaused) return;
@@ -570,7 +593,7 @@
       const slide = this.slides[index];
 
       const stage = document.getElementById('cine-stage');
-      if (stage) stage.className = `cine-stage theme-${slide.theme}`;
+      if (stage) stage.className = `cine-stage theme-${slide.theme}${this.slides === PROLOGUE_SLIDES ? ' crt-active' : ''}`;
 
       const titleEl = document.getElementById('cine-title');
       if (titleEl) titleEl.textContent = slide.title;
@@ -647,14 +670,16 @@
       if (prevBtn) prevBtn.disabled = index === 0;
       if (nextBtn) {
         if (index === this.slides.length - 1) {
-          nextBtn.textContent = this.slides === EPILOGUE_SLIDES ? 'Finalizar Misión 🏆' : 'Iniciar Misión 🚀';
+          nextBtn.textContent = this.slides === EPILOGUE_SLIDES ? 'Finalizar Misión 🏆' : this.slides === PROLOGUE_SLIDES ? 'Iniciar Misión [Espacio] 🚀' : 'Iniciar Misión 🚀';
         } else {
           nextBtn.textContent = 'Siguiente [Espacio] ▶';
         }
       }
 
       const hint = document.getElementById('cine-reading-hint');
-      if (hint) hint.textContent = 'Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar';
+      if (hint) hint.textContent = this.slides === PROLOGUE_SLIDES
+        ? 'Pulsa [Espacio] o Siguiente para continuar. El prólogo no tiene retroceso.'
+        : 'Pasa el ratón para pausar la lectura · Pulsa [Espacio] o Siguiente para continuar';
 
       // Reproducción de audio y detención previa limpia
       this.playTickSound();
@@ -680,7 +705,11 @@
       const postSpeechBufferMs = 4500;
 
       if (this.slides === PROLOGUE_SLIDES) {
-        this.scheduleAutoAdvance(baseReadingDurationMs);
+        const progress = document.getElementById('cine-progress');
+        if (progress) {
+          progress.style.transition = 'none';
+          progress.style.width = (((index + 1) / this.slides.length) * 100) + '%';
+        }
       } else if (slide.audioSrc) {
         try {
           const audio = new Audio(slide.audioSrc);
@@ -728,6 +757,7 @@
     }
 
     prev() {
+      if (this.slides === PROLOGUE_SLIDES) return;
       if (this.currentIndex > 0) {
         this.showSlide(this.currentIndex - 1);
       }
