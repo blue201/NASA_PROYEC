@@ -1,0 +1,8 @@
+#!/bin/sh
+# Rechaza commits con firma de IA. Los commits van solo a nombre de la persona.
+if grep -qiE '^co-authored-by:.*(claude|anthropic|copilot|gemini|openai|chatgpt|cursor)|generated with|🤖' "$1"; then
+  echo "⛔ El mensaje del commit trae una firma de IA (Co-Authored-By / Generated with)."
+  echo "   Quítala: los commits van solo a tu nombre (ver AGENTS.md)."
+  exit 1
+fi
+exit 0
