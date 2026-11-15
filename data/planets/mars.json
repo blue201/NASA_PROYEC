@@ -1,0 +1,156 @@
+{
+  "id": "mars",
+  "name": "Marte",
+  "schema_version": 1,
+  "updated_at": "2026-11-14",
+  "notes": "Inventario de presencia observada, no de reservas mineras. Abundancias pendientes; null no significa cero. No se afirma ausencia de oro: no se incluye como depósito confirmado. La misión lunar conserva prioridad. Los usos y métodos de extracción son propuestas de juego, no capacidades demostradas.",
+  "physical": {
+    "radius": {
+      "value": 3390,
+      "unit": "km",
+      "source_url": "https://science.nasa.gov/mars/facts/",
+      "verified": true,
+      "note": "Radio aproximado publicado en NASA Mars Facts."
+    },
+    "rotation_period": {
+      "value": 24.6,
+      "unit": "h",
+      "source_url": "https://science.nasa.gov/mars/facts/",
+      "verified": true,
+      "note": "Tiempo aproximado de una rotación; no confundir con el período orbital ni una ruta de viaje."
+    }
+  },
+  "resources": [
+    {
+      "id": "water-ice",
+      "name": "Hielo de agua",
+      "location": "Subsuelo de las llanuras árticas estudiadas por Phoenix",
+      "source_url": "https://science.nasa.gov/mission/mars-phoenix/",
+      "verified": true,
+      "evidence": {
+        "value": "detectado",
+        "unit": "presencia",
+        "source_url": "https://science.nasa.gov/mission/mars-phoenix/",
+        "verified": true,
+        "note": "Phoenix confirmó hielo de agua en muestras del subsuelo. No se extrapola a toda la superficie."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://science.nasa.gov/mission/mars-phoenix/",
+        "verified": false,
+        "note": "Pendiente: no se asigna porcentaje global ni rendimiento de extracción a partir de esta fuente."
+      },
+      "use": "Estudiar la viabilidad de obtener agua y producir oxígeno y propelente después de procesarla; no se considera potable sin tratamiento.",
+      "extraction": "Concepto de juego pendiente de validación técnica: muestreo localizado, análisis y procesamiento. No se simula producción de metal puro."
+    },
+    {
+      "id": "iron-bearing-minerals",
+      "name": "Muestras con minerales de hierro",
+      "location": "Suelo marciano; no se delimita un yacimiento explotable",
+      "source_url": "https://science.nasa.gov/mars/facts/",
+      "verified": true,
+      "evidence": {
+        "value": "detectado",
+        "unit": "presencia",
+        "source_url": "https://science.nasa.gov/mars/facts/",
+        "verified": true,
+        "note": "NASA atribuye el color rojizo a la oxidación de minerales de hierro en el suelo. No equivale a hierro metálico puro."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://science.nasa.gov/mars/facts/",
+        "verified": false,
+        "note": "Pendiente: no se asigna porcentaje global ni rendimiento de extracción a partir de esta fuente."
+      },
+      "use": "Investigación de muestras; cualquier uso industrial requiere caracterización y procesamiento.",
+      "extraction": "Concepto de juego pendiente de validación técnica: muestreo localizado, análisis y procesamiento. No se simula producción de metal puro."
+    },
+    {
+      "id": "plagioclase",
+      "name": "Plagioclasa",
+      "location": "Muestra de suelo de Rocknest, cráter Gale",
+      "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+      "verified": true,
+      "evidence": {
+        "value": "detectado",
+        "unit": "presencia",
+        "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+        "verified": true,
+        "note": "CheMin identificó plagioclasa mediante difracción de rayos X en una muestra de suelo de Rocknest."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+        "verified": false,
+        "note": "Pendiente: no se asigna porcentaje global ni rendimiento de extracción a partir de esta fuente."
+      },
+      "use": "Investigación de muestras; cualquier uso industrial requiere caracterización y procesamiento.",
+      "extraction": "Concepto de juego pendiente de validación técnica: muestreo localizado, análisis y procesamiento. No se simula producción de metal puro."
+    },
+    {
+      "id": "pyroxene",
+      "name": "Piroxenos",
+      "location": "Muestra de suelo de Rocknest, cráter Gale",
+      "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+      "verified": true,
+      "evidence": {
+        "value": "detectado",
+        "unit": "presencia",
+        "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+        "verified": true,
+        "note": "CheMin identificó piroxenos. La detección local no permite asignar una concentración global."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+        "verified": false,
+        "note": "Pendiente: no se asigna porcentaje global ni rendimiento de extracción a partir de esta fuente."
+      },
+      "use": "Investigación de muestras; cualquier uso industrial requiere caracterización y procesamiento.",
+      "extraction": "Concepto de juego pendiente de validación técnica: muestreo localizado, análisis y procesamiento. No se simula producción de metal puro."
+    },
+    {
+      "id": "olivine",
+      "name": "Olivino",
+      "location": "Muestra de suelo de Rocknest, cráter Gale",
+      "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+      "verified": true,
+      "evidence": {
+        "value": "detectado",
+        "unit": "presencia",
+        "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+        "verified": true,
+        "note": "CheMin identificó olivino. No demuestra la existencia de grandes cristales ni de una mina rentable."
+      },
+      "abundance": {
+        "value": null,
+        "unit": "% en masa",
+        "source_url": "https://science.nasa.gov/resource/first-chemin-results/",
+        "verified": false,
+        "note": "Pendiente: no se asigna porcentaje global ni rendimiento de extracción a partir de esta fuente."
+      },
+      "use": "Investigación de muestras; cualquier uso industrial requiere caracterización y procesamiento.",
+      "extraction": "Concepto de juego pendiente de validación técnica: muestreo localizado, análisis y procesamiento. No se simula producción de metal puro."
+    }
+  ],
+  "hazards": [
+    {
+      "id": "dust",
+      "name": "Polvo y tormentas de polvo",
+      "value": null,
+      "unit": null,
+      "source_url": "https://science.nasa.gov/mars/facts/",
+      "verified": true,
+      "note": "Presencia cualitativa. La fuente describe tormentas de polvo; no se asigna una tasa universal de desgaste.",
+      "game_effect": {
+        "target": "solar_panels",
+        "text": "Balance pendiente: el polvo puede limitar la generación solar; no se fija aquí un porcentaje de pérdida."
+      }
+    }
+  ],
+  "missions": []
+}

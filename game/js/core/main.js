@@ -2265,23 +2265,11 @@ document.addEventListener('DOMContentLoaded', () => {
       recoverExpedition(error);
     }
   }
+  // cinematic-slides owns prologue/epilogue startup; do not schedule a second intro.
   try {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('prologue')) {
-      setTimeout(() => window.CinematicStorySlides?.openPrologue(), 400);
-    } else if (urlParams.has('epilogue')) {
-      setTimeout(() => window.CinematicStorySlides?.openEpilogue(), 400);
-    } else if (urlParams.has('nasa')) {
+    if (urlParams.has('nasa') && !urlParams.has('prologue') && !urlParams.has('epilogue')) {
       setTimeout(() => window.NasaHudConsole?.open(), 400);
-    } else {
-      // El prólogo solo aparece automáticamente una vez la primera vez que se abre el juego
-      const PROLOGUE_FIRST_KEY = 'odyssey_first_prologue_seen_v1';
-      let seen = false;
-      try { seen = localStorage.getItem(PROLOGUE_FIRST_KEY) === 'seen'; } catch {}
-      if (!seen) {
-        try { localStorage.setItem(PROLOGUE_FIRST_KEY, 'seen'); } catch {}
-        setTimeout(() => window.CinematicStorySlides?.openPrologue(), 700);
-      }
     }
   } catch {}
   requestAnimationFrame(gameLoop);

@@ -2,15 +2,29 @@
   "id": "moon-01-shackleton-ice",
   "planet": "moon",
   "title": "Hielo en Shackleton",
-  "objective": "Extraer hielo de agua del cráter Shackleton y enviar a la Tierra los datos de la extracción.",
+  "objective": "Investigar la viabilidad de extraer hielo de agua en el polo sur lunar y transmitir los resultados a la Tierra.",
   "resource": "water-ice",
-  "target_amount": { "value": 50, "unit": "kg" },
-  "hazards": ["extreme-cold", "radiation", "dust"],
-  "briefing": "BORRADOR (Historia): la Tierra se quedó sin agua dulce suficiente tras años de centros de datos de IA. Tu equipo debe diseñar una nave capaz de llegar al polo sur lunar y traer la primera prueba de que el hielo se puede extraer.",
-  "success_text": "BORRADOR",
+  "target_amount": {
+    "value": 50,
+    "unit": "kg"
+  },
+  "hazards": [
+    "extreme-cold",
+    "radiation",
+    "dust"
+  ],
+  "briefing": "En el futuro ficticio de Génesis, la demanda tecnológica y de IA agotó reservas accesibles de la Tierra. Tu primera misión investiga hielo lunar. Diseña la nave con presupuesto, masa y energía limitados; aterriza cerca de Shackleton, explora con rover y dron y transmite la evidencia. La meta de 50 kg es un objetivo del juego, no una abundancia medida en Shackleton.",
+  "success_text": "Extracción y transmisión completadas. La evidencia permite evaluar el hielo como recurso para agua, oxígeno y propelente tras su procesamiento. Revisa el informe: cuánta energía gastaste, qué masa transportaste y qué decisiones hicieron posible la misión.",
   "failure_texts": {
-    "no_power": "BORRADOR: el frío del cráter agotó la batería antes de terminar la extracción.",
-    "no_downlink": "BORRADOR: extrajiste hielo, pero tu radio no pudo enviar los datos a tiempo.",
-    "overweight": "BORRADOR: la nave no despegó: pesaba más de lo que el lanzador podía llevar."
+    "no_power": "La energía no alcanzó para calentadores, desplazamiento y extracción. Aumenta la reserva de batería o reduce los equipos y el tiempo en sombra. Revisa el balance energético del hangar.",
+    "no_downlink": "La muestra se obtuvo, pero no llegó el reporte. Reserva energía y tiempo de enlace para transmitir: sin datos, el equipo terrestre no puede evaluar la extracción.",
+    "overweight": "La masa total supera lo que admite el lanzador. Reduce carga o elige una capacidad compatible antes de despegar; más instrumentos no siempre mejoran la misión."
+  },
+  "design_guidance": {
+    "budget": "Cada compra reduce el presupuesto disponible. Prioriza equipos que respondan al objetivo científico.",
+    "mass": "Suma estructura, instrumentos, provisiones y carga de retorno. Deben caber dentro del límite del lanzador.",
+    "energy": "Calcula energía para operar, mantener la temperatura y transmitir. La sombra impide depender solamente de paneles solares.",
+    "delta_v": "Δv expresa cuánto puede cambiar la velocidad de la nave. Debe cubrir las maniobras y un margen, no es su velocidad máxima.",
+    "communications": "Extraer sin transmitir deja la misión sin evidencia verificable."
   }
 }
