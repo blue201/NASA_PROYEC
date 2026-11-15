@@ -15,7 +15,7 @@
  async function command(text){
   const query=String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const local=window.JarvisCopilot?.command(text);if(local){status(local);return;}
-  if(!query.trim()){status('Escribe una pregunta o pulsa Hablar con JARVIS.');return;}
+  if(!query.trim()){status('Escribe una pregunta o pulsa Hablar con ATLAS.');return;}
   if(!parse(text).action&&window.JarvisChat&&(/[¿?]/.test(query)||/^(por que|como |que |cual|cuanto|explica|dime|puedes|cuentame|quien)/.test(query))){status('Pensando…');status(await window.JarvisChat.ask(text));return;}
   if(/\b(hola|saludos|buenos dias|buenas noches|estas ahi)\b/.test(query)){status('Hola, comandante. Estoy aquí. Puedo informar sobre tu nave, consultar la gravedad de un planeta o preparar una ruta. ¿Qué necesitas?');return;}
   if(/gracias/.test(query)){status('A tu servicio, comandante.');return;}
@@ -33,11 +33,11 @@
   if(!engine?.isActive||engine.travelShot||engine.cinemaShot||busy||window.missionChallenges?.active){status('Disponible en vuelo libre, fuera de escenas y maniobras.');return;}
   if(p.action==='travel'){if(!p.planet){status('Indica el planeta de destino.');return;}const result=window.PlanetNavigation.go(engine,p.planet);status(result===false?'No puedo iniciar el viaje: revisa combustible, oxígeno y casco.':'Viaje iniciado. Consumiré combustible, oxígeno, agua y comida.');document.getElementById('jarvis-command')?.blur();}
   if(p.action==='scan'){const near=window.ExpeditionSystems.nearest(engine);if(!near||(p.planet&&near.planetKey!==p.planet)){status('Acércate al planeta indicado.');return;}window.ExpeditionApproach.interact(engine);status('Confirma la expedición en la tarjeta del planeta.');}
-  if(p.action==='facts'){const key=p.planet||window.ExpeditionSystems.nearest(engine)?.planetKey;if(!analyzed.has(key)){status('Primero completa el análisis con drones.');return;}status('JARVIS: informe planetario.');await report(key);}
+  if(p.action==='facts'){const key=p.planet||window.ExpeditionSystems.nearest(engine)?.planetKey;if(!analyzed.has(key)){status('Primero completa el análisis con drones.');return;}status('ATLAS: informe planetario.');await report(key);}
  }
  document.addEventListener('DOMContentLoaded',()=>{
   const menu=document.querySelector('#flight-tools .topbar-right');if(!menu)return;
-  const section=document.createElement('details');section.id='jarvis-commands';section.innerHTML='<summary>JARVIS · Asistente</summary><form id="jarvis-form"><input id="jarvis-command" aria-label="Pregunta a JARVIS" placeholder="Hola, JARVIS…" autocomplete="off"><button>Enviar</button></form><button type="button" id="jarvis-listen">Hablar con JARVIS</button><p id="jarvis-status" role="status">Consulta tu nave, un planeta o el clima.</p>';document.body.append(section);
+  const section=document.createElement('details');section.id='jarvis-commands';section.innerHTML='<summary>ATLAS · Asistente</summary><form id="jarvis-form"><input id="jarvis-command" aria-label="Pregunta a ATLAS" placeholder="Hola, ATLAS…" autocomplete="off"><button>Enviar</button></form><button type="button" id="jarvis-listen">Hablar con ATLAS</button><p id="jarvis-status" role="status">Consulta tu nave, un planeta o el clima.</p>';document.body.append(section);
   section.addEventListener('toggle',()=>{if(section.open){const e=window.PlanetNavigation?.getEngine?.();if(e)e.keys={};document.getElementById('jarvis-command').focus();}});
   document.getElementById('jarvis-form').onsubmit=e=>{e.preventDefault();command(document.getElementById('jarvis-command').value);};
   const Speech=window.SpeechRecognition||window.webkitSpeechRecognition,button=document.getElementById('jarvis-listen');

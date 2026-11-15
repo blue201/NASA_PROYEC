@@ -909,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
         telGenScore.className = scoreVal >= 60 ? 'cond-val text-success font-bold' : (scoreVal >= 30 ? 'cond-val text-warning font-bold' : 'cond-val text-danger font-bold');
       }
       if (telGenVerdict) {
-        telGenVerdict.textContent = habData ? habData.verdict : 'Datos espectrográficos procesados por J.A.R.V.I.S.';
+        telGenVerdict.textContent = habData ? habData.verdict : 'Datos espectrográficos procesados por A.T.L.A.S.';
         telGenVerdict.className = 'cond-val text-cyan';
       }
 
@@ -2216,7 +2216,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // JARVIS reference panels do not suspend flight.
+    // ATLAS reference panels do not suspend flight.
     if (window.performanceMonitor) window.performanceMonitor.sample(frameTime, measurementContext());
 
     if (window.adaptiveTutorial) {

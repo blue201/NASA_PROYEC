@@ -327,7 +327,7 @@ body:has(#space-exploration-screen.active) #starfox-radio-box{width:52vw!importa
 @media(max-width:600px){#starfox-radio-box .radio-avatar-frame{flex-basis:82px;width:82px;height:125px}#starfox-radio-box .radio-body{padding:10px}#starfox-radio-box .radio-dialogue-text{font-size:14px}}
 #jarvis-live{width:min(700px,90vw);max-height:82vh;overflow:auto;background:#10232d;color:#e9f7f5;border:1px solid #82b5ad;border-radius:12px;padding:22px;font:15px/1.6 system-ui}#jarvis-live::backdrop{background:#000a}#jarvis-live img{max-width:100%;max-height:50vh;object-fit:contain}#jarvis-live a{display:block;color:#91dfe8}#jarvis-live button{padding:10px;margin:6px;background:#21444c;color:white;border:1px solid #87aaa9;border-radius:5px}
 #jarvis-live{margin:auto}#flight-tools .topbar-right{overflow-x:hidden}body:has(#flight-tools[open]) #expedition-approach{visibility:hidden}#jarvis-commands input{min-width:0}#jarvis-commands summary{white-space:normal}
-/* Planet actions are contextual or accessible through JARVIS, not duplicated. */
+/* Planet actions are contextual or accessible through ATLAS, not duplicated. */
 #flight-tools #orbital-drone-scan,#flight-tools #exploration-map-toggle,#flight-tools #exploration-guide-toggle{display:none!important}
 #planet-curiosity{display:none!important}
 

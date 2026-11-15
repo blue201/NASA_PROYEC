@@ -865,7 +865,7 @@ class SpaceAudioSystem {
           duration = 0.05;
           vol = 0.038;
           break;
-        case 'jarvis': // J.A.R.V.I.S. I.A.: sintetizador armónico cuántico
+        case 'jarvis': // A.T.L.A.S. I.A.: sintetizador armónico cuántico
           baseFreq = 195 + (Math.sin(now * 25) * 20);
           waveType = 'sine';
           filterFreq = 1500;
