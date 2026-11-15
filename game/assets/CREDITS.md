@@ -40,3 +40,8 @@ Montaje, guion y música originales generados para Odyssey. Nave: geometría ya 
 Personajes 3D, geometría, esqueletos simples y animación: creados para este proyecto mediante código; no se usaron cuadros ilustrados como interpretación en las películas V8. Se conservan los retratos anteriores en los paneles de radio.
 Voces activas: Microsoft es-MX-DaliaNeural (Sofía y narradora), es-MX-JorgeNeural y es-ES-AlvaroNeural; generación mediante edge-tts 7.3.1 y archivos WAV incluidos localmente. El audio sigue siendo sintético. El proveedor no es una actriz ni un actor de Marvel/Disney.
 Three.js r128 y OrbitControls r128: MIT, código local obtenido de cdnjs/jsDelivr; repositorio https://github.com/mrdoob/three.js (MIT: https://github.com/mrdoob/three.js/blob/r128/LICENSE).
+
+## Modelos 3D de NASA (`assets/models/nasa/`)
+- `25042_Perseverance.glb`: Mars Perseverance Rover, 3D Model. Crédito: NASA/JPL-Caltech. Origen: https://science.nasa.gov/resource/mars-perseverance-rover-3d-model/ (glTF, descargado el 15 de noviembre de 2026). Modificación: se taparon con el gris del panel el emblema de NASA y el logo de JPL de la textura `arm_graphics` y las letras "NASA" y "JPL" de la textura `mars_2020_03`, porque las reglas del reto no permiten logos de NASA. El resto del modelo no cambia.
+- `25043_Ingenuity_v3.glb`: Mars Ingenuity Helicopter, 3D Model. Crédito: NASA/JPL-Caltech. Origen: https://science.nasa.gov/resource/mars-ingenuity-helicopter-3d-model/ (glTF, descargado el 15 de noviembre de 2026). Sin modificaciones (no trae logos).
+- Uso conforme a las pautas de medios de NASA, citando la fuente. No implica respaldo de NASA ni de JPL al juego.
