@@ -776,10 +776,11 @@
       if(!this.isActive||this.arrival||this.autoLanding||this.surfaceLift||this.landingChallengePending)return;
       const s=window.ExpeditionSystems?.state;
       const depCost=window.NasaPatents?.has('NASA-PAT-9418291')?2:5;
-      if(s&&(!s.operational||s.fuel<depCost)){
-        if(this.returnToSelection){s.fuel=Math.max(s.fuel||0,depCost);s.operational=true;}
-        else{this.landingGuide.textContent=`Despegue requiere ${depCost}% de combustible, oxígeno y casco operativo.`;return;}
-      }
+      // Tras una misión completada ("Explorar otros planetas") se garantiza la reserva mínima para
+      // despegar y hacer un viaje más (5 % + 5 %). Antes se asignaba s.operational, que es solo
+      // lectura (getter): eso lanzaba un error y el botón no hacía nada.
+      if(s&&this.returnToSelection){s.fuel=Math.max(s.fuel||0,depCost+5);s.oxygen=Math.max(s.oxygen||0,2);s.hull=Math.max(s.hull||0,1);}
+      if(s&&(!s.operational||s.fuel<depCost)){this.landingGuide.textContent=`Despegue requiere ${depCost}% de combustible, oxígeno y casco operativo.`;return;}
       if(s){s.fuel-=depCost;s.save();}this.beginArrival();window.EntryFX?.clear(this);if(this.arrivalGlobe){this.arrivalGlobe.visible=false;this.arrivalGlobe.material.opacity=0;}this.arrival.end.copy(this.shipGroup.position);this.arrival.departure=true;this.arrival.yaw=this.cameraYaw||0;this.arrival.cameraStart=this.camera.position.clone();this.arrival.sky=this.scene.background.clone();document.getElementById('surface-exit').hidden=true;document.getElementById('surface-land').hidden=true;document.getElementById('surface-success')?.remove?.();
     }
 
