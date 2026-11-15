@@ -188,6 +188,19 @@
     }
   }
 
+  // Activa la opción al pulsar cualquier parte de la tarjeta.
+  document.addEventListener('click', (event) => {
+    const card = event.target.closest('.hg-choice, .orbital-choice');
+    if (!card || event.target.matches('input[type="radio"]')) return;
+    const input = card.querySelector('input[type="radio"]');
+    if (!input || input.disabled || card.closest('fieldset[disabled]')) return;
+    event.preventDefault();
+    if (!input.checked) {
+      input.checked = true;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
   function onKey(e) {
     e.stopPropagation(); // que las teclas no muevan la nave mientras se diseña
   }

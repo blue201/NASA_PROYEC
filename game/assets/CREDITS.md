@@ -41,6 +41,10 @@ Personajes 3D, geometría, esqueletos simples y animación: creados para este pr
 Voces activas: Microsoft es-MX-DaliaNeural (Sofía y narradora), es-MX-JorgeNeural y es-ES-AlvaroNeural; generación mediante edge-tts 7.3.1 y archivos WAV incluidos localmente. El audio sigue siendo sintético. El proveedor no es una actriz ni un actor de Marvel/Disney.
 Three.js r128 y OrbitControls r128: MIT, código local obtenido de cdnjs/jsDelivr; repositorio https://github.com/mrdoob/three.js (MIT: https://github.com/mrdoob/three.js/blob/r128/LICENSE).
 
+## Dron Assault
+
+`Assault_Drone_Concept.usdz` es el modelo proporcionado para integrar en el proyecto. `Assault_Drone_Concept.glb` es una conversion local para cargarlo con el GLTFLoader ya incluido. Autor, fuente original y licencia de redistribucion del USDZ no estan documentados; verificar antes de distribuir publicamente.
+
 ## Modelos 3D de NASA (`assets/models/nasa/`)
 - `25042_Perseverance.glb`: Mars Perseverance Rover, 3D Model. Crédito: NASA/JPL-Caltech. Origen: https://science.nasa.gov/resource/mars-perseverance-rover-3d-model/ (glTF, descargado el 15 de noviembre de 2026). Modificación: se taparon con el gris del panel el emblema de NASA y el logo de JPL de las texturas `arm_graphics` y `blade`, y las letras "NASA" y "JPL" de la textura `mars_2020_03`, porque las reglas del reto no permiten logos de NASA. El resto del modelo no cambia.
 - `25043_Ingenuity_v3.glb`: Mars Ingenuity Helicopter, 3D Model. Crédito: NASA/JPL-Caltech. Origen: https://science.nasa.gov/resource/mars-ingenuity-helicopter-3d-model/ (glTF, descargado el 15 de noviembre de 2026). Modificación: se taparon con el gris de la placa el emblema de NASA y el logo de JPL de la textura `blade`.

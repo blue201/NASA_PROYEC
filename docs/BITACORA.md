@@ -4,6 +4,41 @@ Registro por fecha de lo hecho y lo decidido. Lo más nuevo va arriba dentro de 
 
 ## 2026-11-15
 
+### Pilotaje del dron centrado y controles de nave
+El dron usa el mismo esquema de pilotaje de la nave principal: avanzar, girar, ajustar altura, acelerar y frenar. Se habilitan tambien las flechas y los botones tactiles de altura; la camara sigue al dron desde atras y lo mantiene centrado.
+
+Se modifica `game/js/multiplayer/cooperative-mission.js` y esta bitacora.
+
+### Paneles minimizables
+Se añade un control minimizar/restaurar a los paneles visuales del HUD, exploración y superficie, incluidos los que se crean durante la partida. Se respetan los diálogos y controles de panel que ya existían.
+
+Se modifica `game/js/multiplayer/cooperative-mission.js` y esta bitacora.
+
+### Panel minero y controles centrados
+El selector y el estado del dron local pasan al centro de la zona inferior, con altura limitada para dejar espacio a los controles. Los controles de altura quedan centrados en una fila común para el pilotaje del dron y de la nave, y se adaptan a pantallas pequeñas.
+
+Se modifica `game/js/multiplayer/cooperative-mission.js` y esta bitacora.
+
+### Tarjetas seleccionables y aviso de minerales
+Las opciones completas del hangar y las respuestas orbitales aceptan clic en toda la tarjeta. Se oculto el panel lateral de ajustes durante las pantallas de juego y se conserva dentro del menu de pausa. La configuracion cooperativa informa que se necesitan al menos cuatro minerales.
+
+Se modifican `game/js/design/hangar.js`, `game/js/multiplayer/cooperative-mission.js` y esta bitacora.
+
+### Despliegue de recolectores y cierre de mision minera
+El modal de aterrizaje ahora ofrece desplegar un dron recolector. En superficie, F activa la recoleccion; el dron retorna y deposita la carga en la nave. El modo local completa la receta con cuatro minerales distintos. En cooperativo, el servidor sincroniza escena, posicion, orientacion y progreso de vuelo del comandante, bloquea el pilotaje de la nave para la tripulacion y habilita su control al desplegar el dron. Al completar la receta, todos reciben una animacion de cierre y el planeta siguiente de la ruta queda desbloqueado cuando corresponde.
+
+Se modifican `game/js/multiplayer/cooperative-mission.js`, `game/server/multiplayer/rooms.cjs`, el README multijugador y esta bitacora.
+
+### HUD de navegacion y acceso cooperativo
+La operacion minera se reduce a un boton compacto encima de Explorar otros mapas y su informacion se despliega bajo demanda. Se quita el panel lateral de navegacion, se centra arriba la distancia, la tarjeta de orbita Expedicion 360 queda centrada al aproximarse, el acceso al hangar pasa al menu de pausa y se ocultan los accesos y modal de la consola NASA en vivo. En multijugador el viaje de navegacion conserva el destino del anfitrion y los participantes siguen su transicion.
+
+Se modifican `game/js/multiplayer/cooperative-mission.js` y esta bitacora.
+
+### Pilotaje manual de drones y deposito de minerales
+La capitana/anfitriona pilota la nave principal hacia el destino de la mision; los demas participantes siguen su viaje. En superficie, cada tripulante controla manualmente un dron Assault (WASD, Q/E, F o boton en pantalla), recoge una unidad del mineral asignado y el dron retorna automaticamente para depositarla. Tras la entrega puede seleccionarse otro material de la receta. El modo local de un jugador ofrece el mismo control, retorno, deposito y seleccion. El USDZ indicado se conserva y se convierte a GLB para el cargador glTF integrado; su licencia queda pendiente de confirmar.
+
+Se modifican `game/js/multiplayer/cooperative-mission.js`, `game/server/multiplayer/rooms.cjs`, el README multijugador, `game/assets/CREDITS.md`, esta bitacora y `docs/PENDIENTES.md`; se añade `game/assets/Assault_Drone_Concept.glb`.
+
 ### Disponibilidad por planeta y sala de espera con retratos
 El selector muestra los materiales recolectables segun el planeta configurado. La validacion del servidor consulta la API planetaria si los JSON no estan montados en el contenedor de juego. Al guardar la receta, el lobby cambia a una sala de espera con miniaturas oficiales de la tripulacion, sus minerales asignados y el inicio reservado al anfitrion.
 

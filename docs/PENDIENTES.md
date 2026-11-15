@@ -15,6 +15,8 @@
 | 11 | Hangar **pasos c y d**, luego archivar `web/` y quitarlo del compose | Datos / común | En curso |
 | 12 | Hacer el repo **público** antes de entregar (cuando Blue diga) | Blue | Esperando |
 
+| 13 | Confirmar autoria y licencia de redistribucion de `game/assets/Assault_Drone_Concept.usdz` antes de distribuir el modelo y su conversion GLB | Equipo / Modelado | Pendiente |
+
 Entrega: **domingo 15 de noviembre de 2026, 17:00** (hora de Honduras).
 
 ### Hangar y prólogo de 15 escenas · 15 de noviembre de 2026

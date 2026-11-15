@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const rooms = new Map();
 const MAX_PLAYERS = 4;
+const NEXT_PLANET_AFTER_MINING = { earth: 'moon', moon: 'mars', mars: 'mercury', mercury: 'venus' };
 const CHARACTERS = {
   sofia: { name: 'Capitana Sofía Parker', role: 'Comandante de misión y astrobióloga' },
   leo: { name: 'Ing. Leo Chen', role: 'Jefe de propulsión y núcleo Warp' },
@@ -84,7 +85,10 @@ function publicRoom(room) {
     phase: room.phase,
     hostId: room.hostId,
     missionComplete: room.missionComplete,
+    unlockedPlanet: room.unlockedPlanet || null,
     objectives: room.objectives.map(objective => ({ ...objective })),
+    travelVersion: room.travelVersion || 0,
+    navigationState: room.navigationState || null,
     manifest: { ...room.manifest },
     players: [...room.players.values()].map(player => ({
       id: player.id,
@@ -130,7 +134,10 @@ function playerFor(room, token) {
 
 function updateMissionComplete(room) {
   room.missionComplete = room.objectives.length === 4 && room.objectives.every(objective => (room.manifest[objective.resourceId] || 0) >= objective.required);
-  if (room.missionComplete) room.phase = 'complete';
+  if (room.missionComplete) {
+    room.phase = 'complete';
+    room.unlockedPlanet ||= NEXT_PLANET_AFTER_MINING[room.planetKey] || null;
+  }
 }
 
 function handle(req, res) {
@@ -161,10 +168,11 @@ function handle(req, res) {
       if (!PLANETS.has(planetKey)) return fail(res, 400, 'Planeta de misión no válido.');
       const character = selectedCharacter(data.characterId);
       if (!character) return fail(res, 400, 'Selecciona un personaje de la tripulación de la historia.');
+      if (character.id !== 'sofia') return fail(res, 400, 'La Capitana Sofía debe crear la sala y pilotar la nave principal.');
       const code = roomCode();
       const playerId = randomUUID();
       const player = { id: playerId, characterId: character.id, name: character.name, role: character.role, lastSeen: now, resourceId: null, resourceName: null, strategy: null, status: 'waiting', cargo: 0, deposited: 0, position: null };
-      const room = { code, planetKey, projectId: null, conditionId: null, phase: 'lobby', hostId: playerId, players: new Map([[playerId, player]]), objectives: [], manifest: Object.create(null), missionComplete: false, updatedAt: now };
+      const room = { code, planetKey, projectId: null, conditionId: null, phase: 'lobby', hostId: playerId, travelVersion: 0, navigationState: null, unlockedPlanet: null, players: new Map([[playerId, player]]), objectives: [], manifest: Object.create(null), missionComplete: false, updatedAt: now };
       rooms.set(code, room);
       return send(res, 201, { room: publicRoom(room), playerId });
     }
@@ -176,6 +184,7 @@ function handle(req, res) {
       if (room.players.size >= MAX_PLAYERS) return fail(res, 409, 'La partida ya tiene cuatro jugadores.');
       const character = selectedCharacter(data.characterId);
       if (!character) return fail(res, 400, 'Selecciona un personaje de la tripulación de la historia.');
+      if (character.id === 'sofia') return fail(res, 409, 'La Capitana Sofía ya está al mando. Selecciona otro tripulante.');
       if ([...room.players.values()].some(player => player.characterId === character.id)) return fail(res, 409, 'Ese personaje ya está elegido por otro participante. Selecciona otro.');
       const playerId = randomUUID();
       room.players.set(playerId, { id: playerId, characterId: character.id, name: character.name, role: character.role, lastSeen: now, resourceId: null, resourceName: null, strategy: null, status: 'waiting', cargo: 0, deposited: 0, position: null });
@@ -233,6 +242,36 @@ function handle(req, res) {
       if ([...room.players.values()].some(participant => !participant.resourceId || participant.status !== 'reserved')) return fail(res, 409, 'Cada participante debe elegir un mineral disponible antes de iniciar.');
       room.phase = 'active';
       return send(res, 200, publicRoom(room));
+    }
+    if (action === 'travel') {
+      if (player.id !== room.hostId) return fail(res, 403, 'Solo la Capitana puede pilotar la nave principal.');
+      if (room.phase !== 'active' || String(data.planetKey || '') !== room.planetKey) return fail(res, 409, 'El destino no coincide con el planeta de la misión activa.');
+      room.travelVersion = (room.travelVersion || 0) + 1;
+      return send(res, 200, publicRoom(room));
+    }
+    if (action === 'navigation') {
+      if (player.id !== room.hostId) return fail(res, 403, 'Solo el comandante puede sincronizar la navegacion.');
+      if (room.phase !== 'active') return fail(res, 409, 'La mision aun no esta activa.');
+      const state = data.state || {}, position = state.position || {}, rotation = state.rotation || {};
+      const scene = String(state.scene || '');
+      const numbers = [position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, state.yaw, state.pitch, state.speed, state.progress, state.distance];
+      if (!['flight', 'landing', 'exploration', 'surface'].includes(scene) || !numbers.every(Number.isFinite)
+        || numbers.some(value => Math.abs(value) > 1_000_000_000)) return fail(res, 400, 'Estado de navegacion no valido.');
+      if (now - (player.navigationAt || 0) < 120) return send(res, 200, { accepted: true });
+      player.navigationAt = now;
+      room.navigationState = {
+        scene,
+        position: { x: position.x, y: position.y, z: position.z },
+        rotation: { x: rotation.x, y: rotation.y, z: rotation.z },
+        yaw: state.yaw,
+        pitch: state.pitch,
+        speed: state.speed,
+        progress: Math.max(0, Math.min(1, state.progress)),
+        distance: Math.max(0, state.distance),
+        planetKey: String(state.planetKey || room.planetKey).slice(0, 32),
+        updatedAt: now,
+      };
+      return send(res, 200, { accepted: true });
     }
     if (action === 'unreserve') {
       if (!['lobby', 'active'].includes(room.phase)) return fail(res, 409, 'La sala ya no permite cambiar reservas.');
