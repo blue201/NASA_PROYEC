@@ -1,5 +1,26 @@
 /* Animated local weather cells and habitat-safe detail clusters. */
 (()=>{
+ // Solo cosas reales (Team Rocket HN): los cuerpos con catálogo aquí no usan las cuevas ni los hitos inventados.
+ // Cada nombre cita su fuente; los detalles con URL van en data/planets/<id>.json.
+ const REAL_CAVES={
+  moon:{label:'Tubo de lava de Marius · pozo real (SELENE/Kaguya, 2009; LRO)',rock:0x5b5852},
+  mars:{label:'Pozos de Arsia Mons · tragaluces de tubos de lava (Mars Odyssey/THEMIS, 2007)',rock:0x6b3a26},
+  // Sin cuevas conocidas: no se dibuja ninguna.
+  mercury:{none:true},venus:{none:true},jupiter:{none:true},saturn:{none:true},uranus:{none:true},neptune:{none:true}
+ };
+ const REAL_LANDMARKS={
+  moon:[],
+  mars:[
+   {type:'geyser',name:'Chorros de CO₂ estacionales · polo sur (MRO/HiRISE)'},
+   {type:'crystals',name:'Esférulas de hematita · Meridiani Planum (Opportunity, 2004)'}
+  ],
+  // Sus sitios reales (MESSENGER, Magellan) están en nasa-ground-points.js.
+  mercury:[],venus:[],
+  // Gigantes gaseosos: no tienen suelo; nada inventado sobre su "superficie".
+  jupiter:[],saturn:[],uranus:[],neptune:[]
+ };
+ // Tierra: se quitan ruinas, naufragio y monolitos inventados; quedan paisajes naturales reales.
+ const EARTH_REAL_TYPES=['geyser','hotspring','oasis'];
  const profiles={earth:{color:0x879aa3,height:280,radius:65,count:2,name:'Tornado',biomes:['Desierto','Pradera']},mars:{color:0xc28152,height:180,radius:38,count:2,name:'Remolino de polvo'},venus:{color:0xc5a45e,height:320,radius:85,count:2,name:'Vórtice de nubes'},jupiter:{color:0xd0ac89,height:480,radius:120,count:2,name:'Ciclón'},saturn:{color:0xddcdb3,height:400,radius:95,count:2,name:'Ciclón'},uranus:{color:0xb5e7f4,height:360,radius:80,count:2,name:'Ventisca'},neptune:{color:0x8bb4f0,height:420,radius:95,count:2,name:'Vórtice helado'}};
  class PlanetPhenomena{
  constructor(e,height){this.e=e;this.height=height;this.time=0;this.cells=[];this.group=new THREE.Group();this.group.name='Fenómenos planetarios';e.scene.add(this.group);this.profile=profiles[e.planetKey];if(this.profile)this.buildStorms();this.buildDetails();}
@@ -147,7 +168,8 @@
   });
  }
  buildVolcanoes(){
-  const e=this.e,hot=e.planetKey==='venus'||e.planetKey==='jupiter'||!!e.ancientEarth||(e.planetKey==='mars');
+  // Marte: sus volcanes están extintos; sin lava ni humo.
+  const e=this.e,hot=e.planetKey==='venus'||e.planetKey==='jupiter'||!!e.ancientEarth;
   if(!hot)return;
   const count=e.planetKey==='venus'?8:e.ancientEarth?6:4;
   const basaltMat=new THREE.MeshStandardMaterial({color:e.planetKey==='mars'?0x5c2f1f:0x2b221e,roughness:.92,flatShading:true});
@@ -221,7 +243,7 @@
   this.group.add(embers);this.embers=embers;this.volcanoSites=positions;this.volcanoSmoke=smoke;
  }
  buildGlaciers(){
-  const e=this.e,cold=['uranus','neptune','saturn'].includes(e.planetKey)||e.planetKey==='earth'||e.planetKey==='mars';
+  const e=this.e,cold=['uranus','neptune','saturn'].includes(e.planetKey)||e.planetKey==='earth'; // Marte: sin lagos de hielo en superficie
   if(!cold)return;
   const isGasGiant=['uranus','neptune','saturn'].includes(e.planetKey);
   const count=isGasGiant?16:10;
@@ -339,7 +361,9 @@
   this.cavernPools=[];
   this.cavernBeacons=[];
   this.cavernWorms=[];
-  const count=key==='earth'?7:5;
+  // Luna: un solo tubo de lava (el pozo real de Marius), sin cuevas inventadas.
+  const real=REAL_CAVES[key];
+  const count=key==='earth'?7:real?(real.none?0:1):5;
   const used=new Set();
 
   // Geometrías compartidas entre todas las cuevas (se crean una sola vez)
@@ -656,6 +680,18 @@
    const light=new THREE.PointLight(prof.glow,1.7,r*4.2,2);
    light.position.set(0,r*.7,0);
    caveGroup.add(light);
+   if(real){
+    // Pozo real de Marius: sin cristales luminosos, balizas ni haces de luz; colores de regolito.
+    rockMat.color.setHex(real.rock);
+    caveGroup.traverse(o=>{
+     if(o===caveGroup)return;
+     if(o.isLight){o.intensity=0;o.visible=false;return;}
+     const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m)return;
+     if(o.isPoints){m.transparent=true;m.opacity=0;o.visible=false;return;}
+     if(m.isMeshBasicMaterial||m===crystalMat||(m.emissive&&m.emissiveIntensity>.5))o.visible=false;
+    });
+    this.cavernSites[this.cavernSites.length-1].name=real.label;
+   }
    this.group.add(caveGroup);
   }
  }
@@ -713,13 +749,16 @@
     {type:'wreck',name:'Sonda Voyager Reencontrada'}
    ]
   };
-  const list=sets[key];
+  // Luna: sin hitos inventados (monolito, módulo abandonado, vena vítrea). Los reales están en nasa-ground-points.js.
+  const list=REAL_LANDMARKS[key]||(key==='earth'?sets.earth.filter(s=>EARTH_REAL_TYPES.includes(s.type)):sets[key]);
   if(!list)return;
 
   const accent={earth:0x38bdf8,mars:0xf97316,moon:0x93c5fd,mercury:0xfb8500,venus:0xd90429,jupiter:0x9333ea,saturn:0x38bdf8,uranus:0x14b8a6,neptune:0x0077b6}[key]||0x38bdf8;
   const rockColor={earth:0x6b7280,mars:0x7a3622,moon:0x444850,mercury:0x36302c,venus:0x3b2419,jupiter:0x4d3866,saturn:0x528fa8,uranus:0x357f7b,neptune:0x1d3557}[key]||0x445566;
   const rockMat=new THREE.MeshStandardMaterial({color:rockColor,roughness:.92,flatShading:true});
   const accentMat=new THREE.MeshStandardMaterial({color:accent,emissive:accent,emissiveIntensity:1.6,roughness:.4,flatShading:true});
+  // Hitos reales: sin brillo, con color de roca (p. ej. esférulas de hematita, gris oscuro).
+  if(REAL_LANDMARKS[key]){accentMat.color.setHex(0x3d3739);accentMat.emissive.setHex(0x000000);accentMat.emissiveIntensity=0;accentMat.roughness=.7;}
   this.materials?.push(rockMat,accentMat);
 
   this.landmarkSites=[];
