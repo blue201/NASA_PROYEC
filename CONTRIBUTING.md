@@ -13,7 +13,7 @@
 ```bash
 git config core.hooksPath .githooks
 ```
-Desde ahí, `git push` a `main` se bloquea con un aviso. GitHub no puede proteger `main` en un repo privado gratis, así que esta regla depende de todos.
+Desde ahí, `git push` a `main` se bloquea con un aviso y `git commit` rechaza mensajes con firma de IA (Co-Authored-By de una IA, "Generated with…"). GitHub no puede proteger `main` en un repo privado gratis, así que esta regla depende de todos.
 
 ## Ramas
 | Rama | Quién | Para qué |
