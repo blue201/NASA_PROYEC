@@ -41,3 +41,11 @@ Se añade data/planets/mars.json con hielo de agua, muestras con minerales de hi
 Adaptación selectiva de Génesis al repositorio del equipo: prólogo de siete escenas (56 segundos sin pausas), misión lunar y explicaciones de presupuesto, masa, energía y comunicaciones. Se mantiene el reproductor CRT existente y se reemplazan las grabaciones con guion obsoleto por la narración del texto vigente. No se importan modelos ni música.
 
 Se elimina el segundo disparador de inicio en main y el prólogo antiguo por radio. Los accesos heredados abren la presentación vigente; una llamada repetida no reinicia una escena activa. Se conservan las marcas de partidas anteriores.
+
+## 2026-11-15 (domingo, día 2)
+
+### Luna primero y planetas reales
+Candado de planetas (Tierra y Luna activas; Marte tras la misión lunar). Se quitaron monumentos, cristales, cuevas y sondas inventadas en todos los planetas; quedan solo cosas reales con fuente: tubo de lava de Marius, pozos de Arsia Mons, chorros de CO₂, esférulas de hematita y los sitios de NASA. Sin estelas de viento ni plasma en cuerpos sin atmósfera. Arreglado "Explorar otros planetas". Modelos de Perseverance e Ingenuity con logos tapados.
+
+### Pruebas que fallan sin ser errores nuevos
+`check-expanded-nasa-apis`, `check-jarvis-chat`, `check-server-routes` y `check-voice-service` necesitan red o llaves (Gemini, api.nasa.gov). Ya fallaban en el Odyssey original.
