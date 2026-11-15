@@ -129,6 +129,25 @@
         return site;
       });
 
+      // Luna: los sitios reales se ven como parte del terreno (sin columna de luz ni anillo
+      // brillante) y llevan su fuente. URLs por verificar por el rol de Datos.
+      if (planetKey === 'moon') {
+        const sources = {
+          'moon:nasa:apollo11': 'https://www.nasa.gov/mission/apollo-11/',
+          'moon:nasa:apollo17': 'https://www.nasa.gov/mission/apollo-17/',
+        };
+        for (const site of this.sites) {
+          site.quiet = true;
+          if (site.beamPoints) site.beamPoints.visible = false;
+          if (site.groundRing) {
+            site.groundRing.material.color.setHex(0x6e6a62);
+            site.groundRing.material.opacity = 0.3;
+          }
+          site.source_url = sources[site.id] || 'https://science.nasa.gov/moon/';
+          if (site.desc && !site.desc.includes('Fuente:')) site.desc += ' Fuente: ' + site.source_url;
+        }
+      }
+
       if (this.radarTag) {
         this.radarTag.style.display = this.sites.length > 0 ? 'block' : 'none';
       }
@@ -245,7 +264,7 @@
         if (site.beamPoints) {
           site.beamPoints.rotation.y += dt * 0.45;
         }
-        if (site.groundRing) {
+        if (site.groundRing && !site.quiet) {
           const pulse = 0.5 + 0.5 * Math.sin(this.time * 2.2);
           site.groundRing.material.opacity = site.discovered ? 0.2 : 0.4 + pulse * 0.4;
         }

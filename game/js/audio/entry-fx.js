@@ -50,7 +50,11 @@
    }
    s=build(e);states.set(k,s);
   }
-  const p=profile(t,!!opts.departure,!!opts.clouded),reduced=typeof matchMedia!=='undefined'&&matchMedia('(prefers-reduced-motion: reduce)').matches;s.time+=dt;
+  const p=profile(t,!!opts.departure,!!opts.clouded);
+  // Sin atmósfera (Luna, Mercurio) no hay plasma: sin estelas ni brasas, solo el retrocohete.
+  const airless=!opts.clouded;if(airless){p.streak=0;p.heat=0;p.flash=0;}
+  s.emberPts.visible=!airless;
+  const reduced=typeof matchMedia!=='undefined'&&matchMedia('(prefers-reduced-motion: reduce)').matches;s.time+=dt;
   const inv=1/(e.shipGroup.scale.x||1);s.group.scale.setScalar(inv);
   s.sheathMat.uniforms.time.value=s.time;s.sheathMat.uniforms.intensity.value=p.heat;s.sheath.visible=s.shock.visible=p.heat>.01;
   s.shock.scale.set(8.8+p.heat*.5,3.2+p.heat*.3,11.2+p.heat*.8);

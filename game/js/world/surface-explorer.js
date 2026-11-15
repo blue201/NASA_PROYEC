@@ -804,7 +804,10 @@
       panel.innerHTML='<h2>Misión completada</h2><p>Aterrizado correctamente en tierra firme. Planeta registrado e investigado con éxito.</p><div><button data-action="explore">Seguir explorando el planeta</button><button data-action="travel">Explorar otros planetas</button></div>';
       document.body.append(panel);panel.showModal();this.keys={};
       panel.querySelector('[data-action="explore"]').onclick=()=>{panel.close();this.beginSurfaceLift();};
-      panel.querySelector('[data-action="travel"]').onclick=()=>{this.returnToSelection=true;this.beginDeparture();if(this.arrival?.departure)panel.close();else{this.returnToSelection=false;panel.querySelector('p').textContent='Para despegar necesitas al menos 5 % de combustible, oxígeno y un casco operativo.';}};
+      panel.querySelector('[data-action="travel"]').onclick=()=>{
+        // Ya en tierra: limpiar estados de llegada/aterrizaje que quedaban activos y bloqueaban el despegue.
+        if(this.landingComplete){if(this.arrival&&!this.arrival.departure)this.arrival=null;this.autoLanding=null;this.surfaceLift=null;this.landingChallengePending=false;}
+        this.returnToSelection=true;this.beginDeparture();if(this.arrival?.departure)panel.close();else{this.returnToSelection=false;panel.querySelector('p').textContent='Para despegar necesitas al menos 5 % de combustible, oxígeno y un casco operativo.';}};
       window.planetNarrator?.speak('Aterrizado correctamente. Misión completada.','jarvis');
       // Si la misión hacia la Tierra o el Cretácico se completa o todos los mundos se exploran, lanzar el epílogo automáticamente
       if((this.planetKey==='earth'||this.ancientEarth)&&window.SecretEarth?.ready?.()){

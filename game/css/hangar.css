@@ -60,3 +60,7 @@
 .hg-moon-img { display: block; text-decoration: none; }
 .hg-moon-img img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; display: block; }
 .hg-moon-img small { display: block; margin-top: 4px; color: #b6cbd9; font-size: 11px; }
+
+/* Candado de planetas (Luna primero) */
+.planet-tab.is-locked { opacity: .45; filter: grayscale(.8); cursor: not-allowed; position: relative; }
+.planet-tab.is-locked::after { content: '🔒'; position: absolute; top: 4px; right: 6px; font-size: 12px; }
