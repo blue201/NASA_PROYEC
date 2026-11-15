@@ -26,7 +26,7 @@
         <div class="nasa-live-container">
           <header class="nasa-live-header">
             <div class="nasa-live-brand">
-              <span class="nasa-meatball-logo">NASA</span>
+              <span class="nasa-meatball-logo">DATOS</span>
               <div>
                 <h2>CONSOLA DE DATOS CIENTÍFICOS EN VIVO</h2>
                 <p>TELEMETRÍA DIRECTA DESDE API.NASA.GOV // ODYSSEY 2084</p>
