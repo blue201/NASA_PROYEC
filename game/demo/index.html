@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odyssey Demo</title>
+<style>
+  :root { --bg: #070d18; --panel: #0f1b2d; --line: #24405c; --text: #e8f1fa; --muted: #9fb3c8; --accent: #5eead4; --warn: #fbbf24; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 18px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .deck { height: 100%; display: grid; place-items: center; padding: 16px; }
+  .slide { display: none; width: min(1100px, 100%); aspect-ratio: 16 / 9; max-height: calc(100vh - 80px); background: radial-gradient(ellipse at top, #13314a, var(--panel) 70%); border: 1px solid var(--line); border-radius: 18px; padding: clamp(18px, 3.5vw, 44px); overflow: hidden; }
+  .slide.on { display: grid; }
+  .two { grid-template-columns: 1fr 1fr; gap: 28px; align-items: center; }
+  .one { align-content: center; }
+  h1 { font-size: clamp(28px, 4.4vw, 52px); margin: 0 0 8px; line-height: 1.1; }
+  h2 { font-size: clamp(22px, 3vw, 36px); margin: 0 0 14px; }
+  p, li { color: var(--muted); font-size: clamp(14px, 1.6vw, 20px); }
+  strong { color: var(--text); }
+  ul { padding-left: 1.1em; margin: 0; } li { margin: 6px 0; }
+  .eyebrow { color: var(--accent); letter-spacing: .14em; font-size: 13px; text-transform: uppercase; margin: 0 0 10px; }
+  img { width: 100%; height: auto; max-height: 100%; object-fit: contain; border-radius: 10px; border: 1px solid var(--line); background: #000; }
+  .stack { display: grid; gap: 12px; }
+  .pill { display: inline-block; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; color: var(--text); margin: 2px 4px 2px 0; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+  .flow span { background: #0b2238; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; color: var(--text); font-size: clamp(13px, 1.4vw, 17px); }
+  a { color: var(--accent); }
+  nav { position: fixed; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; align-items: center; color: var(--muted); font-size: 14px; }
+  nav button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 14px; cursor: pointer; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } .slide { aspect-ratio: auto; max-height: none; } }
+</style>
+</head>
+<body>
+<main class="deck">
+
+  <section class="slide one on" aria-label="Slide 1">
+    <div>
+      <p class="eyebrow">NASA Space Apps Challenge 2026 · Space Mission Design Game · Tegucigalpa</p>
+      <h1>Odyssey: Lunar Mission Designer</h1>
+      <p><strong>Team Rocket HN.</strong> Design a small spacecraft for a real lunar mission, balance budget, mass, energy and Δv, fly it to the Moon's south pole and live with the consequences of every engineering choice.</p>
+      <p>Play it in the browser, no login: <a href="../">blue201.github.io/NASA_PROYEC</a></p>
+      <p><span class="pill">Moon first</span><span class="pill">Real NASA data with sources</span><span class="pill">Decisions with visible consequences</span></p>
+    </div>
+  </section>
+
+  <section class="slide one" aria-label="Slide 2">
+    <div>
+      <p class="eyebrow">The mission</p>
+      <h2>Prove that lunar water ice can be extracted</h2>
+      <p>In our near-future story, the demand of computing has strained Earth's resources. Your team must reach <strong>Shackleton crater</strong>, at the lunar south pole, where permanently shadowed regions hold water ice (LCROSS measured 5.6 ± 2.9 % by mass in Cabeus).</p>
+      <div class="flow"><span>1 · Choose objective</span><span>2 · Design in the hangar</span><span>3 · Launch</span><span>4 · Fly with live resources</span><span>5 · Land at the pole</span><span>6 · Find real deposits</span><span>7 · Unlock Mars</span></div>
+      <p>The game teaches by doing: you make the trade-offs, the game shows the consequences and explains why.</p>
+    </div>
+  </section>
+
+  <section class="slide two" aria-label="Slide 3">
+    <div>
+      <p class="eyebrow">Design phase · the hangar</p>
+      <h2>Every choice costs budget, mass or energy</h2>
+      <ul>
+        <li><strong>Objective, launch vehicle, lunar orbit</strong> and 4 subsystems: power, communications, instrument, propulsion.</li>
+        <li>Size and mass limits from <strong>NASA CubeSat 101</strong> (6U and 12U).</li>
+        <li>Invalid designs <strong>cannot launch</strong>, and the game says why: overweight, over budget, not enough Δv for the orbit, or a power deficit.</li>
+        <li>No single right answer: a low polar orbit gives more science but needs more Δv and shorter contact with Earth.</li>
+      </ul>
+    </div>
+    <img src="img/hangar.jpg" alt="Design hangar showing an overweight 6U design that cannot launch">
+  </section>
+
+  <section class="slide two" aria-label="Slide 4">
+    <div>
+      <p class="eyebrow">Flight · resources in real time</p>
+      <h2>Your design becomes your cockpit</h2>
+      <ul>
+        <li>Starting fuel comes from your Δv margin; battery charge follows the power you generate versus what you consume.</li>
+        <li>Cockpit screens show <strong>energy, fuel, Δv, mass and remaining budget</strong> while you fly.</li>
+        <li><strong>Earth–Moon distance and signal delay</strong> come from the <strong>JPL Horizons API</strong> (≈405,000 km, 1.35 s).</li>
+        <li>The destination card uses real values with sources: gravity, polar crater temperature, ice abundance.</li>
+      </ul>
+    </div>
+    <div class="stack" style="grid-template-columns: 1fr 1fr; display: grid;">
+      <img src="img/cabina.jpg" alt="Cockpit display with energy, fuel, delta-v, mass, budget, distance and signal delay">
+      <img src="img/luna-ficha.jpg" alt="Destination card with real lunar data and a NASA image">
+    </div>
+  </section>
+
+  <section class="slide two" aria-label="Slide 5">
+    <div>
+      <p class="eyebrow">Surface · only real things</p>
+      <h2>Real places, real resources, cited</h2>
+      <ul>
+        <li>We removed every invented monument, crystal and cave. What remains is real: <strong>Marius Hills lava tube pit</strong>, Apollo and Surveyor sites, <strong>water-ice and ilmenite deposits</strong> placed from our data files.</li>
+        <li>Approaching a deposit shows its name and source.</li>
+        <li>On Mars: hematite spherules (Opportunity), seasonal CO₂ jets (MRO/HiRISE), perchlorates (Phoenix), and <strong>Perseverance and Ingenuity</strong> 3D models from NASA 3D Resources (logos covered).</li>
+        <li>Other planets stay <strong>locked until the lunar mission is complete</strong>.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <img src="img/hielo.jpg" alt="Water ice deposit on the lunar surface">
+      <img src="img/perseverance.jpg" alt="Perseverance and Ingenuity 3D models with logos covered">
+    </div>
+  </section>
+
+  <section class="slide one" aria-label="Slide 6">
+    <div>
+      <p class="eyebrow">Data we use</p>
+      <h2>NASA data, validated and cited</h2>
+      <ul>
+        <li><strong>JPL Horizons API</strong>: Earth–Moon distance and light time.</li>
+        <li><strong>NASA Image and Video Library</strong>: lunar south pole and CubeSat imagery, each with its <code>nasa_id</code>.</li>
+        <li><strong>NASA NSSDC fact sheets and NASA Science</strong>: gravity, radius, temperatures, atmospheres.</li>
+        <li><strong>Mission results</strong>: LCROSS, LRO, SELENE/Kaguya, Chang'e 4 LND, Phoenix, MRO/HiRISE, Mars Odyssey/THEMIS, Opportunity, MESSENGER.</li>
+        <li><strong>CubeSat 101</strong> for spacecraft size and mass; <strong>NASA 3D Resources</strong> for Perseverance and Ingenuity.</li>
+      </ul>
+      <p>Every value lives in <code>data/planets/&lt;body&gt;.json</code> with its <code>source_url</code> and a <code>verified</code> flag. Unverified values are marked as pending.</p>
+      <img src="img/candado.jpg" alt="Planet bar with Earth and Moon open and the other planets locked" style="margin-top:10px">
+    </div>
+  </section>
+
+  <section class="slide one" aria-label="Slide 7">
+    <div>
+      <p class="eyebrow">Credits and SI</p>
+      <h2>How we built it</h2>
+      <ul>
+        <li><strong>Team Rocket HN</strong>, Tegucigalpa. Base engine: <strong>Odyssey</strong>, our team's own game, extended during the hackathon with the design hangar, cockpit, real data and planet cleanup.</li>
+        <li><strong>SI (Super Intelligence)</strong>: we used SI assistants (Claude by Anthropic, among others) to write and review code and texts. Every change was reviewed by the team; rules in <code>AGENTS.md</code>, history in <code>docs/BITACORA.md</code>.</li>
+        <li>Open resources: three.js (MIT), Solar System Scope textures (CC BY 4.0), ESO Milky Way (CC BY 4.0), Piper voices. Full list in <code>game/assets/CREDITS.md</code>.</li>
+        <li>Not endorsed by NASA. No NASA logos or branding.</li>
+      </ul>
+      <p>Play: <a href="../">blue201.github.io/NASA_PROYEC</a> · Code: <a href="https://github.com/blue201/NASA_PROYEC">github.com/blue201/NASA_PROYEC</a></p>
+    </div>
+  </section>
+
+</main>
+<nav><button type="button" id="prev">◀</button><span id="count">1 / 7</span><button type="button" id="next">▶</button></nav>
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  const show = (n) => { i = Math.max(0, Math.min(slides.length - 1, n)); slides.forEach((s, k) => s.classList.toggle('on', k === i)); document.getElementById('count').textContent = (i + 1) + ' / ' + slides.length; };
+  document.getElementById('prev').onclick = () => show(i - 1);
+  document.getElementById('next').onclick = () => show(i + 1);
+  addEventListener('keydown', (e) => { if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1); if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1); });
+</script>
+</body>
+</html>
