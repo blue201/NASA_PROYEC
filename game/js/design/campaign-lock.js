@@ -92,8 +92,13 @@
     setInterval(refresh, 1500);
   }
 
-  if (document.readyState === 'complete') install();
-  else window.addEventListener('load', install);
+  // Tras DOMContentLoaded (cuando main.js ya armó la interfaz). No se espera a 'load':
+  // en el sitio publicado algunos recursos tardan o faltan y 'load' puede no llegar nunca.
+  let installed = false;
+  const once = () => { if (!installed) { installed = true; install(); } };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(once, 0));
+  else setTimeout(once, 0);
+  window.addEventListener('load', once);
 
   window.CampaignLock = { isOpen, refresh, moonDone };
 })();
