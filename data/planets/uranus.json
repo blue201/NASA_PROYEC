@@ -1,0 +1,54 @@
+{
+  "id": "uranus",
+  "name": "Urano",
+  "schema_version": 1,
+  "updated_at": "2026-11-15",
+  "notes": "Valores con verified=false los debe confirmar el rol de Datos. Sin fuente no hay número.",
+  "physical": {
+    "gravity": {
+      "value": 8.87,
+      "unit": "m/s²",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranusfact.html",
+      "verified": false
+    },
+    "radius": {
+      "value": 25559,
+      "unit": "km",
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranusfact.html",
+      "verified": false,
+      "note": "radio ecuatorial"
+    }
+  },
+  "resources": [
+    {
+      "id": "h2-he-ch4",
+      "name": "Hidrógeno, helio y metano",
+      "location": "Atmósfera (no hay superficie sólida)",
+      "abundance": {
+        "value": "H₂ 82.5 / He 15.2 / CH₄ 2.3",
+        "unit": "% en volumen",
+        "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranusfact.html",
+        "verified": false,
+        "note": "Composición atmosférica de la hoja de datos de NASA; no es un recurso extraíble en el juego."
+      },
+      "use": "Solo dato científico; sin recolección",
+      "extraction": "No aplica: no hay suelo"
+    }
+  ],
+  "hazards": [
+    {
+      "id": "no-surface",
+      "name": "Sin superficie sólida",
+      "value": null,
+      "unit": null,
+      "source_url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranusfact.html",
+      "verified": false,
+      "game_effect": {
+        "target": "landing",
+        "multiplier": 0,
+        "text": "No se puede aterrizar: solo se observa desde órbita"
+      }
+    }
+  ],
+  "missions": []
+}
