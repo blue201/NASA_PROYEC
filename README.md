@@ -8,6 +8,7 @@ Juego educativo de diseño de misión espacial, hecho por **Team Rocket HN** par
 
 - **Jugar:** https://blue201.github.io/NASA_PROYEC/
 - **Demo (7 diapositivas):** https://blue201.github.io/NASA_PROYEC/demo/
+- **Presentación original (PowerPoint):** https://blue201.github.io/NASA_PROYEC/demo/Mission_Genesis_7_Slides.pptx
 - **Texto de la entrega en inglés:** [docs/SUBMISSION_EN.md](docs/SUBMISSION_EN.md)
 
 ## Cómo colaborar (equipo)
